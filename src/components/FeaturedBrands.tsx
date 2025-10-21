@@ -1,61 +1,50 @@
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
 
 const brands = [
-  { name: "Brand A", logo: "🌟" },
-  { name: "Brand B", logo: "✨" },
-  { name: "Brand C", logo: "💫" },
-  { name: "Brand D", logo: "⭐" },
-  { name: "Brand E", logo: "🌙" },
-  { name: "Brand F", logo: "☀️" },
-  { name: "Brand G", logo: "🔥" },
-  { name: "Brand H", logo: "💎" },
+  { name: "RARA AVIS", logo: "R" },
+  { name: "TWEEDTM", logo: "T" },
+  { name: "LOOM", logo: "L" },
+  { name: "KAVITA", logo: "K" },
+  { name: "GULMOHR", logo: "G" },
+  { name: "INDIGO", logo: "I" },
+  { name: "DARZAA", logo: "D" },
+  { name: "FAE", logo: "F" },
+  { name: "SUAVE", logo: "S" },
+  { name: "KAVERI", logo: "K" },
+  { name: "BLOOM", logo: "B" },
+  { name: "ESSENCE", logo: "E" },
 ];
 
 export const FeaturedBrands = () => {
   return (
-    <section className="py-16 md:py-24">
+    <section className="py-8 md:py-12">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Most Loved Brands</h2>
-          <p className="text-muted-foreground">Shop from premium fashion labels</p>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl md:text-3xl font-bold">Top Brands</h2>
+          <Button variant="ghost" size="sm" className="group">
+            View All
+            <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </Button>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-6">
+        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
           {brands.map((brand, index) => (
             <Card
               key={index}
               className="group cursor-pointer hover:shadow-lg transition-all duration-300 hover:-translate-y-1 aspect-square flex items-center justify-center"
             >
               <div className="text-center p-4">
-                <div className="text-5xl mb-2">{brand.logo}</div>
-                <p className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+                <div className="text-2xl font-bold mb-1 text-muted-foreground group-hover:text-accent transition-colors">
+                  {brand.logo}
+                </div>
+                <p className="text-[10px] font-medium text-muted-foreground">
                   {brand.name}
                 </p>
               </div>
             </Card>
           ))}
-        </div>
-
-        <div className="text-center mt-12">
-          <a
-            href="/brands"
-            className="inline-flex items-center text-sm font-medium hover:text-accent transition-colors"
-          >
-            View All Brands
-            <svg
-              className="ml-2 h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </a>
         </div>
       </div>
     </section>
