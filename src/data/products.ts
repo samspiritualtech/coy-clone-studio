@@ -35,6 +35,95 @@ const getSalePrice = (price: number, hasSale: boolean): number | undefined => {
   return hasSale ? Math.floor(price * 1.4) : undefined;
 };
 
+// Helper function to assign occasions based on product type and category
+const getOccasions = (category: string, productName: string, index: number): string[] => {
+  const occasions: string[] = [];
+  const name = productName.toLowerCase();
+  
+  // Category-based occasion assignments
+  if (category === "dresses") {
+    if (name.includes("evening") || name.includes("gown") || name.includes("formal") || name.includes("cocktail")) {
+      occasions.push("wedding", "party");
+    }
+    if (name.includes("maxi") || name.includes("floral") || name.includes("beach") || name.includes("sundress")) {
+      occasions.push("casual", "vacation");
+    }
+    if (name.includes("midi") || name.includes("shift") || name.includes("bodycon")) {
+      occasions.push("office", "casual");
+    }
+    if (name.includes("printed") || name.includes("bohemian")) {
+      occasions.push("festive", "casual");
+    }
+  }
+  
+  if (category === "tops") {
+    if (name.includes("shirt") || name.includes("blouse")) {
+      occasions.push("office", "casual");
+    }
+    if (name.includes("silk") || name.includes("ruffled") || name.includes("embroidered")) {
+      occasions.push("festive", "party");
+    }
+    if (name.includes("t-shirt") || name.includes("tank") || name.includes("crop")) {
+      occasions.push("casual", "vacation");
+    }
+  }
+  
+  if (category === "bottoms") {
+    if (name.includes("trouser") || name.includes("formal") || name.includes("cigarette")) {
+      occasions.push("office");
+    }
+    if (name.includes("jeans") || name.includes("shorts") || name.includes("casual")) {
+      occasions.push("casual", "vacation");
+    }
+    if (name.includes("palazzo") || name.includes("culottes") || name.includes("wide")) {
+      occasions.push("festive", "casual");
+    }
+  }
+  
+  if (category === "outerwear") {
+    if (name.includes("blazer") || name.includes("formal") || name.includes("professional")) {
+      occasions.push("office", "wedding");
+    }
+    if (name.includes("denim") || name.includes("bomber") || name.includes("utility")) {
+      occasions.push("casual");
+    }
+    if (name.includes("velvet") || name.includes("sequin") || name.includes("embellished")) {
+      occasions.push("party", "festive");
+    }
+  }
+  
+  if (category === "footwear") {
+    if (name.includes("heel") || name.includes("pump") || name.includes("stiletto")) {
+      occasions.push("wedding", "party", "office");
+    }
+    if (name.includes("sneaker") || name.includes("flat") || name.includes("sandal")) {
+      occasions.push("casual", "vacation");
+    }
+    if (name.includes("boot") && (name.includes("ankle") || name.includes("chelsea"))) {
+      occasions.push("office", "casual");
+    }
+  }
+  
+  if (category === "accessories") {
+    if (name.includes("clutch") || name.includes("jewelry") || name.includes("statement")) {
+      occasions.push("wedding", "party", "festive");
+    }
+    if (name.includes("tote") || name.includes("backpack") || name.includes("crossbody")) {
+      occasions.push("casual", "office");
+    }
+    if (name.includes("sunglass") || name.includes("beach") || name.includes("straw")) {
+      occasions.push("vacation", "casual");
+    }
+  }
+  
+  // Ensure every product has at least one occasion
+  if (occasions.length === 0) {
+    occasions.push("casual");
+  }
+  
+  return occasions;
+};
+
 // Common color palettes
 const neutralColors = [
   { name: "Black", hex: "#000000" },
@@ -127,9 +216,10 @@ const generateDresses = (): Product[] => {
     const price = 1499 + Math.floor(Math.random() * 7500);
     const colorPalette = i % 3 === 0 ? vibrantColors : i % 3 === 1 ? pastelColors : neutralColors;
     
+    const productName = `${type} Dress`;
     dresses.push({
       id: generateId("dress", i + 1),
-      name: `${type} Dress`,
+      name: productName,
       brand: getBrand(i),
       price,
       originalPrice: getSalePrice(price, hasSale),
@@ -141,6 +231,7 @@ const generateDresses = (): Product[] => {
       material: i % 4 === 0 ? "100% Cotton" : i % 4 === 1 ? "Polyester blend" : i % 4 === 2 ? "Silk" : "Rayon",
       inStock: isInStock(i),
       tags,
+      occasions: getOccasions("dresses", productName, i),
       rating: getRandomRating(),
       reviews: getRandomReviews()
     });
@@ -181,6 +272,7 @@ const generateTops = (): Product[] => {
       material: i % 5 === 0 ? "100% Cotton" : i % 5 === 1 ? "Polyester" : i % 5 === 2 ? "Silk" : i % 5 === 3 ? "Linen" : "Cotton blend",
       inStock: isInStock(i),
       tags,
+      occasions: getOccasions("tops", type, i),
       rating: getRandomRating(),
       reviews: getRandomReviews()
     });
@@ -221,6 +313,7 @@ const generateBottoms = (): Product[] => {
       material: i % 4 === 0 ? "Denim" : i % 4 === 1 ? "Cotton" : i % 4 === 2 ? "Polyester" : "Viscose",
       inStock: isInStock(i),
       tags,
+      occasions: getOccasions("bottoms", type, i),
       rating: getRandomRating(),
       reviews: getRandomReviews()
     });
@@ -260,6 +353,7 @@ const generateOuterwear = (): Product[] => {
       material: i % 5 === 0 ? "Denim" : i % 5 === 1 ? "Wool blend" : i % 5 === 2 ? "Polyester" : i % 5 === 3 ? "Cotton" : "Leather",
       inStock: isInStock(i),
       tags,
+      occasions: getOccasions("outerwear", type, i),
       rating: getRandomRating(),
       reviews: getRandomReviews()
     });
@@ -300,6 +394,7 @@ const generateFootwear = (): Product[] => {
       material: i % 4 === 0 ? "Genuine Leather" : i % 4 === 1 ? "Synthetic Leather" : i % 4 === 2 ? "Canvas" : "Suede",
       inStock: isInStock(i),
       tags,
+      occasions: getOccasions("footwear", type, i),
       rating: getRandomRating(),
       reviews: getRandomReviews()
     });
@@ -346,6 +441,7 @@ const generateAccessories = (): Product[] => {
       material: i % 5 === 0 ? "Genuine Leather" : i % 5 === 1 ? "Gold-plated" : i % 5 === 2 ? "Silk" : i % 5 === 3 ? "Metal" : "Synthetic",
       inStock: isInStock(i),
       tags,
+      occasions: getOccasions("accessories", type, i),
       rating: getRandomRating(),
       reviews: getRandomReviews()
     });

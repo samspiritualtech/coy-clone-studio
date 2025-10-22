@@ -12,6 +12,7 @@ export interface Product {
   material: string;
   inStock: boolean;
   tags: string[];
+  occasions?: string[];
   rating?: number;
   reviews?: number;
 }

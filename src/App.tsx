@@ -14,6 +14,7 @@ import Auth from "./pages/Auth";
 import Cart from "./pages/Cart";
 import Brands from "./pages/Brands";
 import Occasions from "./pages/Occasions";
+import OccasionDetail from "./pages/OccasionDetail";
 import Stores from "./pages/Stores";
 import Wishlist from "./pages/Wishlist";
 import Search from "./pages/Search";
@@ -38,6 +39,7 @@ const App = () => (
                   <Route path="/product/:id" element={<ProductDetail />} />
                   <Route path="/brands" element={<Brands />} />
                   <Route path="/occasions" element={<Occasions />} />
+                  <Route path="/occasions/:occasionId" element={<OccasionDetail />} />
                   <Route path="/stores" element={<Stores />} />
                   <Route path="/auth" element={<Auth />} />
                   <Route path="/cart" element={<Cart />} />
