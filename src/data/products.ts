@@ -1,388 +1,364 @@
 import { Product } from "@/types";
 
-export const products: Product[] = [
-  // Dresses
-  {
-    id: "dress-1",
-    name: "Floral Maxi Dress",
-    brand: "OGURA",
-    price: 3499,
-    category: "dresses",
-    images: [
-      "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=800",
-      "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=800"
-    ],
-    sizes: ["XS", "S", "M", "L", "XL"],
-    colors: [
-      { name: "Floral Blue", hex: "#4A90E2" },
-      { name: "Floral Pink", hex: "#E91E63" }
-    ],
-    description: "Elegant floral maxi dress perfect for summer occasions",
-    material: "100% Cotton",
-    inStock: true,
-    tags: ["new-arrivals"],
-    rating: 4.5,
-    reviews: 128
-  },
-  {
-    id: "dress-2",
-    name: "Black Cocktail Dress",
-    brand: "ELEGANCE",
-    price: 4999,
-    originalPrice: 7999,
-    category: "dresses",
-    images: [
-      "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=800",
-      "https://images.unsplash.com/photo-1539008835657-9e8e9680c956?w=800"
-    ],
-    sizes: ["S", "M", "L"],
-    colors: [{ name: "Black", hex: "#000000" }],
-    description: "Classic little black dress for evening events",
-    material: "Polyester blend",
-    inStock: true,
-    tags: ["sale"],
-    rating: 4.8,
-    reviews: 245
-  },
-  {
-    id: "dress-3",
-    name: "Summer Midi Dress",
-    brand: "BREEZE",
-    price: 2799,
-    category: "dresses",
-    images: [
-      "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=800"
-    ],
-    sizes: ["XS", "S", "M", "L"],
-    colors: [
-      { name: "Yellow", hex: "#FFC107" },
-      { name: "White", hex: "#FFFFFF" }
-    ],
-    description: "Breezy midi dress for casual summer days",
-    material: "Linen blend",
-    inStock: true,
-    tags: ["new-arrivals"],
-    rating: 4.3,
-    reviews: 89
-  },
+// Helper function to generate product ID
+const generateId = (category: string, index: number): string => {
+  const prefix = category.substring(0, 4);
+  return `${prefix}-${index}`;
+};
+
+// Helper function to get random rating
+const getRandomRating = (): number => {
+  return Number((3.8 + Math.random() * 1.1).toFixed(1));
+};
+
+// Helper function to get random reviews
+const getRandomReviews = (): number => {
+  return Math.floor(15 + Math.random() * 785);
+};
+
+// Helper function to randomly assign tags
+const getRandomTags = (index: number): string[] => {
+  const tags: string[] = [];
+  if (index % 3 === 0) tags.push("sale");
+  if (index % 5 === 0) tags.push("new-arrivals");
+  if (index % 10 === 0) tags.push("trending");
+  return tags;
+};
+
+// Helper function to determine if product is in stock
+const isInStock = (index: number): boolean => {
+  return index % 11 !== 0; // 90% in stock
+};
+
+// Helper function to get sale price
+const getSalePrice = (price: number, hasSale: boolean): number | undefined => {
+  return hasSale ? Math.floor(price * 1.4) : undefined;
+};
+
+// Common color palettes
+const neutralColors = [
+  { name: "Black", hex: "#000000" },
+  { name: "White", hex: "#FFFFFF" },
+  { name: "Beige", hex: "#D2B48C" },
+  { name: "Grey", hex: "#808080" },
+  { name: "Navy", hex: "#000080" }
+];
+
+const vibrantColors = [
+  { name: "Red", hex: "#DC143C" },
+  { name: "Blue", hex: "#2196F3" },
+  { name: "Green", hex: "#4CAF50" },
+  { name: "Yellow", hex: "#FFC107" },
+  { name: "Pink", hex: "#E91E63" }
+];
+
+const pastelColors = [
+  { name: "Powder Blue", hex: "#B0E0E6" },
+  { name: "Blush Pink", hex: "#FFB6C1" },
+  { name: "Mint", hex: "#98FF98" },
+  { name: "Lavender", hex: "#E6E6FA" },
+  { name: "Peach", hex: "#FFDAB9" }
+];
+
+// Brand distribution helper
+const brands = ["OGURA", "ELEGANCE", "LUXE", "URBAN", "CLASSIC", "BREEZE", "DENIM CO", "PROFESSIONAL", "STEPS", "SPORT", "SUMMER", "JEWEL"];
+const getBrand = (index: number): string => {
+  return brands[index % brands.length];
+};
+
+// Unsplash image IDs for variety
+const unsplashImages = {
+  dresses: [
+    "1572804013309-59a88b7e92f1", "1595777457583-95e059d581b8", "1566174053879-31528523f8ae",
+    "1539008835657-9e8e9680c956", "1515372039744-b8f02a3ae446", "1496747611176-843222e1e57c",
+    "1551045920-23ba15b87e72", "1595777216932-96cf2e3d6c7b", "1612336307429-8a898d10e223",
+    "1582418702059-97ebafb35d09", "1617019114583-c7d2e7f05e10", "1617019114784-e5e2e5f05e10"
+  ],
+  tops: [
+    "1618517351616-38fb9c5210c6", "1624206112918-f140f087f9b5", "1594633313593-bab3825d0caf",
+    "1620799140188-3b2a02fd9a77", "1578932750294-f5075e85f44a", "1525507119028-ed4c629a60a3",
+    "1591369822096-ffd140ec948f", "1562157873-175d2f7e3295", "1583744946564-b52ac1c389c8"
+  ],
+  bottoms: [
+    "1541099649105-f69ad21f3246", "1583496661160-fb5886a0aaaa", "1591195853828-11db59a44f6b",
+    "1594633312681-425e7b97ccd3", "1582552938560-c76c25b4d48e", "1509631179647-0177331693ae",
+    "1598554747436-c9293d6a588f", "1624378439575-d1d4d5c5f7b5"
+  ],
+  outerwear: [
+    "1551028719-00167b16eac5", "1591047139829-d91aecb6caea", "1539533018447-63fcce2678e3",
+    "1591047139619-d91aecb6caea", "1578932750294-f5075e85f44a", "1544022613-e87317e7b5cc",
+    "1580657018950-64d5f6619563", "1548624313-b8e6c5c4e6c9"
+  ],
+  footwear: [
+    "1543163521-1bf539c55dd2", "1549298916-b41d501d3772", "1603487742131-4160ec999306",
+    "1608256246200-53e635b5b65f", "1560343090-f0409e92791a", "1605348532760-3e37ce7f6e5b",
+    "1551107696-a348e4b6b0a7", "1605408499393-6e2dcd5b8e5f", "1533867617858-e7b97e060509"
+  ],
+  accessories: [
+    "1584917865442-de89df76afd3", "1599643478518-a784e5dc4c8f", "1601924994987-69e26d50dc26",
+    "1611652022419-a9419a4a0e67", "1590736969955-71cc94901144", "1585856255908-a545f7b2f18a",
+    "1611312449408-fcece27cdbb7", "1607013251379-e6eecfffe234"
+  ]
+};
+
+const getImage = (category: string, index: number): string[] => {
+  const categoryKey = category as keyof typeof unsplashImages;
+  const images = unsplashImages[categoryKey] || unsplashImages.dresses;
+  const imageId = images[index % images.length];
+  return [`https://images.unsplash.com/photo-${imageId}?w=800&q=80`];
+};
+
+// Generate Dresses (110 items)
+const generateDresses = (): Product[] => {
+  const dresses: Product[] = [];
+  const types = [
+    "Floral Maxi", "Bohemian Maxi", "Evening Maxi", "Beach Maxi", "Printed Maxi",
+    "A-line Midi", "Wrap Midi", "Shirt Midi", "Bodycon Midi", "Pleated Midi",
+    "Cocktail Mini", "Party Mini", "Casual Mini", "Denim Mini", "Skater Mini",
+    "Evening Gown", "Cocktail Formal", "Ball Gown", "Formal Midi", "Velvet Formal",
+    "T-shirt Casual", "Sundress", "Shift Casual", "Slip Dress", "Tunic Dress"
+  ];
   
-  // Tops
-  {
-    id: "top-1",
-    name: "White Cotton Shirt",
-    brand: "CLASSIC",
-    price: 1499,
-    category: "tops",
-    images: [
-      "https://images.unsplash.com/photo-1618517351616-38fb9c5210c6?w=800"
-    ],
-    sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-    colors: [
-      { name: "White", hex: "#FFFFFF" },
-      { name: "Blue", hex: "#2196F3" }
-    ],
-    description: "Essential white cotton shirt for any wardrobe",
-    material: "100% Cotton",
-    inStock: true,
-    tags: [],
-    rating: 4.6,
-    reviews: 312
-  },
-  {
-    id: "top-2",
-    name: "Silk Blouse",
-    brand: "LUXE",
-    price: 2899,
-    originalPrice: 4299,
-    category: "tops",
-    images: [
-      "https://images.unsplash.com/photo-1624206112918-f140f087f9b5?w=800"
-    ],
-    sizes: ["S", "M", "L"],
-    colors: [
-      { name: "Champagne", hex: "#F3E5AB" },
-      { name: "Black", hex: "#000000" }
-    ],
-    description: "Luxurious silk blouse for elegant styling",
-    material: "Pure Silk",
-    inStock: true,
-    tags: ["sale"],
-    rating: 4.7,
-    reviews: 156
-  },
-  {
-    id: "top-3",
-    name: "Striped Crop Top",
-    brand: "URBAN",
-    price: 1199,
-    category: "tops",
-    images: [
-      "https://images.unsplash.com/photo-1594633313593-bab3825d0caf?w=800"
-    ],
-    sizes: ["XS", "S", "M", "L"],
-    colors: [
-      { name: "Navy Stripe", hex: "#001f3f" },
-      { name: "Red Stripe", hex: "#FF4136" }
-    ],
-    description: "Trendy striped crop top for casual wear",
-    material: "Cotton Jersey",
-    inStock: true,
-    tags: ["new-arrivals"],
-    rating: 4.2,
-    reviews: 78
-  },
-
-  // Bottoms
-  {
-    id: "bottom-1",
-    name: "High-Waist Jeans",
-    brand: "DENIM CO",
-    price: 2499,
-    category: "bottoms",
-    images: [
-      "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=800"
-    ],
-    sizes: ["26", "28", "30", "32", "34"],
-    colors: [
-      { name: "Dark Blue", hex: "#003366" },
-      { name: "Black", hex: "#000000" }
-    ],
-    description: "Classic high-waist jeans with perfect fit",
-    material: "Denim",
-    inStock: true,
-    tags: [],
-    rating: 4.5,
-    reviews: 423
-  },
-  {
-    id: "bottom-2",
-    name: "Pleated Midi Skirt",
-    brand: "ELEGANCE",
-    price: 1999,
-    originalPrice: 2999,
-    category: "bottoms",
-    images: [
-      "https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?w=800"
-    ],
-    sizes: ["XS", "S", "M", "L"],
-    colors: [
-      { name: "Beige", hex: "#D2B48C" },
-      { name: "Navy", hex: "#000080" }
-    ],
-    description: "Elegant pleated midi skirt for office or events",
-    material: "Polyester",
-    inStock: true,
-    tags: ["sale"],
-    rating: 4.4,
-    reviews: 167
-  },
-  {
-    id: "bottom-3",
-    name: "Leather Shorts",
-    brand: "URBAN",
-    price: 3299,
-    category: "bottoms",
-    images: [
-      "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?w=800"
-    ],
-    sizes: ["XS", "S", "M", "L"],
-    colors: [{ name: "Black", hex: "#000000" }],
-    description: "Edgy leather shorts for bold fashion statements",
-    material: "Faux Leather",
-    inStock: true,
-    tags: ["new-arrivals"],
-    rating: 4.3,
-    reviews: 92
-  },
-
-  // Outerwear
-  {
-    id: "outer-1",
-    name: "Denim Jacket",
-    brand: "CLASSIC",
-    price: 3999,
-    category: "outerwear",
-    images: [
-      "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=800"
-    ],
-    sizes: ["S", "M", "L", "XL"],
-    colors: [
-      { name: "Light Blue", hex: "#87CEEB" },
-      { name: "Dark Blue", hex: "#00008B" }
-    ],
-    description: "Timeless denim jacket for layering",
-    material: "Denim",
-    inStock: true,
-    tags: [],
-    rating: 4.7,
-    reviews: 289
-  },
-  {
-    id: "outer-2",
-    name: "Wool Blazer",
-    brand: "PROFESSIONAL",
-    price: 5999,
-    category: "outerwear",
-    images: [
-      "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=800"
-    ],
-    sizes: ["XS", "S", "M", "L", "XL"],
-    colors: [
-      { name: "Black", hex: "#000000" },
-      { name: "Grey", hex: "#808080" }
-    ],
-    description: "Professional wool blazer for work",
-    material: "Wool blend",
-    inStock: true,
-    tags: ["new-arrivals"],
-    rating: 4.8,
-    reviews: 234
-  },
-
-  // Footwear
-  {
-    id: "foot-1",
-    name: "Classic Heels",
-    brand: "STEPS",
-    price: 2999,
-    category: "footwear",
-    images: [
-      "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=800"
-    ],
-    sizes: ["36", "37", "38", "39", "40"],
-    colors: [
-      { name: "Nude", hex: "#E3BC9A" },
-      { name: "Black", hex: "#000000" }
-    ],
-    description: "Elegant classic heels for any occasion",
-    material: "Synthetic leather",
-    inStock: true,
-    tags: [],
-    rating: 4.4,
-    reviews: 198
-  },
-  {
-    id: "foot-2",
-    name: "White Sneakers",
-    brand: "SPORT",
-    price: 3499,
-    category: "footwear",
-    images: [
-      "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800"
-    ],
-    sizes: ["36", "37", "38", "39", "40", "41"],
-    colors: [
-      { name: "White", hex: "#FFFFFF" },
-      { name: "Off-White", hex: "#F5F5DC" }
-    ],
-    description: "Comfortable white sneakers for everyday wear",
-    material: "Canvas & Rubber",
-    inStock: true,
-    tags: ["new-arrivals"],
-    rating: 4.6,
-    reviews: 567
-  },
-  {
-    id: "foot-3",
-    name: "Strappy Sandals",
-    brand: "SUMMER",
-    price: 1999,
-    originalPrice: 2999,
-    category: "footwear",
-    images: [
-      "https://images.unsplash.com/photo-1603487742131-4160ec999306?w=800"
-    ],
-    sizes: ["36", "37", "38", "39", "40"],
-    colors: [
-      { name: "Tan", hex: "#D2691E" },
-      { name: "Black", hex: "#000000" }
-    ],
-    description: "Stylish strappy sandals for summer",
-    material: "Leather",
-    inStock: true,
-    tags: ["sale"],
-    rating: 4.3,
-    reviews: 145
-  },
-  {
-    id: "foot-4",
-    name: "Ankle Boots",
-    brand: "URBAN",
-    price: 4499,
-    category: "footwear",
-    images: [
-      "https://images.unsplash.com/photo-1608256246200-53e635b5b65f?w=800"
-    ],
-    sizes: ["36", "37", "38", "39", "40"],
-    colors: [{ name: "Black", hex: "#000000" }],
-    description: "Chic ankle boots for fall and winter",
-    material: "Genuine Leather",
-    inStock: true,
-    tags: [],
-    rating: 4.7,
-    reviews: 289
-  },
-
-  // Accessories
-  {
-    id: "acc-1",
-    name: "Leather Handbag",
-    brand: "LUXE",
-    price: 5999,
-    category: "accessories",
-    images: [
-      "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=800"
-    ],
-    sizes: ["One Size"],
-    colors: [
-      { name: "Brown", hex: "#8B4513" },
-      { name: "Black", hex: "#000000" }
-    ],
-    description: "Premium leather handbag with spacious interior",
-    material: "Genuine Leather",
-    inStock: true,
-    tags: ["new-arrivals"],
-    rating: 4.8,
-    reviews: 312
-  },
-  {
-    id: "acc-2",
-    name: "Gold Layered Necklace",
-    brand: "JEWEL",
-    price: 1299,
-    category: "accessories",
-    images: [
-      "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800"
-    ],
-    sizes: ["One Size"],
-    colors: [{ name: "Gold", hex: "#FFD700" }],
-    description: "Delicate layered necklace for everyday elegance",
-    material: "Gold-plated",
-    inStock: true,
-    tags: [],
-    rating: 4.5,
-    reviews: 423
-  },
-  {
-    id: "acc-3",
-    name: "Silk Scarf",
-    brand: "ELEGANCE",
-    price: 999,
-    originalPrice: 1499,
-    category: "accessories",
-    images: [
-      "https://images.unsplash.com/photo-1601924994987-69e26d50dc26?w=800"
-    ],
-    sizes: ["One Size"],
-    colors: [
-      { name: "Multi", hex: "#FF69B4" },
-      { name: "Blue", hex: "#4169E1" }
-    ],
-    description: "Luxurious silk scarf with artistic print",
-    material: "Pure Silk",
-    inStock: true,
-    tags: ["sale"],
-    rating: 4.4,
-    reviews: 167
+  for (let i = 0; i < 110; i++) {
+    const typeIndex = i % types.length;
+    const type = types[typeIndex];
+    const tags = getRandomTags(i);
+    const hasSale = tags.includes("sale");
+    const price = 1499 + Math.floor(Math.random() * 7500);
+    const colorPalette = i % 3 === 0 ? vibrantColors : i % 3 === 1 ? pastelColors : neutralColors;
+    
+    dresses.push({
+      id: generateId("dress", i + 1),
+      name: `${type} Dress`,
+      brand: getBrand(i),
+      price,
+      originalPrice: getSalePrice(price, hasSale),
+      category: "dresses",
+      images: getImage("dresses", i),
+      sizes: ["XS", "S", "M", "L", "XL", "XXL"],
+      colors: [colorPalette[i % colorPalette.length], colorPalette[(i + 1) % colorPalette.length]],
+      description: `Elegant ${type.toLowerCase()} dress perfect for any occasion`,
+      material: i % 4 === 0 ? "100% Cotton" : i % 4 === 1 ? "Polyester blend" : i % 4 === 2 ? "Silk" : "Rayon",
+      inStock: isInStock(i),
+      tags,
+      rating: getRandomRating(),
+      reviews: getRandomReviews()
+    });
   }
+  return dresses;
+};
+
+// Generate Tops (110 items)
+const generateTops = (): Product[] => {
+  const tops: Product[] = [];
+  const types = [
+    "Button-down Shirt", "Oxford Shirt", "Chambray Shirt", "Linen Shirt", "Silk Shirt",
+    "Ruffled Blouse", "Peasant Blouse", "Peplum Blouse", "Tie-neck Blouse", "Wrap Blouse",
+    "Basic T-shirt", "Graphic T-shirt", "V-neck Tee", "Crop Tee", "Oversized Tee",
+    "Cami Crop Top", "Off-shoulder Top", "Halter Top", "Tube Top", "Wrap Crop Top",
+    "Embroidered Tunic", "Printed Tunic", "Flowy Tunic", "Longline Tunic", "Kaftan Top"
+  ];
+  
+  for (let i = 0; i < 110; i++) {
+    const typeIndex = i % types.length;
+    const type = types[typeIndex];
+    const tags = getRandomTags(i);
+    const hasSale = tags.includes("sale");
+    const price = 999 + Math.floor(Math.random() * 4000);
+    const colorPalette = i % 2 === 0 ? neutralColors : vibrantColors;
+    
+    tops.push({
+      id: generateId("tops", i + 1),
+      name: type,
+      brand: getBrand(i),
+      price,
+      originalPrice: getSalePrice(price, hasSale),
+      category: "tops",
+      images: getImage("tops", i),
+      sizes: ["XS", "S", "M", "L", "XL", "XXL"],
+      colors: [colorPalette[i % colorPalette.length], colorPalette[(i + 2) % colorPalette.length]],
+      description: `Stylish ${type.toLowerCase()} for everyday wear`,
+      material: i % 5 === 0 ? "100% Cotton" : i % 5 === 1 ? "Polyester" : i % 5 === 2 ? "Silk" : i % 5 === 3 ? "Linen" : "Cotton blend",
+      inStock: isInStock(i),
+      tags,
+      rating: getRandomRating(),
+      reviews: getRandomReviews()
+    });
+  }
+  return tops;
+};
+
+// Generate Bottoms (110 items)
+const generateBottoms = (): Product[] => {
+  const bottoms: Product[] = [];
+  const types = [
+    "Skinny Jeans", "Straight Jeans", "Wide-leg Jeans", "Boyfriend Jeans", "Mom Jeans",
+    "Formal Trousers", "Culottes", "Palazzo Pants", "Cigarette Pants", "Chinos",
+    "Pencil Skirt", "A-line Skirt", "Pleated Skirt", "Wrap Skirt", "Maxi Skirt",
+    "Denim Shorts", "Tailored Shorts", "Bermuda Shorts", "High-waist Shorts", "Athletic Shorts",
+    "Basic Leggings", "Printed Leggings", "Leather-look Leggings", "High-waist Leggings", "Ankle Leggings"
+  ];
+  
+  for (let i = 0; i < 110; i++) {
+    const typeIndex = i % types.length;
+    const type = types[typeIndex];
+    const isJeans = type.includes("Jeans") || type.includes("Trousers") || type.includes("Chinos");
+    const tags = getRandomTags(i);
+    const hasSale = tags.includes("sale");
+    const price = 1299 + Math.floor(Math.random() * 4700);
+    
+    bottoms.push({
+      id: generateId("bott", i + 1),
+      name: type,
+      brand: getBrand(i),
+      price,
+      originalPrice: getSalePrice(price, hasSale),
+      category: "bottoms",
+      images: getImage("bottoms", i),
+      sizes: isJeans ? ["26", "28", "30", "32", "34", "36"] : ["XS", "S", "M", "L", "XL"],
+      colors: [neutralColors[i % neutralColors.length], neutralColors[(i + 1) % neutralColors.length]],
+      description: `Comfortable ${type.toLowerCase()} for any occasion`,
+      material: i % 4 === 0 ? "Denim" : i % 4 === 1 ? "Cotton" : i % 4 === 2 ? "Polyester" : "Viscose",
+      inStock: isInStock(i),
+      tags,
+      rating: getRandomRating(),
+      reviews: getRandomReviews()
+    });
+  }
+  return bottoms;
+};
+
+// Generate Outerwear (105 items)
+const generateOuterwear = (): Product[] => {
+  const outerwear: Product[] = [];
+  const types = [
+    "Denim Jacket", "Bomber Jacket", "Biker Jacket", "Varsity Jacket", "Utility Jacket",
+    "Classic Blazer", "Oversized Blazer", "Double-breasted Blazer", "Linen Blazer", "Velvet Blazer",
+    "Trench Coat", "Wool Coat", "Pea Coat", "Puffer Coat", "Longline Coat",
+    "Chunky Cardigan", "Longline Cardigan", "Cropped Cardigan", "Belted Cardigan", "Open-front Cardigan",
+    "Leather Jacket"
+  ];
+  
+  for (let i = 0; i < 105; i++) {
+    const typeIndex = i % types.length;
+    const type = types[typeIndex];
+    const tags = getRandomTags(i);
+    const hasSale = tags.includes("sale");
+    const price = 2499 + Math.floor(Math.random() * 10500);
+    
+    outerwear.push({
+      id: generateId("oute", i + 1),
+      name: type,
+      brand: getBrand(i),
+      price,
+      originalPrice: getSalePrice(price, hasSale),
+      category: "outerwear",
+      images: getImage("outerwear", i),
+      sizes: ["XS", "S", "M", "L", "XL", "XXL"],
+      colors: [neutralColors[i % neutralColors.length], neutralColors[(i + 2) % neutralColors.length]],
+      description: `Premium ${type.toLowerCase()} for layering`,
+      material: i % 5 === 0 ? "Denim" : i % 5 === 1 ? "Wool blend" : i % 5 === 2 ? "Polyester" : i % 5 === 3 ? "Cotton" : "Leather",
+      inStock: isInStock(i),
+      tags,
+      rating: getRandomRating(),
+      reviews: getRandomReviews()
+    });
+  }
+  return outerwear;
+};
+
+// Generate Footwear (110 items)
+const generateFootwear = (): Product[] => {
+  const footwear: Product[] = [];
+  const types = [
+    "Classic Pumps", "Stiletto Heels", "Block Heel", "Kitten Heels", "Platform Heels",
+    "Ballet Flats", "Loafers", "Mules", "D'Orsay Flats", "Pointed Flats",
+    "Low-top Sneakers", "High-top Sneakers", "Slip-on Sneakers", "Platform Sneakers", "Chunky Sneakers",
+    "Strappy Sandals", "Flat Sandals", "Wedge Sandals", "Slide Sandals", "Gladiator Sandals",
+    "Ankle Boots", "Knee-high Boots", "Chelsea Boots", "Combat Boots", "Western Boots"
+  ];
+  
+  for (let i = 0; i < 110; i++) {
+    const typeIndex = i % types.length;
+    const type = types[typeIndex];
+    const tags = getRandomTags(i);
+    const hasSale = tags.includes("sale");
+    const price = 1499 + Math.floor(Math.random() * 6500);
+    const colorPalette = i % 2 === 0 ? neutralColors : [...neutralColors.slice(0, 2), { name: "Tan", hex: "#D2691E" }, { name: "Brown", hex: "#8B4513" }];
+    
+    footwear.push({
+      id: generateId("foot", i + 1),
+      name: type,
+      brand: getBrand(i),
+      price,
+      originalPrice: getSalePrice(price, hasSale),
+      category: "footwear",
+      images: getImage("footwear", i),
+      sizes: ["36", "37", "38", "39", "40", "41", "42"],
+      colors: [colorPalette[i % colorPalette.length], colorPalette[(i + 1) % colorPalette.length]],
+      description: `Comfortable ${type.toLowerCase()} for all-day wear`,
+      material: i % 4 === 0 ? "Genuine Leather" : i % 4 === 1 ? "Synthetic Leather" : i % 4 === 2 ? "Canvas" : "Suede",
+      inStock: isInStock(i),
+      tags,
+      rating: getRandomRating(),
+      reviews: getRandomReviews()
+    });
+  }
+  return footwear;
+};
+
+// Generate Accessories (110 items)
+const generateAccessories = (): Product[] => {
+  const accessories: Product[] = [];
+  const types = [
+    "Tote Bag", "Crossbody Bag", "Clutch Bag", "Backpack", "Hobo Bag", "Satchel",
+    "Layered Necklace", "Statement Necklace", "Pendant Necklace", "Choker", "Pearl Necklace",
+    "Hoop Earrings", "Stud Earrings", "Drop Earrings", "Chandelier Earrings", "Ear Cuffs",
+    "Charm Bracelet", "Bangle Set", "Cuff Bracelet", "Chain Bracelet", "Beaded Bracelet",
+    "Statement Ring", "Stackable Rings", "Cocktail Ring", "Band Ring", "Midi Rings",
+    "Silk Scarf", "Pashmina", "Infinity Scarf", "Bandana", "Square Scarf",
+    "Leather Belt", "Chain Belt", "Fabric Belt", "Wide Belt", "Skinny Belt",
+    "Cat-eye Sunglasses", "Aviator Sunglasses", "Round Sunglasses", "Square Sunglasses", "Oversized Sunglasses",
+    "Headband", "Hair Clips", "Scrunchies", "Bobby Pins", "Hair Ties"
+  ];
+  
+  for (let i = 0; i < 110; i++) {
+    const typeIndex = i % types.length;
+    const type = types[typeIndex];
+    const tags = getRandomTags(i);
+    const hasSale = tags.includes("sale");
+    const price = 499 + Math.floor(Math.random() * 9500);
+    const colorPalette = type.includes("Jewelry") || type.includes("Necklace") || type.includes("Earrings") || type.includes("Bracelet") || type.includes("Ring")
+      ? [{ name: "Gold", hex: "#FFD700" }, { name: "Silver", hex: "#C0C0C0" }, { name: "Rose Gold", hex: "#B76E79" }]
+      : neutralColors;
+    
+    accessories.push({
+      id: generateId("acce", i + 1),
+      name: type,
+      brand: getBrand(i),
+      price,
+      originalPrice: getSalePrice(price, hasSale),
+      category: "accessories",
+      images: getImage("accessories", i),
+      sizes: ["One Size"],
+      colors: [colorPalette[i % colorPalette.length]],
+      description: `Stylish ${type.toLowerCase()} to complete your look`,
+      material: i % 5 === 0 ? "Genuine Leather" : i % 5 === 1 ? "Gold-plated" : i % 5 === 2 ? "Silk" : i % 5 === 3 ? "Metal" : "Synthetic",
+      inStock: isInStock(i),
+      tags,
+      rating: getRandomRating(),
+      reviews: getRandomReviews()
+    });
+  }
+  return accessories;
+};
+
+// Combine all products
+export const products: Product[] = [
+  ...generateDresses(),
+  ...generateTops(),
+  ...generateBottoms(),
+  ...generateOuterwear(),
+  ...generateFootwear(),
+  ...generateAccessories()
 ];
