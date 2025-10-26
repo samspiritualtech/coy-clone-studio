@@ -1,8 +1,10 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { brands } from "@/data/brands";
 import { useNavigate } from "react-router-dom";
+import { Instagram } from "lucide-react";
 
 export default function Brands() {
   const navigate = useNavigate();
@@ -18,8 +20,17 @@ export default function Brands() {
             <Card
               key={brand.id}
               onClick={() => navigate(`/brands/${brand.id}`)}
-              className="cursor-pointer group hover:shadow-lg transition-shadow p-6"
+              className="cursor-pointer group hover:shadow-lg transition-shadow p-6 relative"
             >
+              {brand.sellsOnInstagram && (
+                <Badge 
+                  variant="secondary" 
+                  className="absolute top-4 right-4 gap-1 text-xs"
+                >
+                  <Instagram className="h-3 w-3" />
+                  Instagram
+                </Badge>
+              )}
               <div className="aspect-square rounded-lg overflow-hidden bg-muted mb-4">
                 <img
                   src={brand.logo}
@@ -29,7 +40,12 @@ export default function Brands() {
               </div>
               <h3 className="font-bold mb-2">{brand.name}</h3>
               <p className="text-sm text-muted-foreground mb-2">{brand.description}</p>
-              <p className="text-sm font-medium">{brand.productCount} products</p>
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium">{brand.productCount} products</p>
+                {brand.instagramFollowers && (
+                  <p className="text-xs text-muted-foreground">{brand.instagramFollowers} followers</p>
+                )}
+              </div>
             </Card>
           ))}
         </div>

@@ -46,6 +46,9 @@ export interface Brand {
   logo: string;
   description: string;
   productCount: number;
+  instagramHandle?: string;
+  instagramFollowers?: string;
+  sellsOnInstagram?: boolean;
 }
 
 export interface Occasion {
