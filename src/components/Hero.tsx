@@ -10,9 +10,9 @@ export const Hero = () => {
               alt="New in Midseason"
               className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+            <div className="absolute inset-0 instagram-gradient-overlay" />
             <div className="absolute bottom-6 left-6 text-white">
-              <p className="text-sm mb-2">NEW IN MIDSEASON</p>
+              <p className="text-sm mb-2 font-medium tracking-wide">NEW IN MIDSEASON</p>
               <h2 className="text-3xl md:text-4xl font-bold">Shop Now</h2>
             </div>
           </div>
@@ -24,9 +24,9 @@ export const Hero = () => {
               alt="The Best Deals"
               className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+            <div className="absolute inset-0 instagram-gradient-overlay" />
             <div className="absolute bottom-6 left-6 text-white">
-              <p className="text-sm mb-2">THE BEST DEALS</p>
+              <p className="text-sm mb-2 font-medium tracking-wide">THE BEST DEALS</p>
               <h2 className="text-3xl md:text-4xl font-bold">Discover More</h2>
             </div>
           </div>

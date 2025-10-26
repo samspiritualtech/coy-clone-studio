@@ -38,6 +38,12 @@ All colors MUST be HSL.
 
     --radius: 0.75rem;
 
+    /* Instagram gradient colors */
+    --instagram-purple: 276 51% 47%;
+    --instagram-pink: 340 75% 54%;
+    --instagram-orange: 11 90% 61%;
+    --instagram-yellow: 35 97% 63%;
+
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
@@ -84,6 +90,12 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Instagram gradient colors - same in dark mode */
+    --instagram-purple: 276 51% 47%;
+    --instagram-pink: 340 75% 54%;
+    --instagram-orange: 11 90% 61%;
+    --instagram-yellow: 35 97% 63%;
   }
 }
 
@@ -100,5 +112,23 @@ All colors MUST be HSL.
 @layer utilities {
   .hover-scale {
     @apply transition-transform duration-200 hover:scale-105;
+  }
+
+  .instagram-gradient {
+    background: linear-gradient(135deg, 
+      hsl(var(--instagram-purple)) 0%, 
+      hsl(var(--instagram-pink)) 35%, 
+      hsl(var(--instagram-orange)) 70%, 
+      hsl(var(--instagram-yellow)) 100%
+    );
+  }
+
+  .instagram-gradient-overlay {
+    background: linear-gradient(135deg, 
+      hsl(var(--instagram-purple) / 0.9) 0%, 
+      hsl(var(--instagram-pink) / 0.8) 35%, 
+      hsl(var(--instagram-orange) / 0.7) 70%, 
+      hsl(var(--instagram-yellow) / 0.6) 100%
+    );
   }
 }
