@@ -35,6 +35,7 @@ export const Footer = () => {
               <li><a href="/collections" className="text-muted-foreground hover:text-accent transition-colors">All Products</a></li>
               <li><a href="/new" className="text-muted-foreground hover:text-accent transition-colors">New Arrivals</a></li>
               <li><a href="/brands" className="text-muted-foreground hover:text-accent transition-colors">Brands</a></li>
+              <li><a href="/designers" className="text-muted-foreground hover:text-accent transition-colors">Designer Labels</a></li>
               <li><a href="/occasions" className="text-muted-foreground hover:text-accent transition-colors">Occasions</a></li>
               <li><a href="/gift-cards" className="text-muted-foreground hover:text-accent transition-colors">Gift Cards</a></li>
             </ul>

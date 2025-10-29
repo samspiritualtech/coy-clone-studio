@@ -35,6 +35,7 @@ export const Header = () => {
           <nav className="hidden md:flex items-center gap-6">
             <Link to="/collections" className="text-sm font-medium hover:text-accent transition-colors">Shop All</Link>
             <Link to="/brands" className="text-sm font-medium hover:text-accent transition-colors">Brands</Link>
+            <Link to="/designers" className="text-sm font-medium hover:text-accent transition-colors">Designer Labels</Link>
             <Link to="/occasions" className="text-sm font-medium hover:text-accent transition-colors">Occasions</Link>
             <Link to="/collections" className="text-sm font-medium hover:text-accent transition-colors">New Arrivals</Link>
             <Link to="/stores" className="text-sm font-medium hover:text-accent transition-colors">Stores</Link>
@@ -96,6 +97,7 @@ export const Header = () => {
           <nav className="container mx-auto px-4 py-4 flex flex-col gap-3">
             <Link to="/collections" className="text-sm font-medium hover:text-accent transition-colors py-2" onClick={() => setIsMenuOpen(false)}>Shop All</Link>
             <Link to="/brands" className="text-sm font-medium hover:text-accent transition-colors py-2" onClick={() => setIsMenuOpen(false)}>Brands</Link>
+            <Link to="/designers" className="text-sm font-medium hover:text-accent transition-colors py-2" onClick={() => setIsMenuOpen(false)}>Designer Labels</Link>
             <Link to="/occasions" className="text-sm font-medium hover:text-accent transition-colors py-2" onClick={() => setIsMenuOpen(false)}>Occasions</Link>
             <Link to="/stores" className="text-sm font-medium hover:text-accent transition-colors py-2" onClick={() => setIsMenuOpen(false)}>Stores</Link>
           </nav>

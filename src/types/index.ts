@@ -69,3 +69,21 @@ export interface Store {
   mapLink: string;
   whatsapp: string;
 }
+
+export interface Designer {
+  id: string;
+  name: string;
+  brand_name: string;
+  city: string;
+  category: string;
+  price_range: string;
+  instagram_link: string;
+  followers: number;
+  contact_number: string;
+  email: string;
+  profile_image: string;
+  product_images: string[];
+  description: string;
+  created_at?: string;
+  updated_at?: string;
+}

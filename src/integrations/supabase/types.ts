@@ -14,7 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      designers: {
+        Row: {
+          brand_name: string
+          category: string
+          city: string
+          contact_number: string | null
+          created_at: string
+          description: string | null
+          email: string | null
+          followers: number | null
+          id: string
+          instagram_link: string | null
+          name: string
+          price_range: string
+          product_images: Json | null
+          profile_image: string | null
+          updated_at: string
+        }
+        Insert: {
+          brand_name: string
+          category: string
+          city: string
+          contact_number?: string | null
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          followers?: number | null
+          id?: string
+          instagram_link?: string | null
+          name: string
+          price_range: string
+          product_images?: Json | null
+          profile_image?: string | null
+          updated_at?: string
+        }
+        Update: {
+          brand_name?: string
+          category?: string
+          city?: string
+          contact_number?: string | null
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          followers?: number | null
+          id?: string
+          instagram_link?: string | null
+          name?: string
+          price_range?: string
+          product_images?: Json | null
+          profile_image?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
