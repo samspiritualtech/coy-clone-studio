@@ -2,6 +2,8 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { OptimizedImage } from "@/components/OptimizedImage";
+import { DesignerGallery } from "@/components/DesignerGallery";
 import { brands } from "@/data/brands";
 import { products } from "@/data/products";
 import { useParams, useNavigate } from "react-router-dom";
@@ -34,11 +36,13 @@ export default function BrandDetail() {
       <Header />
       <main className="flex-1">
         {/* Hero Section */}
-        <div className="relative h-[300px] md:h-[400px] overflow-hidden">
-          <img
+        <div className="relative h-[300px] md:h-[400px] overflow-hidden bg-muted">
+          <OptimizedImage
             src={brand.logo}
-            alt={brand.name}
-            className="w-full h-full object-cover"
+            alt={`${brand.name} brand`}
+            aspectRatio="aspect-[16/9]"
+            className="h-full"
+            priority
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
         </div>
@@ -57,11 +61,11 @@ export default function BrandDetail() {
             </Button>
 
             <div className="flex flex-col md:flex-row gap-6 items-start">
-              <div className="w-24 h-24 rounded-lg overflow-hidden border-2 border-border flex-shrink-0">
-                <img
+              <div className="w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden border-2 border-border">
+                <OptimizedImage
                   src={brand.logo}
-                  alt={brand.name}
-                  className="w-full h-full object-cover"
+                  alt={`${brand.name} logo`}
+                  aspectRatio="aspect-square"
                 />
               </div>
 
@@ -116,6 +120,16 @@ export default function BrandDetail() {
               </div>
             </div>
           </div>
+
+          {/* Brand Gallery Section */}
+          {brand.galleryImages && brand.galleryImages.length > 0 && (
+            <div className="mb-8">
+              <DesignerGallery 
+                images={brand.galleryImages} 
+                brandName={brand.name} 
+              />
+            </div>
+          )}
 
           {/* Products Section */}
           <div className="mb-8">

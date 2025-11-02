@@ -49,6 +49,7 @@ export interface Brand {
   instagramHandle?: string;
   instagramFollowers?: string;
   sellsOnInstagram?: boolean;
+  galleryImages?: string[];
 }
 
 export interface Occasion {

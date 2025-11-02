@@ -2,6 +2,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { OptimizedImage } from "@/components/OptimizedImage";
 import { brands } from "@/data/brands";
 import { useNavigate } from "react-router-dom";
 import { Instagram } from "lucide-react";
@@ -31,11 +32,12 @@ export default function Brands() {
                   Instagram
                 </Badge>
               )}
-              <div className="aspect-square rounded-lg overflow-hidden bg-muted mb-4">
-                <img
+              <div className="mb-4">
+                <OptimizedImage
                   src={brand.logo}
-                  alt={brand.name}
-                  className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                  alt={`${brand.name} logo`}
+                  aspectRatio="aspect-square"
+                  className="rounded-lg transition-transform group-hover:scale-105"
                 />
               </div>
               <h3 className="font-bold mb-2">{brand.name}</h3>

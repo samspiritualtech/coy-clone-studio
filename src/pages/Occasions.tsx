@@ -1,5 +1,6 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { OptimizedImage } from "@/components/OptimizedImage";
 import { occasions } from "@/data/occasions";
 import { useNavigate } from "react-router-dom";
 
@@ -17,12 +18,14 @@ export default function Occasions() {
             <div
               key={occasion.id}
               onClick={() => navigate(`/occasions/${occasion.id}`)}
-              className="cursor-pointer group relative overflow-hidden rounded-xl aspect-[4/3]"
+              className="cursor-pointer group relative overflow-hidden rounded-xl"
             >
-              <img
+              <OptimizedImage
                 src={occasion.image}
-                alt={occasion.name}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                alt={`${occasion.name} occasion fashion`}
+                aspectRatio="aspect-[4/3]"
+                className="transition-transform duration-500 group-hover:scale-110"
+                priority={occasion.id === "wedding"}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
