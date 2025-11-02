@@ -1,5 +1,6 @@
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useState } from "react";
+import { OptimizedImage } from "@/components/OptimizedImage";
 
 interface DesignerGalleryProps {
   images: string[];
@@ -21,14 +22,14 @@ export const DesignerGallery = ({ images, brandName }: DesignerGalleryProps) => 
           <Dialog key={index}>
             <DialogTrigger asChild>
               <div 
-                className="aspect-square overflow-hidden rounded-lg bg-muted cursor-pointer hover:opacity-90 transition-opacity"
+                className="cursor-pointer hover:opacity-90 transition-opacity"
                 onClick={() => setSelectedImage(image)}
               >
-                <img
+                <OptimizedImage
                   src={image}
                   alt={`${brandName} product ${index + 1}`}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
+                  aspectRatio="aspect-square"
+                  className="rounded-lg"
                 />
               </div>
             </DialogTrigger>
@@ -37,6 +38,7 @@ export const DesignerGallery = ({ images, brandName }: DesignerGalleryProps) => 
                 src={image}
                 alt={`${brandName} product ${index + 1}`}
                 className="w-full h-auto"
+                loading="lazy"
               />
             </DialogContent>
           </Dialog>

@@ -1,3 +1,4 @@
+import { memo, useCallback } from "react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { useFilter } from "@/contexts/FilterContext";
@@ -14,23 +15,23 @@ const filters = [
   { label: "Sale", value: "sale", tag: true },
 ];
 
-export const FilterBar = () => {
+export const FilterBar = memo(() => {
   const { filters: activeFilters, setCategory, toggleTag } = useFilter();
 
-  const handleFilterClick = (filter: typeof filters[0]) => {
+  const handleFilterClick = useCallback((filter: typeof filters[0]) => {
     if (filter.tag) {
       toggleTag(filter.value);
     } else {
       setCategory(filter.value);
     }
-  };
+  }, [setCategory, toggleTag]);
 
-  const isActive = (filter: typeof filters[0]) => {
+  const isActive = useCallback((filter: typeof filters[0]) => {
     if (filter.tag) {
       return activeFilters.tags.includes(filter.value);
     }
     return activeFilters.category === filter.value;
-  };
+  }, [activeFilters]);
 
   return (
     <section className="border-b bg-background sticky top-16 z-40">
@@ -42,7 +43,7 @@ export const FilterBar = () => {
                 key={filter.value}
                 variant={isActive(filter) ? "default" : "outline"}
                 size="sm"
-                className="whitespace-nowrap"
+                className="whitespace-nowrap transition-all duration-150"
                 onClick={() => handleFilterClick(filter)}
               >
                 {filter.label}
@@ -54,4 +55,4 @@ export const FilterBar = () => {
       </div>
     </section>
   );
-};
+});

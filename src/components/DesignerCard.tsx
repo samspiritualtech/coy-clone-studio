@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Instagram, Users } from "lucide-react";
 import { Designer } from "@/types";
 import { useNavigate } from "react-router-dom";
+import { OptimizedImage } from "@/components/OptimizedImage";
 
 interface DesignerCardProps {
   designer: Designer;
@@ -14,13 +15,12 @@ export const DesignerCard = ({ designer }: DesignerCardProps) => {
 
   return (
     <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-      <div className="aspect-square overflow-hidden bg-muted">
-        <img
-          src={designer.profile_image}
-          alt={designer.brand_name}
-          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-        />
-      </div>
+      <OptimizedImage
+        src={designer.profile_image}
+        alt={`${designer.brand_name} - ${designer.name}`}
+        aspectRatio="aspect-square"
+        className="transition-transform duration-300 group-hover:scale-105"
+      />
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-2">
           <div>
