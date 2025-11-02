@@ -1,6 +1,7 @@
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
 import { FilterBar } from "@/components/FilterBar";
+import { Spline3DBackground } from "@/components/Spline3DBackground";
 import { ShopByCategory } from "@/components/ShopByCategory";
 import { ProductGrid } from "@/components/ProductGrid";
 import { FreshDrops } from "@/components/FreshDrops";
@@ -35,10 +36,11 @@ const occasions = [
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
+      <Spline3DBackground />
       <Header />
       <FilterBar />
-      <main>
+      <main className="relative z-10">
         <Hero />
         <ShopByCategory />
         <ProductGrid title="New Skies & Fresh Looks" products={newArrivals} columns={4} />

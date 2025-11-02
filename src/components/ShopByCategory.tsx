@@ -1,4 +1,5 @@
 import { Card } from "@/components/ui/card";
+import { OptimizedImage } from "@/components/OptimizedImage";
 
 const categories = [
   {
@@ -34,10 +35,11 @@ export const ShopByCategory = () => {
               className="group cursor-pointer overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-300"
             >
               <div className="aspect-[3/4] relative overflow-hidden">
-                <img
+                <OptimizedImage
                   src={category.image}
-                  alt={category.name}
+                  alt={`Shop ${category.name} - Fashion Collection`}
                   className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
+                  aspectRatio="aspect-[3/4]"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                 <div className="absolute bottom-4 left-4 text-white">

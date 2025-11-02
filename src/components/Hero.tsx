@@ -1,11 +1,36 @@
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 export const Hero = () => {
   const navigate = useNavigate();
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
-    <section className="py-4 md:py-6">
-      <div className="container mx-auto px-4">
+    <section className="relative py-4 md:py-6 overflow-hidden">
+      {/* Floating Orbs with Parallax */}
+      <div 
+        className="absolute inset-0 pointer-events-none overflow-hidden"
+        style={{ transform: `translateY(${scrollY * 0.3}px)` }}
+      >
+        <div className="absolute top-20 left-[10%] w-64 h-64 bg-primary/20 rounded-full blur-3xl animate-pulse" 
+             style={{ animationDuration: '4s' }} />
+        <div className="absolute top-40 right-[15%] w-80 h-80 bg-accent/20 rounded-full blur-3xl animate-pulse" 
+             style={{ animationDuration: '6s', animationDelay: '1s' }} />
+        <div className="absolute bottom-20 left-[20%] w-72 h-72 bg-secondary/20 rounded-full blur-3xl animate-pulse" 
+             style={{ animationDuration: '5s', animationDelay: '2s' }} />
+        <div className="absolute top-60 right-[25%] w-56 h-56 bg-primary/15 rounded-full blur-3xl animate-pulse" 
+             style={{ animationDuration: '7s', animationDelay: '0.5s' }} />
+      </div>
+
+      <div className="container mx-auto px-4 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Left Hero Banner */}
           <div 
