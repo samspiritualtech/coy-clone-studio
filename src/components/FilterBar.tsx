@@ -15,7 +15,7 @@ const filters = [
   { label: "Sale", value: "sale", tag: true },
 ];
 
-export const FilterBar = memo(() => {
+const FilterBarComponent = () => {
   const { filters: activeFilters, setCategory, toggleTag } = useFilter();
 
   const handleFilterClick = useCallback((filter: typeof filters[0]) => {
@@ -55,4 +55,7 @@ export const FilterBar = memo(() => {
       </div>
     </section>
   );
-});
+};
+
+export const FilterBar = memo(FilterBarComponent);
+FilterBar.displayName = "FilterBar";

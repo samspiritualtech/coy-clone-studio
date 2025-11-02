@@ -20,7 +20,7 @@ interface ProductGridProps {
   showViewAll?: boolean;
 }
 
-const ProductCard = memo(({ 
+const ProductCardComponent = ({ 
   product, 
   productId, 
   inWishlist, 
@@ -32,37 +32,42 @@ const ProductCard = memo(({
   inWishlist: boolean;
   onNavigate: (id: string) => void;
   onWishlistToggle: (e: React.MouseEvent, name: string) => void;
-}) => (
-  <Card
-    onClick={() => productId && onNavigate(productId)}
-    className="group cursor-pointer overflow-hidden border hover:shadow-lg transition-all duration-300"
-  >
-    <OptimizedImage
-      src={product.image}
-      alt={product.name}
-      aspectRatio="aspect-[3/4]"
-      className="transition-transform duration-500 group-hover:scale-105"
-    />
-    <Button
-      variant="secondary"
-      size="icon"
-      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-      onClick={(e) => onWishlistToggle(e, product.name)}
+}) => {
+  return (
+    <Card
+      onClick={() => productId && onNavigate(productId)}
+      className="group cursor-pointer overflow-hidden border hover:shadow-lg transition-all duration-300"
     >
-      <Heart className={`h-4 w-4 ${inWishlist ? 'fill-current' : ''}`} />
-    </Button>
-    <div className="p-3">
-      {product.brand && (
-        <p className="text-xs text-muted-foreground mb-1">{product.brand}</p>
-      )}
-      <h3 className="font-medium text-sm mb-1 line-clamp-2">{product.name}</h3>
-      {product.price && (
-        <p className="text-sm font-semibold">{product.price}</p>
-      )}
-    </div>
-  </Card>
-));
+      <div className="relative">
+        <OptimizedImage
+          src={product.image}
+          alt={product.name}
+          aspectRatio="aspect-[3/4]"
+          className="transition-transform duration-500 group-hover:scale-105"
+        />
+        <Button
+          variant="secondary"
+          size="icon"
+          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+          onClick={(e) => onWishlistToggle(e, product.name)}
+        >
+          <Heart className={`h-4 w-4 ${inWishlist ? 'fill-current' : ''}`} />
+        </Button>
+      </div>
+      <div className="p-3">
+        {product.brand && (
+          <p className="text-xs text-muted-foreground mb-1">{product.brand}</p>
+        )}
+        <h3 className="font-medium text-sm mb-1 line-clamp-2">{product.name}</h3>
+        {product.price && (
+          <p className="text-sm font-semibold">{product.price}</p>
+        )}
+      </div>
+    </Card>
+  );
+};
 
+const ProductCard = memo(ProductCardComponent);
 ProductCard.displayName = "ProductCard";
 
 export const ProductGrid = ({ title, products, columns = 4, showViewAll = true }: ProductGridProps) => {
