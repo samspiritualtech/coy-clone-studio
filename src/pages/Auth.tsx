@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
+import { Spline3DBackground } from "@/components/Spline3DBackground";
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -71,10 +72,11 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col relative">
+      <Spline3DBackground />
       <Header />
-      <main className="flex-1 container mx-auto px-4 py-16 flex items-center justify-center">
-        <Card className="w-full max-w-md">
+      <main className="flex-1 container mx-auto px-4 py-16 flex items-center justify-center relative z-10">
+        <Card className="w-full max-w-md backdrop-blur-md bg-card/80 shadow-2xl border-primary/20">
           <CardHeader>
             <CardTitle>Welcome to Ogura</CardTitle>
             <CardDescription>Sign in to your account or create a new one</CardDescription>
