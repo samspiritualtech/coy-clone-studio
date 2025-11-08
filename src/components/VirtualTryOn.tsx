@@ -1,10 +1,13 @@
 import { useState } from "react";
+import { useVirtualTryOn } from "@/hooks/useVirtualTryOn";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Upload, Sparkles } from "lucide-react";
-import { ModelPresetSelector } from "./ModelPresetSelector";
+import { ImageUploadZone } from "./ImageUploadZone";
+import { ModelGallery } from "./ModelGallery";
 import { TryOnResult } from "./TryOnResult";
-import { useVirtualTryOn } from "@/hooks/useVirtualTryOn";
+import { ModelPreset } from "@/data/modelPresets";
+import { Sparkles } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
 interface VirtualTryOnProps {
@@ -13,197 +16,215 @@ interface VirtualTryOnProps {
   category?: "upper_body" | "lower_body" | "dresses";
 }
 
-export const VirtualTryOn = ({ 
-  productImageUrl, 
+export const VirtualTryOn = ({
+  productImageUrl,
   productName,
-  category = "upper_body" 
+  category,
 }: VirtualTryOnProps) => {
-  const [selectedModelUrl, setSelectedModelUrl] = useState<string | null>(null);
-  const [selectedPresetId, setSelectedPresetId] = useState<string | null>(null);
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [selectedModel, setSelectedModel] = useState<ModelPreset | null>(null);
+  const [showCustomUpload, setShowCustomUpload] = useState(false);
+  const [batchResults, setBatchResults] = useState<string[]>([]);
+  const [currentBatchIndex, setCurrentBatchIndex] = useState(0);
 
-  const { isGenerating, progress, result, generateTryOn, uploadImage, reset } = useVirtualTryOn();
+  const { isGenerating, progress, result, generateTryOn, uploadImage, reset } =
+    useVirtualTryOn();
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Validate file
-    if (!file.type.startsWith('image/')) {
-      toast({
-        title: "Invalid file",
-        description: "Please upload an image file",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (file.size > 10 * 1024 * 1024) {
-      toast({
-        title: "File too large",
-        description: "Please upload an image smaller than 10MB",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setUploadedFile(file);
-    setSelectedPresetId(null);
-    
-    // Create preview URL
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setSelectedModelUrl(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+  const handleModelSelect = (model: ModelPreset) => {
+    setSelectedModel(model);
+    setUploadedFiles([]);
+    setShowCustomUpload(false);
   };
 
-  const handlePresetSelect = (preset: any) => {
-    setSelectedPresetId(preset.id);
-    setSelectedModelUrl(preset.image);
-    setUploadedFile(null);
+  const handleCreateCustom = () => {
+    setShowCustomUpload(true);
+    setSelectedModel(null);
   };
 
   const handleGenerate = async () => {
-    if (!selectedModelUrl) {
+    if (!selectedModel && uploadedFiles.length === 0) {
       toast({
-        title: "Select a model",
-        description: "Please upload your photo or choose a preset model",
+        title: "Selection required",
+        description: "Please upload your photo or select a model",
         variant: "destructive",
       });
       return;
     }
 
-    let modelUrl = selectedModelUrl;
+    // Batch generation for multiple uploads
+    if (uploadedFiles.length > 0) {
+      setBatchResults([]);
+      for (let i = 0; i < uploadedFiles.length; i++) {
+        setCurrentBatchIndex(i + 1);
+        try {
+          const humanImageUrl = await uploadImage(uploadedFiles[i]);
+          const result = await generateTryOn({
+            humanImageUrl,
+            garmentImageUrl: productImageUrl,
+            garmentDescription: productName,
+            category: category || "upper_body",
+          });
 
-    // If user uploaded a file, upload it to storage first
-    if (uploadedFile) {
-      try {
-        modelUrl = await uploadImage(uploadedFile);
-      } catch (error) {
-        toast({
-          title: "Upload failed",
-          description: error instanceof Error ? error.message : "Failed to upload image",
-          variant: "destructive",
-        });
-        return;
+          if (result) {
+            // Save to history
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+              await supabase.from("tryon_history").insert({
+                user_id: user.id,
+                model_image_url: humanImageUrl,
+                product_image_url: productImageUrl,
+                result_image_url: result,
+                model_name: "Custom Upload",
+                product_name: productName,
+              });
+            }
+            setBatchResults((prev) => [...prev, result]);
+          }
+        } catch (error) {
+          console.error("Batch generation error:", error);
+        }
+      }
+      setCurrentBatchIndex(0);
+    } else if (selectedModel) {
+      // Single generation with preset model
+      const result = await generateTryOn({
+        humanImageUrl: selectedModel.image,
+        garmentImageUrl: productImageUrl,
+        garmentDescription: productName,
+        category: category || "upper_body",
+      });
+
+      if (result) {
+        // Save to history
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await supabase.from("tryon_history").insert({
+            user_id: user.id,
+            model_image_url: selectedModel.image,
+            product_image_url: productImageUrl,
+            result_image_url: result,
+            model_name: selectedModel.name,
+            product_name: productName,
+          });
+        }
       }
     }
-
-    await generateTryOn({
-      humanImageUrl: modelUrl,
-      garmentImageUrl: productImageUrl,
-      garmentDescription: productName,
-      category,
-    });
   };
 
   const handleReset = () => {
     reset();
-    setSelectedModelUrl(null);
-    setSelectedPresetId(null);
-    setUploadedFile(null);
+    setUploadedFiles([]);
+    setSelectedModel(null);
+    setShowCustomUpload(false);
+    setBatchResults([]);
+    setCurrentBatchIndex(0);
   };
 
-  if (result) {
-    return <TryOnResult resultImageUrl={result} onReset={handleReset} />;
+  if (result || batchResults.length > 0) {
+    return (
+      <div className="space-y-4">
+        {batchResults.length > 1 ? (
+          <div className="grid grid-cols-2 gap-4">
+            {batchResults.map((resultUrl, index) => (
+              <TryOnResult
+                key={index}
+                resultImageUrl={resultUrl}
+                onReset={handleReset}
+              />
+            ))}
+          </div>
+        ) : (
+          <TryOnResult
+            resultImageUrl={result || batchResults[0]}
+            onReset={handleReset}
+          />
+        )}
+      </div>
+    );
   }
 
   return (
     <div className="space-y-6">
       {/* Upload Section */}
-      <div className="space-y-3">
-        <h3 className="text-sm font-medium">Upload Your Photo</h3>
-        <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
-          <input
-            type="file"
-            id="model-upload"
-            accept="image/jpeg,image/png,image/webp"
-            onChange={handleFileUpload}
-            className="hidden"
-            disabled={isGenerating}
-          />
-          <label htmlFor="model-upload" className="cursor-pointer">
-            {selectedModelUrl && uploadedFile ? (
-              <div className="space-y-2">
-                <img
-                  src={selectedModelUrl}
-                  alt="Uploaded model"
-                  className="w-32 h-48 object-cover rounded-md mx-auto"
-                />
-                <p className="text-sm text-muted-foreground">Click to change</p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <Upload className="w-8 h-8 mx-auto text-muted-foreground" />
-                <div>
-                  <p className="font-medium">Upload your photo</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    JPG, PNG or WEBP (max 10MB)
-                  </p>
-                </div>
-              </div>
-            )}
-          </label>
-        </div>
+      <div>
+        <h3 className="text-lg font-semibold mb-4">Upload Your Photo</h3>
+        <ImageUploadZone
+          onFilesSelected={setUploadedFiles}
+          maxFiles={9}
+          maxSizeMB={20}
+        />
       </div>
 
-      {/* Divider */}
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-border"></div>
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">Or</span>
-        </div>
-      </div>
+      {uploadedFiles.length === 0 && (
+        <>
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                Or choose a model
+              </span>
+            </div>
+          </div>
 
-      {/* Preset Models */}
-      <ModelPresetSelector
-        selectedPreset={selectedPresetId}
-        onSelectPreset={handlePresetSelect}
-      />
-
-      {/* Generate Button */}
-      <Button
-        onClick={handleGenerate}
-        disabled={!selectedModelUrl || isGenerating}
-        className="w-full"
-        size="lg"
-      >
-        {isGenerating ? (
-          <>
-            <Sparkles className="w-4 h-4 mr-2 animate-pulse" />
-            Generating... {Math.round(progress)}%
-          </>
-        ) : (
-          <>
-            <Sparkles className="w-4 h-4 mr-2" />
-            Generate Virtual Try-On
-          </>
-        )}
-      </Button>
-
-      {/* Progress Bar */}
-      {isGenerating && (
-        <div className="space-y-2">
-          <Progress value={progress} className="h-2" />
-          <p className="text-xs text-center text-muted-foreground">
-            {progress < 40 && "Uploading images..."}
-            {progress >= 40 && progress < 95 && "AI is generating your try-on..."}
-            {progress >= 95 && "Almost done!"}
-          </p>
-        </div>
+          {/* Model Gallery */}
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Select a Model</h3>
+            <ModelGallery
+              selectedModelId={selectedModel?.id || null}
+              onSelectModel={handleModelSelect}
+              onCreateCustom={handleCreateCustom}
+            />
+          </div>
+        </>
       )}
 
+      {/* Generate Button */}
+      <div className="space-y-4">
+        <Button
+          onClick={handleGenerate}
+          disabled={
+            isGenerating || (!selectedModel && uploadedFiles.length === 0)
+          }
+          className="w-full h-12 text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+        >
+          {isGenerating ? (
+            <>
+              Generating
+              {currentBatchIndex > 0 && ` (${currentBatchIndex}/${uploadedFiles.length})`}
+              ...
+            </>
+          ) : (
+            <>
+              <Sparkles className="w-5 h-5 mr-2" />
+              Generate Virtual Try-On
+            </>
+          )}
+        </Button>
+
+        {isGenerating && (
+          <div className="space-y-2">
+            <Progress value={progress} className="w-full" />
+            <p className="text-sm text-center text-muted-foreground">
+              {progress < 20 && "Preparing your try-on..."}
+              {progress >= 20 && progress < 40 && "Uploading images..."}
+              {progress >= 40 && progress < 100 && "AI is working its magic..."}
+              {progress === 100 && "Almost ready!"}
+            </p>
+          </div>
+        )}
+      </div>
+
       {/* Tips */}
-      <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-        <p className="text-sm font-medium">Tips for best results:</p>
-        <ul className="text-xs text-muted-foreground space-y-1">
-          <li>• Use a clear, well-lit photo</li>
-          <li>• Stand facing the camera</li>
-          <li>• Wear fitted or neutral clothing</li>
-          <li>• Clear background works best</li>
+      <div className="bg-muted/50 rounded-lg p-4">
+        <p className="text-sm font-semibold mb-2">💡 Tips for best results:</p>
+        <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
+          <li>Use well-lit photos with clear visibility</li>
+          <li>Full body shots work best for dresses and full outfits</li>
+          <li>Stand straight facing the camera</li>
+          <li>Avoid busy backgrounds</li>
+          <li>Upload multiple photos to see different angles</li>
         </ul>
       </div>
     </div>

@@ -68,6 +68,39 @@ export type Database = {
         }
         Relationships: []
       }
+      tryon_history: {
+        Row: {
+          created_at: string | null
+          id: string
+          model_image_url: string
+          model_name: string | null
+          product_image_url: string
+          product_name: string | null
+          result_image_url: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          model_image_url: string
+          model_name?: string | null
+          product_image_url: string
+          product_name?: string | null
+          result_image_url: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          model_image_url?: string
+          model_name?: string | null
+          product_image_url?: string
+          product_name?: string | null
+          result_image_url?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

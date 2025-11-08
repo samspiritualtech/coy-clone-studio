@@ -46,7 +46,6 @@ export const useVirtualTryOn = () => {
   const generateTryOn = async (params: TryOnParams): Promise<string | null> => {
     setIsGenerating(true);
     setProgress(10);
-    setResult(null);
 
     try {
       setProgress(20);
