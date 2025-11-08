@@ -9,6 +9,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { toast } from "@/hooks/use-toast";
 import { useState } from "react";
+import { VirtualTryOnDialog } from "@/components/VirtualTryOnDialog";
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -189,6 +190,11 @@ export default function ProductDetail() {
               <Button onClick={handleBuyNow} variant="secondary" className="w-full" size="lg">
                 Buy Now
               </Button>
+              <VirtualTryOnDialog
+                productImageUrl={product.images[0]}
+                productName={product.name}
+                category={product.category as "upper_body" | "lower_body" | "dresses"}
+              />
             </div>
 
             {/* Delivery Info */}
