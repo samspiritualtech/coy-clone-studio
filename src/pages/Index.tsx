@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/Hero";
 import { FilterBar } from "@/components/FilterBar";
@@ -10,8 +9,8 @@ import { CertificateSection } from "@/components/CertificateSection";
 import { FeaturedBrands } from "@/components/FeaturedBrands";
 import { GiftCardSection } from "@/components/GiftCardSection";
 import { StoreLocator } from "@/components/StoreLocator";
+import { LaunchStudio } from "@/components/LaunchStudio";
 import { Footer } from "@/components/Footer";
-import { Welcome } from "@/components/Welcome";
 
 const newArrivals = [
   { name: "Embroidered Kurta", brand: "OGURA", price: "₹3,499", image: "https://images.unsplash.com/photo-1583391265196-53c5e5e92b0d?w=400&q=80" },
@@ -37,12 +36,6 @@ const occasions = [
 ];
 
 const Index = () => {
-  const [showWelcome, setShowWelcome] = useState(true);
-
-  if (showWelcome) {
-    return <Welcome />;
-  }
-
   return (
     <div className="min-h-screen bg-background relative">
       <Spline3DBackground />
@@ -60,6 +53,7 @@ const Index = () => {
         <GiftCardSection />
         <StoreLocator />
       </main>
+      <LaunchStudio />
       <Footer />
     </div>
   );
