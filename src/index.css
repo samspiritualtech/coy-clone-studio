@@ -44,6 +44,9 @@ All colors MUST be HSL.
     --instagram-orange: 11 90% 61%;
     --instagram-yellow: 35 97% 63%;
 
+    /* OGURA brand colors */
+    --ogura-red: 0 84% 60%;
+
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
@@ -139,5 +142,20 @@ All colors MUST be HSL.
       rgba(0, 0, 0, 0.3) 30%,
       rgba(0, 0, 0, 0) 60%
     );
+  }
+
+  .fade-out {
+    animation: fadeOut 0.5s ease-out forwards;
+  }
+
+  @keyframes fadeOut {
+    from {
+      opacity: 1;
+      transform: scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: scale(0.95);
+    }
   }
 }
