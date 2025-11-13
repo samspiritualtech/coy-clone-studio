@@ -5,6 +5,7 @@ import { Spline3DBackground } from "@/components/Spline3DBackground";
 import { ShopByCategory } from "@/components/ShopByCategory";
 import { ProductGrid } from "@/components/ProductGrid";
 import { FreshDrops } from "@/components/FreshDrops";
+import { RewardGame } from "@/components/RewardGame";
 import { CertificateSection } from "@/components/CertificateSection";
 import { FeaturedBrands } from "@/components/FeaturedBrands";
 import { GiftCardSection } from "@/components/GiftCardSection";
@@ -46,6 +47,7 @@ const Index = () => {
         <ShopByCategory />
         <ProductGrid title="New Skies & Fresh Looks" products={newArrivals} columns={4} />
         <FreshDrops />
+        <RewardGame />
         <ProductGrid title="Shop by Occasion" products={occasions} columns={4} showViewAll={false} />
         <ProductGrid title="Best Sellers" products={bestSellers} columns={6} />
         <CertificateSection />
