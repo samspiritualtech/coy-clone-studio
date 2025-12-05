@@ -4,10 +4,21 @@ import { ProductGrid } from "@/components/ProductGrid";
 import { Footer } from "@/components/Footer";
 import { products } from "@/data/products";
 import { useFilter } from "@/contexts/FilterContext";
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 
 export default function Collections() {
-  const { filters } = useFilter();
+  const { filters, setCategory } = useFilter();
+  const [searchParams] = useSearchParams();
+
+  // Sync URL category parameter with filter context
+  useEffect(() => {
+    const categoryParam = searchParams.get("category");
+    if (categoryParam) {
+      const formattedCategory = categoryParam.charAt(0).toUpperCase() + categoryParam.slice(1);
+      setCategory(formattedCategory);
+    }
+  }, [searchParams, setCategory]);
 
   const filteredProducts = useMemo(() => {
     let result = [...products];
