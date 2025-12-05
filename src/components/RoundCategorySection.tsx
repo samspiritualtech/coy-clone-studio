@@ -4,7 +4,7 @@ const categories = [
   {
     name: "Kurta Sets",
     slug: "kurta-sets",
-    image: "https://images.unsplash.com/photo-1583391265196-53c5e5e92b0d?w=400&q=80",
+    image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=400&q=80",
   },
   {
     name: "Sherwanis",
