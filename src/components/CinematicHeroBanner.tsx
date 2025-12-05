@@ -74,10 +74,23 @@ export const CinematicHeroBanner = () => {
       {/* Content Container */}
       <div className="relative h-full container mx-auto px-4 flex items-center">
         <div className="max-w-2xl lg:max-w-3xl animate-fade-up">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-2 mb-6">
-            <Sparkles className="w-4 h-4 text-primary" />
-            <span className="text-white/90 text-sm font-medium">New Collection 2024</span>
+          {/* Badges Container */}
+          <div className="flex flex-wrap items-center gap-3 mb-6">
+            {/* New Collection Badge */}
+            <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-2">
+              <Sparkles className="w-4 h-4 text-primary" />
+              <span className="text-white/90 text-sm font-medium">New Collection 2025</span>
+            </div>
+            
+            {/* New Year Sale Badge */}
+            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-red-500/90 to-orange-500/90 backdrop-blur-md border border-white/20 rounded-full px-4 py-2 animate-pulse">
+              <span className="text-white text-sm font-bold">🎉 NEW YEAR SALE</span>
+            </div>
+          </div>
+
+          {/* Floating Discount Badge */}
+          <div className="absolute top-4 right-4 lg:top-8 lg:right-8 bg-red-500 text-white px-4 py-2 rounded-lg font-bold text-sm lg:text-lg transform rotate-3 shadow-lg animate-bounce z-20">
+            UP TO 50% OFF
           </div>
 
           {/* Main Title */}
@@ -88,7 +101,7 @@ export const CinematicHeroBanner = () => {
 
           {/* Subtitle */}
           <p className="text-lg sm:text-xl lg:text-2xl text-white/80 mb-8 max-w-xl leading-relaxed">
-            Premium fashion for the modern woman. Discover elegance in every detail.
+            Premium fashion for the modern woman. Celebrate 2025 with exclusive New Year deals!
           </p>
 
           {/* CTA Buttons */}
