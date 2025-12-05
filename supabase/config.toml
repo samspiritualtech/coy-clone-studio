@@ -2,3 +2,6 @@ project_id = "yudzgkrjsstqbfrrrrly"
 
 [functions.virtual-tryon]
 verify_jwt = false
+
+[functions.generate-banner-image]
+verify_jwt = false

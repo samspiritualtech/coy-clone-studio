@@ -1,8 +1,8 @@
 import { Header } from "@/components/Header";
-import { Hero } from "@/components/Hero";
+import { CinematicHeroBanner } from "@/components/CinematicHeroBanner";
+import { RoundCategorySection } from "@/components/RoundCategorySection";
 import { FilterBar } from "@/components/FilterBar";
 import { Spline3DBackground } from "@/components/Spline3DBackground";
-import { ShopByCategory } from "@/components/ShopByCategory";
 import { ProductGrid } from "@/components/ProductGrid";
 import { FreshDrops } from "@/components/FreshDrops";
 import { RewardGame } from "@/components/RewardGame";
@@ -43,8 +43,8 @@ const Index = () => {
       <Header />
       <FilterBar />
       <main className="relative z-10">
-        <Hero />
-        <ShopByCategory />
+        <CinematicHeroBanner />
+        <RoundCategorySection />
         <ProductGrid title="New Skies & Fresh Looks" products={newArrivals} columns={4} />
         <FreshDrops />
         <RewardGame />
