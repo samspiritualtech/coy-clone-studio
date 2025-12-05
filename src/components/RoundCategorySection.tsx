@@ -4,32 +4,32 @@ const categories = [
   {
     name: "Kurta Sets",
     slug: "kurta-sets",
-    image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=400&q=80",
+    image: "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=400&q=80",
   },
   {
     name: "Sherwanis",
     slug: "sherwanis",
-    image: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=400&q=80",
+    image: "https://images.unsplash.com/photo-1617137968427-85924c800a22?w=400&q=80",
   },
   {
     name: "Nehru Jackets",
     slug: "nehru-jackets",
-    image: "https://images.unsplash.com/photo-1593030761757-71fae45fa0e7?w=400&q=80",
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80",
   },
   {
     name: "Bandhgalas",
     slug: "bandhgalas",
-    image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=400&q=80",
+    image: "https://images.unsplash.com/photo-1608234808654-2a8875faa7fd?w=400&q=80",
   },
   {
     name: "Suits & Tuxedos",
     slug: "suits-tuxedos",
-    image: "https://images.unsplash.com/photo-1594938328870-9623159c8c99?w=400&q=80",
+    image: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=400&q=80",
   },
   {
     name: "Co-Ord Sets",
     slug: "co-ord-sets",
-    image: "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400&q=80",
+    image: "https://images.unsplash.com/photo-1592878904946-b3cd8ae243d0?w=400&q=80",
   },
 ];
 

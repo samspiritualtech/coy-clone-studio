@@ -103,9 +103,8 @@ export const CinematicHeroBanner = () => {
             </Button>
             <Button
               size="lg"
-              variant="outline"
               onClick={() => navigate("/collections?category=new-arrivals")}
-              className="border-white/30 text-white hover:bg-white/10 px-8 py-6 text-lg font-semibold backdrop-blur-sm"
+              className="bg-black hover:bg-black/90 text-white border-black px-8 py-6 text-lg font-semibold"
             >
               Explore New Arrivals
             </Button>
