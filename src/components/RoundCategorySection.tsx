@@ -2,34 +2,34 @@ import { RoundCategoryCard } from "./RoundCategoryCard";
 
 const categories = [
   {
-    name: "Kurta Sets",
-    slug: "kurta-sets",
-    image: "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=400&q=80",
+    name: "Dresses",
+    slug: "dresses",
+    image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=400&q=80",
   },
   {
-    name: "Sherwanis",
-    slug: "sherwanis",
-    image: "https://images.unsplash.com/photo-1617137968427-85924c800a22?w=400&q=80",
+    name: "Tops",
+    slug: "tops",
+    image: "https://images.unsplash.com/photo-1618517351616-38fb9c5210c6?w=400&q=80",
   },
   {
-    name: "Nehru Jackets",
-    slug: "nehru-jackets",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80",
+    name: "Bottoms",
+    slug: "bottoms",
+    image: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=400&q=80",
   },
   {
-    name: "Bandhgalas",
-    slug: "bandhgalas",
-    image: "https://images.unsplash.com/photo-1608234808654-2a8875faa7fd?w=400&q=80",
+    name: "Outerwear",
+    slug: "outerwear",
+    image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400&q=80",
   },
   {
-    name: "Suits & Tuxedos",
-    slug: "suits-tuxedos",
-    image: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=400&q=80",
+    name: "Footwear",
+    slug: "footwear",
+    image: "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=400&q=80",
   },
   {
-    name: "Co-Ord Sets",
-    slug: "co-ord-sets",
-    image: "https://images.unsplash.com/photo-1592878904946-b3cd8ae243d0?w=400&q=80",
+    name: "Accessories",
+    slug: "accessories",
+    image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=400&q=80",
   },
 ];
 

@@ -27,7 +27,7 @@ export const RoundCategoryCard = ({ name, image, slug }: RoundCategoryCardProps)
           <Skeleton className="absolute inset-0 rounded-full" />
         )}
         <img
-          src={imageError ? `https://images.unsplash.com/photo-1617137968427-85924c800a22?w=400&q=80` : image}
+          src={imageError ? `https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80` : image}
           alt={name}
           className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 ${
             imageLoaded ? "opacity-100" : "opacity-0"
