@@ -56,11 +56,11 @@ export const LoveOguraSection = () => {
                 tabIndex={0}
                 aria-label={`View ${video.caption}`}
               >
-                {/* Image */}
+                {/* Image with GIF-style motion */}
                 <img
                   src={video.image}
                   alt={video.caption}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  className="w-full h-full object-cover gif-motion"
                   loading="lazy"
                   width={240}
                   height={427}
@@ -89,7 +89,7 @@ export const LoveOguraSection = () => {
         </div>
       </div>
 
-      {/* Custom scrollbar hide styles */}
+      {/* Custom scrollbar hide + GIF motion animation styles */}
       <style>{`
         .scrollbar-hide::-webkit-scrollbar {
           display: none;
@@ -97,6 +97,32 @@ export const LoveOguraSection = () => {
         .scrollbar-hide {
           -ms-overflow-style: none;
           scrollbar-width: none;
+        }
+        
+        /* GIF-style motion animation */
+        @keyframes gifMotion {
+          0%, 100% {
+            transform: scale(1) translateY(0);
+          }
+          50% {
+            transform: scale(1.05) translateY(-8px);
+          }
+        }
+        
+        .gif-motion {
+          animation: gifMotion 2.5s ease-in-out infinite;
+        }
+        
+        /* Faster animation on hover */
+        .group:hover .gif-motion {
+          animation-duration: 1.5s;
+        }
+        
+        /* Respect reduced motion preferences */
+        @media (prefers-reduced-motion: reduce) {
+          .gif-motion {
+            animation: none;
+          }
         }
       `}</style>
     </section>
