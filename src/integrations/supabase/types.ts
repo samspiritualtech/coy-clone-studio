@@ -68,6 +68,42 @@ export type Database = {
         }
         Relationships: []
       }
+      influencer_videos: {
+        Row: {
+          caption: string
+          created_at: string
+          id: string
+          is_active: boolean
+          link: string
+          poster_url: string | null
+          sort_order: number
+          updated_at: string
+          video_filename: string
+        }
+        Insert: {
+          caption: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          link?: string
+          poster_url?: string | null
+          sort_order?: number
+          updated_at?: string
+          video_filename: string
+        }
+        Update: {
+          caption?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          link?: string
+          poster_url?: string | null
+          sort_order?: number
+          updated_at?: string
+          video_filename?: string
+        }
+        Relationships: []
+      }
       tryon_history: {
         Row: {
           created_at: string | null
