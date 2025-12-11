@@ -1,5 +1,5 @@
 import { Header } from "@/components/Header";
-import { HeroCarousels } from "@/components/HeroCarousels";
+import { FullScreenHeroCarousel } from "@/components/FullScreenHeroCarousel";
 import { RoundCategorySection } from "@/components/RoundCategorySection";
 import { FilterBar } from "@/components/FilterBar";
 import { Spline3DBackground } from "@/components/Spline3DBackground";
@@ -43,7 +43,7 @@ const Index = () => {
       <Header />
       <FilterBar />
       <main className="relative z-10">
-        <HeroCarousels />
+        <FullScreenHeroCarousel />
         <RoundCategorySection />
         <ProductGrid title="New Skies & Fresh Looks" products={newArrivals} columns={4} />
         <FreshDrops />
