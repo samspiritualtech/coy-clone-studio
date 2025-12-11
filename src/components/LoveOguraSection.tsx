@@ -3,31 +3,36 @@ import { Link } from "react-router-dom";
 const fashionVideos = [
   {
     id: 1,
-    image: "https://images.unsplash.com/photo-1617137968427-85924c800a22?w=400&q=80",
+    videoSrc: "https://videos.pexels.com/video-files/4778602/4778602-hd_1080_1920_25fps.mp4",
+    poster: "https://images.unsplash.com/photo-1617137968427-85924c800a22?w=400&q=80",
     caption: "outfit @ogura",
     link: "/collections/dresses"
   },
   {
     id: 2,
-    image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&q=80",
+    videoSrc: "https://videos.pexels.com/video-files/5480459/5480459-hd_1080_1920_25fps.mp4",
+    poster: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&q=80",
     caption: "✨💛",
     link: "/collections/dresses"
   },
   {
     id: 3,
-    image: "https://images.unsplash.com/photo-1539008835657-9e8e9680c956?w=400&q=80",
+    videoSrc: "https://videos.pexels.com/video-files/4536558/4536558-hd_1080_1920_25fps.mp4",
+    poster: "https://images.unsplash.com/photo-1539008835657-9e8e9680c956?w=400&q=80",
     caption: "Get ready with me for a date 💜✨",
     link: "/collections/tops"
   },
   {
     id: 4,
-    image: "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=400&q=80",
+    videoSrc: "https://videos.pexels.com/video-files/5480711/5480711-hd_1080_1920_25fps.mp4",
+    poster: "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=400&q=80",
     caption: '"Don\'t buy another dress, you got enough"',
     link: "/collections/dresses"
   },
   {
     id: 5,
-    image: "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400&q=80",
+    videoSrc: "https://videos.pexels.com/video-files/4765917/4765917-hd_1080_1920_25fps.mp4",
+    poster: "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400&q=80",
     caption: "outfit @ogura",
     link: "/collections/outerwear"
   }
@@ -56,15 +61,16 @@ export const LoveOguraSection = () => {
                 tabIndex={0}
                 aria-label={`View ${video.caption}`}
               >
-                {/* Image with realistic video-like motion */}
-                <img
-                  src={video.image}
-                  alt={video.caption}
-                  className="w-full h-full object-cover video-motion"
-                  style={{ animationDelay: `${index * 0.5}s` }}
-                  loading="lazy"
-                  width={240}
-                  height={427}
+                {/* Real video clip */}
+                <video
+                  src={video.videoSrc}
+                  poster={video.poster}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  className="w-full h-full object-cover"
+                  preload="metadata"
                 />
 
                 {/* Gradient overlay at bottom */}
@@ -90,7 +96,7 @@ export const LoveOguraSection = () => {
         </div>
       </div>
 
-      {/* Custom scrollbar hide + realistic video motion animation styles */}
+      {/* Custom scrollbar hide */}
       <style>{`
         .scrollbar-hide::-webkit-scrollbar {
           display: none;
@@ -98,56 +104,6 @@ export const LoveOguraSection = () => {
         .scrollbar-hide {
           -ms-overflow-style: none;
           scrollbar-width: none;
-        }
-        
-        /* Realistic video-like motion animation */
-        @keyframes videoMotion {
-          0% {
-            transform: scale(1) translate(0, 0) rotate(0deg);
-            filter: brightness(1);
-          }
-          15% {
-            transform: scale(1.03) translate(-2px, -5px) rotate(0.3deg);
-            filter: brightness(1.02);
-          }
-          35% {
-            transform: scale(1.06) translate(3px, -8px) rotate(-0.2deg);
-            filter: brightness(1.04);
-          }
-          50% {
-            transform: scale(1.05) translate(-1px, -6px) rotate(0.15deg);
-            filter: brightness(1.03);
-          }
-          70% {
-            transform: scale(1.03) translate(2px, -4px) rotate(-0.25deg);
-            filter: brightness(1.02);
-          }
-          85% {
-            transform: scale(1.01) translate(-1px, -2px) rotate(0.1deg);
-            filter: brightness(1.01);
-          }
-          100% {
-            transform: scale(1) translate(0, 0) rotate(0deg);
-            filter: brightness(1);
-          }
-        }
-        
-        .video-motion {
-          animation: videoMotion 3s ease-in-out infinite;
-          will-change: transform, filter;
-        }
-        
-        /* Faster, more energetic animation on hover */
-        .group:hover .video-motion {
-          animation-duration: 2s;
-          filter: brightness(1.05);
-        }
-        
-        /* Respect reduced motion preferences */
-        @media (prefers-reduced-motion: reduce) {
-          .video-motion {
-            animation: none;
-          }
         }
       `}</style>
     </section>
