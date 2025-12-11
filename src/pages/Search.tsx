@@ -4,6 +4,7 @@ import { Footer } from "@/components/Footer";
 import { ProductGrid } from "@/components/ProductGrid";
 import { products } from "@/data/products";
 import { useMemo } from "react";
+import { RecommendationCarousel } from "@/components/RecommendationCarousel";
 
 export default function Search() {
   const [searchParams] = useSearchParams();
@@ -26,9 +27,18 @@ export default function Search() {
       <Header />
       <main className="flex-1 container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-2">Search Results</h1>
-        <p className="text-muted-foreground mb-8">
+        <p className="text-muted-foreground mb-4">
           {searchResults.length} results for "{query}"
         </p>
+
+        {/* AI-Powered Search Recommendations */}
+        {query && (
+          <RecommendationCarousel
+            title="Recommended for Your Search"
+            type="search"
+            query={query}
+          />
+        )}
 
         {searchResults.length > 0 ? (
           <ProductGrid

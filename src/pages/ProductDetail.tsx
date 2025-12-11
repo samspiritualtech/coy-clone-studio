@@ -10,6 +10,7 @@ import { useWishlist } from "@/contexts/WishlistContext";
 import { toast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { VirtualTryOnDialog } from "@/components/VirtualTryOnDialog";
+import { RecommendationCarousel } from "@/components/RecommendationCarousel";
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -59,9 +60,6 @@ export default function ProductDetail() {
     navigate('/cart');
   };
 
-  const similarProducts = products
-    .filter(p => p.category === product.category && p.id !== product.id)
-    .slice(0, 4);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -233,32 +231,20 @@ export default function ProductDetail() {
           </div>
         </div>
 
-        {/* Similar Products */}
-        {similarProducts.length > 0 && (
-          <div className="border-t pt-12">
-            <h2 className="text-2xl font-bold mb-6">Similar Products</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {similarProducts.map((p) => (
-                <div
-                  key={p.id}
-                  onClick={() => navigate(`/product/${p.id}`)}
-                  className="cursor-pointer group"
-                >
-                  <div className="aspect-[3/4] relative overflow-hidden rounded-lg bg-muted mb-3">
-                    <img
-                      src={p.images[0]}
-                      alt={p.name}
-                      className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                    />
-                  </div>
-                  <p className="text-xs text-muted-foreground mb-1">{p.brand}</p>
-                  <h3 className="font-medium text-sm mb-1 line-clamp-2">{p.name}</h3>
-                  <p className="text-sm font-semibold">₹{p.price.toLocaleString()}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* AI-Powered Brand Recommendations */}
+        <RecommendationCarousel
+          title={`Similar from ${product.brand}`}
+          type="brand"
+          brandName={product.brand}
+          productId={product.id}
+        />
+
+        {/* AI-Powered Similar Products */}
+        <RecommendationCarousel
+          title="You May Also Like"
+          type="similar"
+          productId={product.id}
+        />
       </main>
       <Footer />
     </div>

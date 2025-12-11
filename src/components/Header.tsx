@@ -1,4 +1,4 @@
-import { Search, ShoppingBag, User, Menu, Heart, LogOut } from "lucide-react";
+import { Search, ShoppingBag, User, Menu, Heart, LogOut, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { ImageSearchDialog } from "@/components/ImageSearchDialog";
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -42,11 +43,18 @@ export const Header = () => {
           </nav>
 
           <div className="flex items-center gap-2">
-            <form onSubmit={handleSearch} className="hidden md:block">
+            <form onSubmit={handleSearch} className="hidden md:flex items-center gap-1">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input placeholder="Search..." className="pl-10 w-48" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
               </div>
+              <ImageSearchDialog
+                trigger={
+                  <Button variant="ghost" size="icon" title="Search by image">
+                    <Camera className="h-5 w-5" />
+                  </Button>
+                }
+              />
             </form>
 
             <DropdownMenu>
