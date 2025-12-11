@@ -1,6 +1,6 @@
 import { Header } from "@/components/Header";
 import { FullScreenHeroCarousel } from "@/components/FullScreenHeroCarousel";
-import { RoundCategorySection } from "@/components/RoundCategorySection";
+import { LoveOguraSection } from "@/components/LoveOguraSection";
 import { FilterBar } from "@/components/FilterBar";
 import { Spline3DBackground } from "@/components/Spline3DBackground";
 import { ProductGrid } from "@/components/ProductGrid";
@@ -44,7 +44,7 @@ const Index = () => {
       <FilterBar />
       <main className="relative z-10">
         <FullScreenHeroCarousel />
-        <RoundCategorySection />
+        <LoveOguraSection />
         <ProductGrid title="New Skies & Fresh Looks" products={newArrivals} columns={4} />
         <FreshDrops />
         <RewardGame />
