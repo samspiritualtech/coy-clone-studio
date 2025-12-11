@@ -13,31 +13,31 @@ interface Slide {
 const slides: Slide[] = [
   {
     id: 1,
-    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1920&q=80",
+    image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=1920&q=80",
     title: "New Season",
     subtitle: "Discover the latest collection",
     cta: "Shop Now"
   },
   {
     id: 2,
-    image: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1920&q=80",
-    title: "Exclusive Styles",
-    subtitle: "Curated for you",
-    cta: "Explore"
+    image: "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=1920&q=80",
+    title: "New Season",
+    subtitle: "Discover the latest collection",
+    cta: "Shop Now"
   },
   {
     id: 3,
-    image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=1920&q=80",
-    title: "Premium Fashion",
-    subtitle: "Elevate your wardrobe",
-    cta: "View Collection"
+    image: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=1920&q=80",
+    title: "New Season",
+    subtitle: "Discover the latest collection",
+    cta: "Shop Now"
   },
   {
     id: 4,
-    image: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1920&q=80",
-    title: "Timeless Elegance",
-    subtitle: "Style that lasts",
-    cta: "Discover"
+    image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1920&q=80",
+    title: "New Season",
+    subtitle: "Discover the latest collection",
+    cta: "Shop Now"
   }
 ];
 
