@@ -6,6 +6,7 @@ import { products } from "@/data/products";
 import { useFilter } from "@/contexts/FilterContext";
 import { useMemo, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import { RecommendationCarousel } from "@/components/RecommendationCarousel";
 
 export default function Collections() {
   const { filters, setCategory } = useFilter();
@@ -64,7 +65,15 @@ export default function Collections() {
     <div className="min-h-screen flex flex-col">
       <Header />
       <FilterBar />
-      <main className="flex-1">
+      <main className="flex-1 container mx-auto px-4">
+        {/* AI-Powered Category Recommendations */}
+        {filters.category !== 'All' && (
+          <RecommendationCarousel
+            title={`Top Picks for You in ${filters.category}`}
+            type="category"
+            category={filters.category.toLowerCase()}
+          />
+        )}
         <ProductGrid
           title={`Shop All (${filteredProducts.length} items)`}
           products={filteredProducts.map(p => ({
