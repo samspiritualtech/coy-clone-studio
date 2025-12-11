@@ -48,7 +48,7 @@ export const LoveOguraSection = () => {
 
           {/* Scrollable container */}
           <div className="flex gap-4 sm:gap-5 lg:gap-6 overflow-x-auto snap-x snap-mandatory lg:overflow-visible lg:justify-center pb-4 scrollbar-hide">
-            {fashionVideos.map((video) => (
+            {fashionVideos.map((video, index) => (
               <Link
                 key={video.id}
                 to={video.link}
@@ -56,11 +56,12 @@ export const LoveOguraSection = () => {
                 tabIndex={0}
                 aria-label={`View ${video.caption}`}
               >
-                {/* Image with GIF-style motion */}
+                {/* Image with realistic video-like motion */}
                 <img
                   src={video.image}
                   alt={video.caption}
-                  className="w-full h-full object-cover gif-motion"
+                  className="w-full h-full object-cover video-motion"
+                  style={{ animationDelay: `${index * 0.5}s` }}
                   loading="lazy"
                   width={240}
                   height={427}
@@ -89,7 +90,7 @@ export const LoveOguraSection = () => {
         </div>
       </div>
 
-      {/* Custom scrollbar hide + GIF motion animation styles */}
+      {/* Custom scrollbar hide + realistic video motion animation styles */}
       <style>{`
         .scrollbar-hide::-webkit-scrollbar {
           display: none;
@@ -99,28 +100,52 @@ export const LoveOguraSection = () => {
           scrollbar-width: none;
         }
         
-        /* GIF-style motion animation */
-        @keyframes gifMotion {
-          0%, 100% {
-            transform: scale(1) translateY(0);
+        /* Realistic video-like motion animation */
+        @keyframes videoMotion {
+          0% {
+            transform: scale(1) translate(0, 0) rotate(0deg);
+            filter: brightness(1);
+          }
+          15% {
+            transform: scale(1.03) translate(-2px, -5px) rotate(0.3deg);
+            filter: brightness(1.02);
+          }
+          35% {
+            transform: scale(1.06) translate(3px, -8px) rotate(-0.2deg);
+            filter: brightness(1.04);
           }
           50% {
-            transform: scale(1.05) translateY(-8px);
+            transform: scale(1.05) translate(-1px, -6px) rotate(0.15deg);
+            filter: brightness(1.03);
+          }
+          70% {
+            transform: scale(1.03) translate(2px, -4px) rotate(-0.25deg);
+            filter: brightness(1.02);
+          }
+          85% {
+            transform: scale(1.01) translate(-1px, -2px) rotate(0.1deg);
+            filter: brightness(1.01);
+          }
+          100% {
+            transform: scale(1) translate(0, 0) rotate(0deg);
+            filter: brightness(1);
           }
         }
         
-        .gif-motion {
-          animation: gifMotion 2.5s ease-in-out infinite;
+        .video-motion {
+          animation: videoMotion 3s ease-in-out infinite;
+          will-change: transform, filter;
         }
         
-        /* Faster animation on hover */
-        .group:hover .gif-motion {
-          animation-duration: 1.5s;
+        /* Faster, more energetic animation on hover */
+        .group:hover .video-motion {
+          animation-duration: 2s;
+          filter: brightness(1.05);
         }
         
         /* Respect reduced motion preferences */
         @media (prefers-reduced-motion: reduce) {
-          .gif-motion {
+          .video-motion {
             animation: none;
           }
         }
