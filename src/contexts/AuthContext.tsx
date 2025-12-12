@@ -1,10 +1,11 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User } from '@/types';
+import { supabase } from '@/integrations/supabase/client';
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  signup: (name: string, email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  sendOtp: (phone: string) => Promise<{ success: boolean; error?: string; demoOtp?: string }>;
+  verifyOtp: (phone: string, otp: string, name?: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -25,36 +26,47 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [user]);
 
-  const login = async (email: string, password: string) => {
-    // Mock authentication
-    if (password.length < 6) {
-      return { success: false, error: 'Password must be at least 6 characters' };
+  const sendOtp = async (phone: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('send-otp', {
+        body: { phone }
+      });
+
+      if (error) {
+        return { success: false, error: error.message || 'Failed to send OTP' };
+      }
+
+      if (!data.success) {
+        return { success: false, error: data.error || 'Failed to send OTP' };
+      }
+
+      return { success: true, demoOtp: data.demoOtp };
+    } catch (error) {
+      console.error('Send OTP error:', error);
+      return { success: false, error: 'Network error. Please try again.' };
     }
-
-    const mockUser: User = {
-      id: Math.random().toString(36).substr(2, 9),
-      name: email.split('@')[0],
-      email
-    };
-
-    setUser(mockUser);
-    return { success: true };
   };
 
-  const signup = async (name: string, email: string, password: string) => {
-    // Mock authentication
-    if (password.length < 6) {
-      return { success: false, error: 'Password must be at least 6 characters' };
+  const verifyOtp = async (phone: string, otp: string, name?: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('verify-otp', {
+        body: { phone, otp, name }
+      });
+
+      if (error) {
+        return { success: false, error: error.message || 'Verification failed' };
+      }
+
+      if (!data.success) {
+        return { success: false, error: data.error || 'Invalid OTP' };
+      }
+
+      setUser(data.user);
+      return { success: true };
+    } catch (error) {
+      console.error('Verify OTP error:', error);
+      return { success: false, error: 'Network error. Please try again.' };
     }
-
-    const mockUser: User = {
-      id: Math.random().toString(36).substr(2, 9),
-      name,
-      email
-    };
-
-    setUser(mockUser);
-    return { success: true };
   };
 
   const logout = () => {
@@ -64,8 +76,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   return (
     <AuthContext.Provider value={{
       user,
-      login,
-      signup,
+      sendOtp,
+      verifyOtp,
       logout,
       isAuthenticated: !!user
     }}>
