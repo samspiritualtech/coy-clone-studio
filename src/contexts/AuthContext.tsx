@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User } from '@/types';
-import { auth } from '@/lib/firebase';
-import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
+import { supabase } from '@/integrations/supabase/client';
+import { Session } from '@supabase/supabase-js';
 
 interface AuthContextType {
   user: User | null;
@@ -9,121 +9,124 @@ interface AuthContextType {
   verifyOtp: (otp: string, name?: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   isAuthenticated: boolean;
-  setupRecaptcha: (containerId: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(() => {
-    const saved = localStorage.getItem('user');
-    return saved ? JSON.parse(saved) : null;
-  });
-  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [currentPhone, setCurrentPhone] = useState<string>('');
 
   useEffect(() => {
-    if (user) {
-      localStorage.setItem('user', JSON.stringify(user));
-    } else {
-      localStorage.removeItem('user');
-    }
-  }, [user]);
-
-  const setupRecaptcha = (containerId: string) => {
-    if (!window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, containerId, {
-        size: 'invisible',
-        callback: () => {
-          console.log('reCAPTCHA verified');
-        },
-        'expired-callback': () => {
-          console.log('reCAPTCHA expired');
-          window.recaptchaVerifier = undefined;
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        
+        if (session?.user) {
+          // Defer profile fetch to avoid deadlock
+          setTimeout(() => {
+            fetchUserProfile(session.user.id);
+          }, 0);
+        } else {
+          setUser(null);
         }
-      });
+      }
+    );
+
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (session?.user) {
+        fetchUserProfile(session.user.id);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const fetchUserProfile = async (userId: string) => {
+    try {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .maybeSingle();
+
+      if (profile) {
+        setUser({
+          id: profile.id,
+          name: profile.name || 'User',
+          phone: profile.phone || ''
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error);
     }
   };
 
   const sendOtp = async (phone: string): Promise<{ success: boolean; error?: string }> => {
     try {
+      // Validate phone number (Indian format: 10 digits starting with 6-9)
+      const phoneRegex = /^[6-9]\d{9}$/;
+      if (!phoneRegex.test(phone)) {
+        return { success: false, error: 'Invalid mobile number. Please enter a valid 10-digit Indian mobile number.' };
+      }
+
       const phoneWithCountry = `+91${phone}`;
       setCurrentPhone(phone);
 
-      // Ensure recaptcha is set up
-      if (!window.recaptchaVerifier) {
-        setupRecaptcha('recaptcha-container');
-      }
+      const { error } = await supabase.auth.signInWithOtp({
+        phone: phoneWithCountry,
+      });
 
-      const appVerifier = window.recaptchaVerifier;
-      if (!appVerifier) {
-        return { success: false, error: 'reCAPTCHA not initialized. Please refresh the page.' };
+      if (error) {
+        console.error('Send OTP error:', error);
+        return { success: false, error: error.message };
       }
-
-      const result = await signInWithPhoneNumber(auth, phoneWithCountry, appVerifier);
-      setConfirmationResult(result);
-      window.confirmationResult = result;
       
       return { success: true };
     } catch (error: any) {
       console.error('Send OTP error:', error);
-      
-      // Reset recaptcha on error
-      window.recaptchaVerifier = undefined;
-      
-      // Handle specific Firebase errors
-      if (error.code === 'auth/invalid-phone-number') {
-        return { success: false, error: 'Invalid phone number format.' };
-      } else if (error.code === 'auth/too-many-requests') {
-        return { success: false, error: 'Too many requests. Please try again later.' };
-      } else if (error.code === 'auth/captcha-check-failed') {
-        return { success: false, error: 'reCAPTCHA verification failed. Please try again.' };
-      }
-      
       return { success: false, error: error.message || 'Failed to send OTP. Please try again.' };
     }
   };
 
   const verifyOtp = async (otp: string, name?: string): Promise<{ success: boolean; error?: string }> => {
     try {
-      const confirmation = confirmationResult || window.confirmationResult;
-      
-      if (!confirmation) {
-        return { success: false, error: 'No OTP request found. Please request a new OTP.' };
+      const phoneWithCountry = `+91${currentPhone}`;
+
+      const { data, error } = await supabase.auth.verifyOtp({
+        phone: phoneWithCountry,
+        token: otp,
+        type: 'sms'
+      });
+
+      if (error) {
+        console.error('Verify OTP error:', error);
+        return { success: false, error: error.message };
       }
 
-      const result = await confirmation.confirm(otp);
-      const firebaseUser = result.user;
-
-      // Create app user from Firebase user
-      const appUser: User = {
-        id: firebaseUser.uid,
-        name: name || `User ${currentPhone.slice(-4)}`,
-        phone: currentPhone
-      };
-
-      setUser(appUser);
-      setConfirmationResult(null);
-      window.confirmationResult = undefined;
+      // Update profile with name if provided
+      if (data.user && name) {
+        await supabase
+          .from('profiles')
+          .update({ name, phone: currentPhone })
+          .eq('id', data.user.id);
+      }
       
       return { success: true };
     } catch (error: any) {
       console.error('Verify OTP error:', error);
-      
-      if (error.code === 'auth/invalid-verification-code') {
-        return { success: false, error: 'Invalid OTP. Please check and try again.' };
-      } else if (error.code === 'auth/code-expired') {
-        return { success: false, error: 'OTP has expired. Please request a new one.' };
-      }
-      
       return { success: false, error: error.message || 'Verification failed. Please try again.' };
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await supabase.auth.signOut();
     setUser(null);
-    setConfirmationResult(null);
-    window.confirmationResult = undefined;
+    setSession(null);
   };
 
   return (
@@ -132,8 +135,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       sendOtp,
       verifyOtp,
       logout,
-      isAuthenticated: !!user,
-      setupRecaptcha
+      isAuthenticated: !!session
     }}>
       {children}
     </AuthContext.Provider>

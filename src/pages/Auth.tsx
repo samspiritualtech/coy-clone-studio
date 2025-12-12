@@ -15,7 +15,7 @@ import { ArrowLeft, Phone } from "lucide-react";
 
 export default function Auth() {
   const navigate = useNavigate();
-  const { user, sendOtp, verifyOtp, setupRecaptcha } = useAuth();
+  const { user, sendOtp, verifyOtp, isAuthenticated } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   
   // Login state
@@ -32,17 +32,12 @@ export default function Auth() {
   // Resend timer
   const [resendTimer, setResendTimer] = useState(0);
 
-  // Initialize reCAPTCHA on mount
-  useEffect(() => {
-    setupRecaptcha('recaptcha-container');
-  }, [setupRecaptcha]);
-
   // Redirect if already logged in
   useEffect(() => {
-    if (user) {
+    if (isAuthenticated) {
       navigate('/');
     }
-  }, [user, navigate]);
+  }, [isAuthenticated, navigate]);
 
   // Resend timer countdown
   useEffect(() => {
@@ -331,9 +326,6 @@ export default function Auth() {
         </Card>
       </main>
       <Footer />
-      
-      {/* Invisible reCAPTCHA container - required for Firebase Phone Auth */}
-      <div id="recaptcha-container"></div>
     </div>
   );
 }
