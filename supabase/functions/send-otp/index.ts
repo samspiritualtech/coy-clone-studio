@@ -1,17 +1,12 @@
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// In-memory OTP storage (for demo purposes)
-// In production, use Redis or database with TTL
-const otpStore = new Map<string, { otp: string; expiresAt: number }>();
-
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -28,14 +23,74 @@ serve(async (req) => {
       );
     }
 
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Rate limiting: Check if OTP was sent in last 60 seconds
+    const { data: existingOtp } = await supabase
+      .from('otp_verifications')
+      .select('created_at')
+      .eq('phone', phone)
+      .eq('verified', false)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (existingOtp) {
+      const createdAt = new Date(existingOtp.created_at);
+      const now = new Date();
+      const diffSeconds = (now.getTime() - createdAt.getTime()) / 1000;
+      
+      if (diffSeconds < 60) {
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            error: `Please wait ${Math.ceil(60 - diffSeconds)} seconds before requesting a new OTP.` 
+          }),
+          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
     // Generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     
-    // Store OTP with 5-minute expiry
-    const expiresAt = Date.now() + 5 * 60 * 1000;
-    otpStore.set(phone, { otp, expiresAt });
+    // Hash OTP for secure storage (simple hash for demo - use bcrypt in production)
+    const encoder = new TextEncoder();
+    const data = encoder.encode(otp + phone);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const otpHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
-    // Log OTP for development (in production, send via SMS provider)
+    // Delete old unverified OTPs for this phone
+    await supabase
+      .from('otp_verifications')
+      .delete()
+      .eq('phone', phone)
+      .eq('verified', false);
+
+    // Store new OTP with 5-minute expiry
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
+    
+    const { error: insertError } = await supabase
+      .from('otp_verifications')
+      .insert({
+        phone,
+        otp_hash: otpHash,
+        expires_at: expiresAt,
+        attempts: 0,
+        verified: false
+      });
+
+    if (insertError) {
+      console.error('Error storing OTP:', insertError);
+      return new Response(
+        JSON.stringify({ success: false, error: 'Failed to generate OTP. Please try again.' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     console.log(`OTP for +91${phone}: ${otp}`);
 
     // In production, integrate with SMS provider here:
@@ -45,8 +100,7 @@ serve(async (req) => {
       JSON.stringify({ 
         success: true, 
         message: 'OTP sent successfully',
-        // For demo only - remove in production
-        demoOtp: otp 
+        demoOtp: otp // Remove in production
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
