@@ -1,14 +1,13 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 
-// TODO: Replace with your Firebase config
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyAd4RHZDbA7y1wnfgFNV1hHWkYAfywkxFw",
+  authDomain: "ogura-9f141.firebaseapp.com",
+  projectId: "ogura-9f141",
+  storageBucket: "ogura-9f141.firebasestorage.app",
+  messagingSenderId: "388983003804",
+  appId: "1:388983003804:web:567e72624a832a63ca6b59"
 };
 
 const app = initializeApp(firebaseConfig);
