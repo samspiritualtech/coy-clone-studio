@@ -5,8 +5,8 @@ import { Session } from '@supabase/supabase-js';
 
 interface AuthContextType {
   user: User | null;
-  signUp: (email: string, password: string, name: string) => Promise<{ success: boolean; error?: string }>;
-  signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  sendOtp: (phone: string) => Promise<{ success: boolean; error?: string; demoOtp?: string }>;
+  verifyOtp: (phone: string, otp: string, name?: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -18,13 +18,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
 
   useEffect(() => {
-    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
         
         if (session?.user) {
-          // Defer profile fetch to avoid deadlock
           setTimeout(() => {
             fetchUserProfile(session.user.id);
           }, 0);
@@ -34,7 +32,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     );
 
-    // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       if (session?.user) {
@@ -47,7 +44,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchUserProfile = async (userId: string) => {
     try {
-      const { data: profile, error } = await supabase
+      const { data: profile } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
@@ -61,11 +58,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           phone: profile.phone || undefined
         });
       } else if (session?.user) {
-        // Profile doesn't exist yet, use session data
         setUser({
           id: session.user.id,
           name: session.user.user_metadata?.name || 'User',
           email: session.user.email || '',
+          phone: session.user.user_metadata?.phone
         });
       }
     } catch (error) {
@@ -73,55 +70,55 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const signUp = async (email: string, password: string, name: string): Promise<{ success: boolean; error?: string }> => {
+  const sendOtp = async (phone: string): Promise<{ success: boolean; error?: string; demoOtp?: string }> => {
     try {
-      const redirectUrl = `${window.location.origin}/`;
-      
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: redirectUrl,
-          data: { name }
-        }
+      const { data, error } = await supabase.functions.invoke('send-otp', {
+        body: { phone }
       });
 
       if (error) {
-        console.error('Sign up error:', error);
-        return { success: false, error: error.message };
+        console.error('Send OTP error:', error);
+        return { success: false, error: error.message || 'Failed to send OTP' };
       }
 
-      // Update profile with name
-      if (data.user) {
-        await supabase
-          .from('profiles')
-          .upsert({ id: data.user.id, name })
-          .eq('id', data.user.id);
+      if (!data.success) {
+        return { success: false, error: data.error };
       }
-      
-      return { success: true };
+
+      return { success: true, demoOtp: data.demoOtp };
     } catch (error: any) {
-      console.error('Sign up error:', error);
-      return { success: false, error: error.message || 'Failed to sign up. Please try again.' };
+      console.error('Send OTP error:', error);
+      return { success: false, error: error.message || 'Failed to send OTP. Please try again.' };
     }
   };
 
-  const signIn = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+  const verifyOtp = async (phone: string, otp: string, name?: string): Promise<{ success: boolean; error?: string }> => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password
+      const { data, error } = await supabase.functions.invoke('verify-otp', {
+        body: { phone, otp, name }
       });
 
       if (error) {
-        console.error('Sign in error:', error);
-        return { success: false, error: error.message };
+        console.error('Verify OTP error:', error);
+        return { success: false, error: error.message || 'Verification failed' };
       }
-      
+
+      if (!data.success) {
+        return { success: false, error: data.error };
+      }
+
+      // Set the session from the response
+      if (data.session) {
+        await supabase.auth.setSession({
+          access_token: data.session.access_token,
+          refresh_token: data.session.refresh_token
+        });
+      }
+
       return { success: true };
     } catch (error: any) {
-      console.error('Sign in error:', error);
-      return { success: false, error: error.message || 'Failed to sign in. Please try again.' };
+      console.error('Verify OTP error:', error);
+      return { success: false, error: error.message || 'Verification failed. Please try again.' };
     }
   };
 
@@ -134,8 +131,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   return (
     <AuthContext.Provider value={{
       user,
-      signUp,
-      signIn,
+      sendOtp,
+      verifyOtp,
       logout,
       isAuthenticated: !!session
     }}>
