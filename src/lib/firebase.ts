@@ -2,7 +2,7 @@ import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyA4dRHzbD7Aylm8vFNV1hHkYAfywkzFw",
+  apiKey: "AIzaSyA4dRHZbD7Aylm8vFNV1hHkYAfywkzFw",
   authDomain: "ogura-9f141.firebaseapp.com",
   projectId: "ogura-9f141",
   storageBucket: "ogura-9f141.appspot.com",
