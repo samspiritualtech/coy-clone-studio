@@ -1,13 +1,15 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User } from '@/types';
-import { supabase } from '@/integrations/supabase/client';
+import { auth } from '@/lib/firebase';
+import { RecaptchaVerifier, signInWithPhoneNumber, ConfirmationResult } from 'firebase/auth';
 
 interface AuthContextType {
   user: User | null;
-  sendOtp: (phone: string) => Promise<{ success: boolean; error?: string; demoOtp?: string }>;
-  verifyOtp: (phone: string, otp: string, name?: string) => Promise<{ success: boolean; error?: string }>;
+  sendOtp: (phone: string) => Promise<{ success: boolean; error?: string }>;
+  verifyOtp: (otp: string, name?: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   isAuthenticated: boolean;
+  setupRecaptcha: (containerId: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -17,6 +19,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const saved = localStorage.getItem('user');
     return saved ? JSON.parse(saved) : null;
   });
+  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+  const [currentPhone, setCurrentPhone] = useState<string>('');
 
   useEffect(() => {
     if (user) {
@@ -26,51 +30,100 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [user]);
 
-  const sendOtp = async (phone: string) => {
-    try {
-      const { data, error } = await supabase.functions.invoke('send-otp', {
-        body: { phone }
+  const setupRecaptcha = (containerId: string) => {
+    if (!window.recaptchaVerifier) {
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, containerId, {
+        size: 'invisible',
+        callback: () => {
+          console.log('reCAPTCHA verified');
+        },
+        'expired-callback': () => {
+          console.log('reCAPTCHA expired');
+          window.recaptchaVerifier = undefined;
+        }
       });
-
-      if (error) {
-        return { success: false, error: error.message || 'Failed to send OTP' };
-      }
-
-      if (!data.success) {
-        return { success: false, error: data.error || 'Failed to send OTP' };
-      }
-
-      return { success: true, demoOtp: data.demoOtp };
-    } catch (error) {
-      console.error('Send OTP error:', error);
-      return { success: false, error: 'Network error. Please try again.' };
     }
   };
 
-  const verifyOtp = async (phone: string, otp: string, name?: string) => {
+  const sendOtp = async (phone: string): Promise<{ success: boolean; error?: string }> => {
     try {
-      const { data, error } = await supabase.functions.invoke('verify-otp', {
-        body: { phone, otp, name }
-      });
+      const phoneWithCountry = `+91${phone}`;
+      setCurrentPhone(phone);
 
-      if (error) {
-        return { success: false, error: error.message || 'Verification failed' };
+      // Ensure recaptcha is set up
+      if (!window.recaptchaVerifier) {
+        setupRecaptcha('recaptcha-container');
       }
 
-      if (!data.success) {
-        return { success: false, error: data.error || 'Invalid OTP' };
+      const appVerifier = window.recaptchaVerifier;
+      if (!appVerifier) {
+        return { success: false, error: 'reCAPTCHA not initialized. Please refresh the page.' };
       }
 
-      setUser(data.user);
+      const result = await signInWithPhoneNumber(auth, phoneWithCountry, appVerifier);
+      setConfirmationResult(result);
+      window.confirmationResult = result;
+      
       return { success: true };
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Send OTP error:', error);
+      
+      // Reset recaptcha on error
+      window.recaptchaVerifier = undefined;
+      
+      // Handle specific Firebase errors
+      if (error.code === 'auth/invalid-phone-number') {
+        return { success: false, error: 'Invalid phone number format.' };
+      } else if (error.code === 'auth/too-many-requests') {
+        return { success: false, error: 'Too many requests. Please try again later.' };
+      } else if (error.code === 'auth/captcha-check-failed') {
+        return { success: false, error: 'reCAPTCHA verification failed. Please try again.' };
+      }
+      
+      return { success: false, error: error.message || 'Failed to send OTP. Please try again.' };
+    }
+  };
+
+  const verifyOtp = async (otp: string, name?: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const confirmation = confirmationResult || window.confirmationResult;
+      
+      if (!confirmation) {
+        return { success: false, error: 'No OTP request found. Please request a new OTP.' };
+      }
+
+      const result = await confirmation.confirm(otp);
+      const firebaseUser = result.user;
+
+      // Create app user from Firebase user
+      const appUser: User = {
+        id: firebaseUser.uid,
+        name: name || `User ${currentPhone.slice(-4)}`,
+        phone: currentPhone
+      };
+
+      setUser(appUser);
+      setConfirmationResult(null);
+      window.confirmationResult = undefined;
+      
+      return { success: true };
+    } catch (error: any) {
       console.error('Verify OTP error:', error);
-      return { success: false, error: 'Network error. Please try again.' };
+      
+      if (error.code === 'auth/invalid-verification-code') {
+        return { success: false, error: 'Invalid OTP. Please check and try again.' };
+      } else if (error.code === 'auth/code-expired') {
+        return { success: false, error: 'OTP has expired. Please request a new one.' };
+      }
+      
+      return { success: false, error: error.message || 'Verification failed. Please try again.' };
     }
   };
 
   const logout = () => {
     setUser(null);
+    setConfirmationResult(null);
+    window.confirmationResult = undefined;
   };
 
   return (
@@ -79,7 +132,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       sendOtp,
       verifyOtp,
       logout,
-      isAuthenticated: !!user
+      isAuthenticated: !!user,
+      setupRecaptcha
     }}>
       {children}
     </AuthContext.Provider>

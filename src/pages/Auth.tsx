@@ -15,7 +15,7 @@ import { ArrowLeft, Phone } from "lucide-react";
 
 export default function Auth() {
   const navigate = useNavigate();
-  const { user, sendOtp, verifyOtp } = useAuth();
+  const { user, sendOtp, verifyOtp, setupRecaptcha } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   
   // Login state
@@ -31,6 +31,11 @@ export default function Auth() {
   
   // Resend timer
   const [resendTimer, setResendTimer] = useState(0);
+
+  // Initialize reCAPTCHA on mount
+  useEffect(() => {
+    setupRecaptcha('recaptcha-container');
+  }, [setupRecaptcha]);
 
   // Redirect if already logged in
   useEffect(() => {
@@ -68,7 +73,7 @@ export default function Auth() {
     if (result.success) {
       toast({ 
         title: "OTP Sent", 
-        description: `OTP sent to +91 ${phone}${result.demoOtp ? ` (Demo: ${result.demoOtp})` : ''}`
+        description: `OTP sent to +91 ${phone}`
       });
       if (isSignup) {
         setSignupStep("otp");
@@ -83,14 +88,14 @@ export default function Auth() {
     setIsLoading(false);
   };
 
-  const handleVerifyOtp = async (phone: string, otp: string, name?: string) => {
+  const handleVerifyOtp = async (otp: string, name?: string) => {
     if (otp.length !== 6) {
       toast({ title: "Invalid OTP", description: "Please enter a 6-digit OTP", variant: "destructive" });
       return;
     }
 
     setIsLoading(true);
-    const result = await verifyOtp(phone, otp, name);
+    const result = await verifyOtp(otp, name);
 
     if (result.success) {
       toast({ title: name ? "Account created!" : "Welcome back!", description: "You've successfully logged in" });
@@ -107,7 +112,7 @@ export default function Auth() {
     if (loginStep === "phone") {
       handleSendOtp(loginPhone, false);
     } else {
-      handleVerifyOtp(loginPhone, loginOtp);
+      handleVerifyOtp(loginOtp);
     }
   };
 
@@ -120,7 +125,7 @@ export default function Auth() {
       }
       handleSendOtp(signupPhone, true);
     } else {
-      handleVerifyOtp(signupPhone, signupOtp, signupName);
+      handleVerifyOtp(signupOtp, signupName);
     }
   };
 
@@ -326,6 +331,9 @@ export default function Auth() {
         </Card>
       </main>
       <Footer />
+      
+      {/* Invisible reCAPTCHA container - required for Firebase Phone Auth */}
+      <div id="recaptcha-container"></div>
     </div>
   );
 }
