@@ -5,8 +5,8 @@ import { Session } from '@supabase/supabase-js';
 
 interface AuthContextType {
   user: User | null;
-  sendOtp: (phone: string) => Promise<{ success: boolean; error?: string }>;
-  verifyOtp: (otp: string, name?: string) => Promise<{ success: boolean; error?: string }>;
+  signUp: (email: string, password: string, name: string) => Promise<{ success: boolean; error?: string }>;
+  signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -16,7 +16,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
-  const [currentPhone, setCurrentPhone] = useState<string>('');
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -58,7 +57,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser({
           id: profile.id,
           name: profile.name || 'User',
-          phone: profile.phone || ''
+          email: session?.user?.email || '',
+          phone: profile.phone || undefined
+        });
+      } else if (session?.user) {
+        // Profile doesn't exist yet, use session data
+        setUser({
+          id: session.user.id,
+          name: session.user.user_metadata?.name || 'User',
+          email: session.user.email || '',
         });
       }
     } catch (error) {
@@ -66,60 +73,55 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const sendOtp = async (phone: string): Promise<{ success: boolean; error?: string }> => {
+  const signUp = async (email: string, password: string, name: string): Promise<{ success: boolean; error?: string }> => {
     try {
-      // Validate phone number (Indian format: 10 digits starting with 6-9)
-      const phoneRegex = /^[6-9]\d{9}$/;
-      if (!phoneRegex.test(phone)) {
-        return { success: false, error: 'Invalid mobile number. Please enter a valid 10-digit Indian mobile number.' };
-      }
-
-      const phoneWithCountry = `+91${phone}`;
-      setCurrentPhone(phone);
-
-      const { error } = await supabase.auth.signInWithOtp({
-        phone: phoneWithCountry,
-      });
-
-      if (error) {
-        console.error('Send OTP error:', error);
-        return { success: false, error: error.message };
-      }
+      const redirectUrl = `${window.location.origin}/`;
       
-      return { success: true };
-    } catch (error: any) {
-      console.error('Send OTP error:', error);
-      return { success: false, error: error.message || 'Failed to send OTP. Please try again.' };
-    }
-  };
-
-  const verifyOtp = async (otp: string, name?: string): Promise<{ success: boolean; error?: string }> => {
-    try {
-      const phoneWithCountry = `+91${currentPhone}`;
-
-      const { data, error } = await supabase.auth.verifyOtp({
-        phone: phoneWithCountry,
-        token: otp,
-        type: 'sms'
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: { name }
+        }
       });
 
       if (error) {
-        console.error('Verify OTP error:', error);
+        console.error('Sign up error:', error);
         return { success: false, error: error.message };
       }
 
-      // Update profile with name if provided
-      if (data.user && name) {
+      // Update profile with name
+      if (data.user) {
         await supabase
           .from('profiles')
-          .update({ name, phone: currentPhone })
+          .upsert({ id: data.user.id, name })
           .eq('id', data.user.id);
       }
       
       return { success: true };
     } catch (error: any) {
-      console.error('Verify OTP error:', error);
-      return { success: false, error: error.message || 'Verification failed. Please try again.' };
+      console.error('Sign up error:', error);
+      return { success: false, error: error.message || 'Failed to sign up. Please try again.' };
+    }
+  };
+
+  const signIn = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) {
+        console.error('Sign in error:', error);
+        return { success: false, error: error.message };
+      }
+      
+      return { success: true };
+    } catch (error: any) {
+      console.error('Sign in error:', error);
+      return { success: false, error: error.message || 'Failed to sign in. Please try again.' };
     }
   };
 
@@ -132,8 +134,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   return (
     <AuthContext.Provider value={{
       user,
-      sendOtp,
-      verifyOtp,
+      signUp,
+      signIn,
       logout,
       isAuthenticated: !!session
     }}>

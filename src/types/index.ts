@@ -27,7 +27,8 @@ export interface CartItem {
 export interface User {
   id: string;
   name: string;
-  phone: string;
+  email: string;
+  phone?: string;
 }
 
 export interface FilterState {
