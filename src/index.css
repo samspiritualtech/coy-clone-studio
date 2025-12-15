@@ -144,6 +144,18 @@ All colors MUST be HSL.
     );
   }
 
+  .luxury-overlay {
+    @apply bg-gradient-to-t from-black/50 via-black/30 to-black/20;
+  }
+
+  .luxury-heading {
+    @apply font-light uppercase tracking-[0.2em];
+  }
+
+  .luxury-button {
+    @apply border-white/60 bg-transparent text-white hover:bg-white hover:text-black transition-all duration-500 tracking-[0.2em] uppercase;
+  }
+
   .fade-out {
     animation: fadeOut 0.5s ease-out forwards;
   }
@@ -156,6 +168,18 @@ All colors MUST be HSL.
     to {
       opacity: 0;
       transform: scale(0.95);
+    }
+  }
+
+  @keyframes kenburns {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    100% {
+      transform: scale(1);
     }
   }
 }
