@@ -16,7 +16,7 @@ interface Slide {
 const slides: Slide[] = [
   {
     id: 1,
-    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1920&q=80",
+    image: "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=1920&q=80",
     title: "New Season",
     subtitle: "Discover the latest collection",
     cta: "Shop Now",
