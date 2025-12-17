@@ -1,6 +1,7 @@
 import { LuxuryHeader } from "@/components/LuxuryHeader";
 import { LuxuryHero } from "@/components/LuxuryHero";
 import { CategoryShowcase } from "@/components/CategoryShowcase";
+import { DesignersSpotlight } from "@/components/DesignersSpotlight";
 import { LuxuryTrustBadges } from "@/components/LuxuryTrustBadges";
 import { LuxuryBrands } from "@/components/LuxuryBrands";
 import { LuxuryGiftCard } from "@/components/LuxuryGiftCard";
@@ -14,6 +15,7 @@ const Index = () => {
       <main>
         <LuxuryHero />
         <CategoryShowcase />
+        <DesignersSpotlight />
         <LuxuryTrustBadges />
         <LuxuryBrands />
         <LuxuryGiftCard />

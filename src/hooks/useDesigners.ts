@@ -28,6 +28,7 @@ export const useDesigners = (filters?: { search?: string; category?: string }) =
       // Parse product_images from JSONB to array
       return (data || []).map((designer) => ({
         ...designer,
+        slug: designer.slug || '',
         product_images: Array.isArray(designer.product_images) 
           ? designer.product_images 
           : []
@@ -52,6 +53,7 @@ export const useDesigner = (id: string) => {
       // Parse product_images from JSONB to array
       return {
         ...data,
+        slug: data.slug || '',
         product_images: Array.isArray(data.product_images) 
           ? data.product_images 
           : []
