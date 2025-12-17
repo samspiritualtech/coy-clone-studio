@@ -1,4 +1,4 @@
-import { Product } from "@/types";
+import { Product, ColorVariant } from "@/types";
 
 // Helper function to generate product ID
 const generateId = (category: string, index: number): string => {
@@ -197,6 +197,42 @@ const getImage = (category: string, index: number): string[] => {
   return [`https://images.unsplash.com/photo-${imageId}?w=800&q=80`];
 };
 
+// Generate color variants with unique images for each color
+const generateColorVariants = (
+  category: string,
+  baseIndex: number,
+  colorPalette: Array<{ name: string; hex: string }>,
+  sizes: string[]
+): ColorVariant[] => {
+  const categoryKey = category as keyof typeof unsplashImages;
+  const images = unsplashImages[categoryKey] || unsplashImages.dresses;
+  
+  // Select 2-4 colors for variants
+  const numVariants = 2 + (baseIndex % 3);
+  const variants: ColorVariant[] = [];
+  
+  for (let i = 0; i < numVariants; i++) {
+    const color = colorPalette[(baseIndex + i) % colorPalette.length];
+    // Generate 3-4 unique images per color variant
+    const variantImages: string[] = [];
+    for (let j = 0; j < 4; j++) {
+      const imageIdx = (baseIndex + i * 3 + j) % images.length;
+      const imageId = images[imageIdx];
+      // Add slight variation to image params for each color
+      variantImages.push(`https://images.unsplash.com/photo-${imageId}?w=800&q=80&sat=${i * 10}`);
+    }
+    
+    variants.push({
+      name: color.name,
+      hex: color.hex,
+      images: variantImages,
+      available_sizes: sizes
+    });
+  }
+  
+  return variants;
+};
+
 // Generate Dresses (110 items)
 const generateDresses = (): Product[] => {
   const dresses: Product[] = [];
@@ -215,6 +251,8 @@ const generateDresses = (): Product[] => {
     const hasSale = tags.includes("sale");
     const price = 1499 + Math.floor(Math.random() * 7500);
     const colorPalette = i % 3 === 0 ? vibrantColors : i % 3 === 1 ? pastelColors : neutralColors;
+    const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
+    const colorVariants = generateColorVariants("dresses", i, colorPalette, sizes);
     
     const productName = `${type} Dress`;
     dresses.push({
@@ -224,9 +262,10 @@ const generateDresses = (): Product[] => {
       price,
       originalPrice: getSalePrice(price, hasSale),
       category: "dresses",
-      images: getImage("dresses", i),
-      sizes: ["XS", "S", "M", "L", "XL", "XXL"],
+      images: colorVariants[0]?.images || getImage("dresses", i),
+      sizes,
       colors: [colorPalette[i % colorPalette.length], colorPalette[(i + 1) % colorPalette.length]],
+      colorVariants,
       description: `Elegant ${type.toLowerCase()} dress perfect for any occasion`,
       material: i % 4 === 0 ? "100% Cotton" : i % 4 === 1 ? "Polyester blend" : i % 4 === 2 ? "Silk" : "Rayon",
       inStock: isInStock(i),
@@ -257,6 +296,8 @@ const generateTops = (): Product[] => {
     const hasSale = tags.includes("sale");
     const price = 999 + Math.floor(Math.random() * 4000);
     const colorPalette = i % 2 === 0 ? neutralColors : vibrantColors;
+    const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
+    const colorVariants = generateColorVariants("tops", i, colorPalette, sizes);
     
     tops.push({
       id: generateId("tops", i + 1),
@@ -265,9 +306,10 @@ const generateTops = (): Product[] => {
       price,
       originalPrice: getSalePrice(price, hasSale),
       category: "tops",
-      images: getImage("tops", i),
-      sizes: ["XS", "S", "M", "L", "XL", "XXL"],
+      images: colorVariants[0]?.images || getImage("tops", i),
+      sizes,
       colors: [colorPalette[i % colorPalette.length], colorPalette[(i + 2) % colorPalette.length]],
+      colorVariants,
       description: `Stylish ${type.toLowerCase()} for everyday wear`,
       material: i % 5 === 0 ? "100% Cotton" : i % 5 === 1 ? "Polyester" : i % 5 === 2 ? "Silk" : i % 5 === 3 ? "Linen" : "Cotton blend",
       inStock: isInStock(i),
@@ -298,6 +340,8 @@ const generateBottoms = (): Product[] => {
     const tags = getRandomTags(i);
     const hasSale = tags.includes("sale");
     const price = 1299 + Math.floor(Math.random() * 4700);
+    const sizes = isJeans ? ["26", "28", "30", "32", "34", "36"] : ["XS", "S", "M", "L", "XL"];
+    const colorVariants = generateColorVariants("bottoms", i, neutralColors, sizes);
     
     bottoms.push({
       id: generateId("bott", i + 1),
@@ -306,9 +350,10 @@ const generateBottoms = (): Product[] => {
       price,
       originalPrice: getSalePrice(price, hasSale),
       category: "bottoms",
-      images: getImage("bottoms", i),
-      sizes: isJeans ? ["26", "28", "30", "32", "34", "36"] : ["XS", "S", "M", "L", "XL"],
+      images: colorVariants[0]?.images || getImage("bottoms", i),
+      sizes,
       colors: [neutralColors[i % neutralColors.length], neutralColors[(i + 1) % neutralColors.length]],
+      colorVariants,
       description: `Comfortable ${type.toLowerCase()} for any occasion`,
       material: i % 4 === 0 ? "Denim" : i % 4 === 1 ? "Cotton" : i % 4 === 2 ? "Polyester" : "Viscose",
       inStock: isInStock(i),
@@ -338,6 +383,8 @@ const generateOuterwear = (): Product[] => {
     const tags = getRandomTags(i);
     const hasSale = tags.includes("sale");
     const price = 2499 + Math.floor(Math.random() * 10500);
+    const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
+    const colorVariants = generateColorVariants("outerwear", i, neutralColors, sizes);
     
     outerwear.push({
       id: generateId("oute", i + 1),
@@ -346,9 +393,10 @@ const generateOuterwear = (): Product[] => {
       price,
       originalPrice: getSalePrice(price, hasSale),
       category: "outerwear",
-      images: getImage("outerwear", i),
-      sizes: ["XS", "S", "M", "L", "XL", "XXL"],
+      images: colorVariants[0]?.images || getImage("outerwear", i),
+      sizes,
       colors: [neutralColors[i % neutralColors.length], neutralColors[(i + 2) % neutralColors.length]],
+      colorVariants,
       description: `Premium ${type.toLowerCase()} for layering`,
       material: i % 5 === 0 ? "Denim" : i % 5 === 1 ? "Wool blend" : i % 5 === 2 ? "Polyester" : i % 5 === 3 ? "Cotton" : "Leather",
       inStock: isInStock(i),
@@ -379,6 +427,8 @@ const generateFootwear = (): Product[] => {
     const hasSale = tags.includes("sale");
     const price = 1499 + Math.floor(Math.random() * 6500);
     const colorPalette = i % 2 === 0 ? neutralColors : [...neutralColors.slice(0, 2), { name: "Tan", hex: "#D2691E" }, { name: "Brown", hex: "#8B4513" }];
+    const sizes = ["36", "37", "38", "39", "40", "41", "42"];
+    const colorVariants = generateColorVariants("footwear", i, colorPalette, sizes);
     
     footwear.push({
       id: generateId("foot", i + 1),
@@ -387,9 +437,10 @@ const generateFootwear = (): Product[] => {
       price,
       originalPrice: getSalePrice(price, hasSale),
       category: "footwear",
-      images: getImage("footwear", i),
-      sizes: ["36", "37", "38", "39", "40", "41", "42"],
+      images: colorVariants[0]?.images || getImage("footwear", i),
+      sizes,
       colors: [colorPalette[i % colorPalette.length], colorPalette[(i + 1) % colorPalette.length]],
+      colorVariants,
       description: `Comfortable ${type.toLowerCase()} for all-day wear`,
       material: i % 4 === 0 ? "Genuine Leather" : i % 4 === 1 ? "Synthetic Leather" : i % 4 === 2 ? "Canvas" : "Suede",
       inStock: isInStock(i),
@@ -426,6 +477,8 @@ const generateAccessories = (): Product[] => {
     const colorPalette = type.includes("Jewelry") || type.includes("Necklace") || type.includes("Earrings") || type.includes("Bracelet") || type.includes("Ring")
       ? [{ name: "Gold", hex: "#FFD700" }, { name: "Silver", hex: "#C0C0C0" }, { name: "Rose Gold", hex: "#B76E79" }]
       : neutralColors;
+    const sizes = ["One Size"];
+    const colorVariants = generateColorVariants("accessories", i, colorPalette, sizes);
     
     accessories.push({
       id: generateId("acce", i + 1),
@@ -434,9 +487,10 @@ const generateAccessories = (): Product[] => {
       price,
       originalPrice: getSalePrice(price, hasSale),
       category: "accessories",
-      images: getImage("accessories", i),
-      sizes: ["One Size"],
+      images: colorVariants[0]?.images || getImage("accessories", i),
+      sizes,
       colors: [colorPalette[i % colorPalette.length]],
+      colorVariants,
       description: `Stylish ${type.toLowerCase()} to complete your look`,
       material: i % 5 === 0 ? "Genuine Leather" : i % 5 === 1 ? "Gold-plated" : i % 5 === 2 ? "Silk" : i % 5 === 3 ? "Metal" : "Synthetic",
       inStock: isInStock(i),

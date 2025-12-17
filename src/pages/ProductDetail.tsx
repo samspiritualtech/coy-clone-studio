@@ -13,7 +13,7 @@ import { VirtualTryOnDialog } from "@/components/VirtualTryOnDialog";
 import { RecommendationCarousel } from "@/components/RecommendationCarousel";
 import { ProductImageGallery } from "@/components/ProductImageGallery";
 import { ViewSimilarModal } from "@/components/ViewSimilarModal";
-import { Product } from "@/types";
+import { Product, ColorVariant } from "@/types";
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -22,64 +22,43 @@ export default function ProductDetail() {
   const { toggleItem, isInWishlist } = useWishlist();
 
   // Find the current product
-  const initialProduct = products.find(p => p.id === id);
+  const currentProduct = useMemo(() => products.find(p => p.id === id), [id]);
   
-  // State management
-  const [currentProduct, setCurrentProduct] = useState<Product | null>(initialProduct || null);
-  const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  // State management for color variants
+  const [selectedVariant, setSelectedVariant] = useState<ColorVariant | null>(null);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [showSimilarModal, setShowSimilarModal] = useState(false);
-  const [isTransitioning, setIsTransitioning] = useState(false);
 
-  // Reset state when URL changes
+  // Initialize with first color variant when product changes
   useEffect(() => {
-    const product = products.find(p => p.id === id);
-    setCurrentProduct(product || null);
-    setSelectedSize(null);
-    setSelectedColor(null);
-    setQuantity(1);
-  }, [id]);
-
-  // Find color variant products (products with same category and similar name)
-  const colorVariants = useMemo(() => {
-    if (!currentProduct) return [];
-    
-    // Find products that could be color variants
-    // In a real app, these would be linked via a variant_group_id
-    return products.filter(p => 
-      p.category === currentProduct.category &&
-      p.brand === currentProduct.brand &&
-      p.id !== currentProduct.id
-    ).slice(0, 5);
-  }, [currentProduct]);
-
-  // All available colors including current product and variants
-  const allColors = useMemo(() => {
-    if (!currentProduct) return [];
-    
-    const colors: Array<{ name: string; hex: string; productId: string }> = [];
-    
-    // Add current product's first color
-    if (currentProduct.colors[0]) {
-      colors.push({
-        ...currentProduct.colors[0],
-        productId: currentProduct.id
-      });
+    if (currentProduct?.colorVariants?.[0]) {
+      const firstVariant = currentProduct.colorVariants[0];
+      setSelectedVariant(firstVariant);
+      setSelectedColor(firstVariant.name);
+    } else if (currentProduct?.colors?.[0]) {
+      setSelectedColor(currentProduct.colors[0].name);
     }
-    
-    // Add variant product colors
-    colorVariants.forEach(variant => {
-      if (variant.colors[0] && !colors.find(c => c.name === variant.colors[0].name)) {
-        colors.push({
-          ...variant.colors[0],
-          productId: variant.id
-        });
-      }
-    });
-    
-    return colors;
-  }, [currentProduct, colorVariants]);
+    setSelectedSize(null);
+    setQuantity(1);
+  }, [id, currentProduct]);
+
+  // Get current images based on selected variant
+  const currentImages = useMemo(() => {
+    if (selectedVariant?.images?.length) {
+      return selectedVariant.images;
+    }
+    return currentProduct?.images || [];
+  }, [selectedVariant, currentProduct]);
+
+  // Get current sizes based on selected variant
+  const currentSizes = useMemo(() => {
+    if (selectedVariant?.available_sizes?.length) {
+      return selectedVariant.available_sizes;
+    }
+    return currentProduct?.sizes || [];
+  }, [selectedVariant, currentProduct]);
 
   // Similar products for the modal
   const similarProducts = useMemo(() => {
@@ -92,16 +71,12 @@ export default function ProductDetail() {
     ).slice(0, 12);
   }, [currentProduct]);
 
-  // Handle color selection - switch to variant product
-  const handleColorSelect = (color: { name: string; hex: string; productId: string }) => {
-    if (color.productId !== currentProduct?.id) {
-      setIsTransitioning(true);
-      setTimeout(() => {
-        navigate(`/product/${color.productId}`);
-        setIsTransitioning(false);
-      }, 150);
-    }
-    setSelectedColor(color.name);
+  // Handle color selection - update state only, NO navigation
+  const handleColorSelect = (variant: ColorVariant) => {
+    setSelectedVariant(variant);
+    setSelectedColor(variant.name);
+    // Reset size when color changes (variant may have different sizes)
+    setSelectedSize(null);
   };
 
   const isSelectionComplete = selectedSize !== null;
@@ -148,12 +123,12 @@ export default function ProductDetail() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className={`flex-1 container mx-auto px-4 py-8 transition-opacity duration-150 ${isTransitioning ? 'opacity-50' : 'opacity-100'}`}>
+      <main className="flex-1 container mx-auto px-4 py-8">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 mb-16">
           {/* Image Gallery - Left Side */}
           <div className="lg:sticky lg:top-24 lg:h-fit">
             <ProductImageGallery
-              images={currentProduct.images}
+              images={currentImages}
               productName={currentProduct.name}
               onViewSimilar={() => setShowSimilarModal(true)}
             />
@@ -218,20 +193,20 @@ export default function ProductDetail() {
                 )}
               </p>
               <div className="flex flex-wrap gap-3">
-                {allColors.map((color) => {
-                  const isSelected = color.productId === currentProduct.id;
+                {currentProduct.colorVariants?.map((variant) => {
+                  const isSelected = selectedColor === variant.name;
                   return (
                     <button
-                      key={`${color.name}-${color.productId}`}
-                      onClick={() => handleColorSelect(color)}
+                      key={variant.name}
+                      onClick={() => handleColorSelect(variant)}
                       className={`group relative w-12 h-12 rounded-full transition-all ${
                         isSelected
-                          ? 'ring-2 ring-offset-2 ring-primary scale-110'
-                          : 'hover:scale-105'
+                          ? 'ring-2 ring-offset-2 ring-foreground scale-110'
+                          : 'hover:scale-105 border border-border'
                       }`}
-                      style={{ backgroundColor: color.hex }}
-                      title={color.name}
-                      aria-label={`Select ${color.name} color`}
+                      style={{ backgroundColor: variant.hex }}
+                      title={variant.name}
+                      aria-label={`Select ${variant.name} color`}
                     >
                       {isSelected && (
                         <span className="absolute inset-0 flex items-center justify-center">
@@ -240,7 +215,7 @@ export default function ProductDetail() {
                       )}
                       {/* Tooltip */}
                       <span className="absolute -bottom-7 left-1/2 -translate-x-1/2 text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
-                        {color.name}
+                        {variant.name}
                       </span>
                     </button>
                   );
