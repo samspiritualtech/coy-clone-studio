@@ -149,7 +149,7 @@ export type Database = {
           colors: Json | null
           created_at: string | null
           description: string | null
-          designer_id: string
+          designer_id: string | null
           id: string
           images: Json | null
           is_available: boolean | null
@@ -159,13 +159,14 @@ export type Database = {
           sizes: Json | null
           title: string
           updated_at: string | null
+          vendor_id: string | null
         }
         Insert: {
           category: string
           colors?: Json | null
           created_at?: string | null
           description?: string | null
-          designer_id: string
+          designer_id?: string | null
           id?: string
           images?: Json | null
           is_available?: boolean | null
@@ -175,13 +176,14 @@ export type Database = {
           sizes?: Json | null
           title: string
           updated_at?: string | null
+          vendor_id?: string | null
         }
         Update: {
           category?: string
           colors?: Json | null
           created_at?: string | null
           description?: string | null
-          designer_id?: string
+          designer_id?: string | null
           id?: string
           images?: Json | null
           is_available?: boolean | null
@@ -191,6 +193,7 @@ export type Database = {
           sizes?: Json | null
           title?: string
           updated_at?: string | null
+          vendor_id?: string | null
         }
         Relationships: [
           {
@@ -198,6 +201,13 @@ export type Database = {
             columns: ["designer_id"]
             isOneToOne: false
             referencedRelation: "designers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
             referencedColumns: ["id"]
           },
         ]
@@ -256,6 +266,42 @@ export type Database = {
           product_name?: string | null
           result_image_url?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      vendors: {
+        Row: {
+          banner_image: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          logo: string | null
+          name: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          banner_image?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          logo?: string | null
+          name: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          banner_image?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          logo?: string | null
+          name?: string
+          slug?: string
+          updated_at?: string
         }
         Relationships: []
       }
