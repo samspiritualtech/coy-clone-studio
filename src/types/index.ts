@@ -76,6 +76,8 @@ export interface Designer {
   id: string;
   name: string;
   brand_name: string;
+  slug: string;
+  banner_image?: string;
   city: string;
   category: string;
   price_range: string;
@@ -86,6 +88,30 @@ export interface Designer {
   profile_image: string;
   product_images: string[];
   description: string;
+  is_active?: boolean;
   created_at?: string;
   updated_at?: string;
+}
+
+export interface DesignerProduct {
+  id: string;
+  title: string;
+  price: number;
+  original_price?: number;
+  images: string[];
+  category: string;
+  colors: { name: string; hex: string }[];
+  sizes: string[];
+  description?: string;
+  material?: string;
+  is_available: boolean;
+  designer_id: string;
+  created_at?: string;
+}
+
+export interface ProductFilters {
+  category?: string;
+  priceRange?: [number, number];
+  colors?: string[];
+  inStockOnly?: boolean;
 }

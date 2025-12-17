@@ -47,7 +47,7 @@ export const DesignerCard = ({ designer }: DesignerCardProps) => {
         </div>
 
         <Button 
-          onClick={() => navigate(`/designers/${designer.id}`)}
+          onClick={() => navigate(`/designer/${designer.slug}`)}
           className="w-full"
         >
           View Profile

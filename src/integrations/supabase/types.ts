@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       designers: {
         Row: {
+          banner_image: string | null
           brand_name: string
           category: string
           city: string
@@ -30,9 +31,11 @@ export type Database = {
           price_range: string
           product_images: Json | null
           profile_image: string | null
+          slug: string
           updated_at: string
         }
         Insert: {
+          banner_image?: string | null
           brand_name: string
           category: string
           city: string
@@ -47,9 +50,11 @@ export type Database = {
           price_range: string
           product_images?: Json | null
           profile_image?: string | null
+          slug: string
           updated_at?: string
         }
         Update: {
+          banner_image?: string | null
           brand_name?: string
           category?: string
           city?: string
@@ -64,6 +69,7 @@ export type Database = {
           price_range?: string
           product_images?: Json | null
           profile_image?: string | null
+          slug?: string
           updated_at?: string
         }
         Relationships: []
@@ -133,6 +139,65 @@ export type Database = {
           verified?: boolean | null
         }
         Relationships: []
+      }
+      products: {
+        Row: {
+          category: string
+          colors: Json | null
+          created_at: string | null
+          description: string | null
+          designer_id: string
+          id: string
+          images: Json | null
+          is_available: boolean | null
+          material: string | null
+          original_price: number | null
+          price: number
+          sizes: Json | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          category: string
+          colors?: Json | null
+          created_at?: string | null
+          description?: string | null
+          designer_id: string
+          id?: string
+          images?: Json | null
+          is_available?: boolean | null
+          material?: string | null
+          original_price?: number | null
+          price: number
+          sizes?: Json | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string
+          colors?: Json | null
+          created_at?: string | null
+          description?: string | null
+          designer_id?: string
+          id?: string
+          images?: Json | null
+          is_available?: boolean | null
+          material?: string | null
+          original_price?: number | null
+          price?: number
+          sizes?: Json | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_designer_id_fkey"
+            columns: ["designer_id"]
+            isOneToOne: false
+            referencedRelation: "designers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
