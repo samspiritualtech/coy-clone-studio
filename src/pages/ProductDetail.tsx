@@ -8,7 +8,7 @@ import { products } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { toast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { VirtualTryOnDialog } from "@/components/VirtualTryOnDialog";
 import { RecommendationCarousel } from "@/components/RecommendationCarousel";
 
@@ -19,9 +19,18 @@ export default function ProductDetail() {
   const { addItem } = useCart();
   const { toggleItem, isInWishlist } = useWishlist();
 
-  const [selectedSize, setSelectedSize] = useState("");
-  const [selectedColor, setSelectedColor] = useState("");
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
+
+  // Map color index to image index for color-based image switching
+  const currentImageIndex = useMemo(() => {
+    if (!product || !selectedColor) return 0;
+    const colorIndex = product.colors.findIndex(c => c.name === selectedColor);
+    return colorIndex >= 0 ? colorIndex % product.images.length : 0;
+  }, [selectedColor, product]);
+
+  const isSelectionComplete = selectedSize !== null && selectedColor !== null;
 
   if (!product) {
     return (
@@ -52,14 +61,17 @@ export default function ProductDetail() {
   };
 
   const handleBuyNow = () => {
-    if (!selectedSize || !selectedColor) {
-      toast({ title: "Please select size and color", variant: "destructive" });
+    if (!selectedSize) {
+      toast({ title: "Please select a size", variant: "destructive" });
+      return;
+    }
+    if (!selectedColor) {
+      toast({ title: "Please select a color", variant: "destructive" });
       return;
     }
     addItem(product, selectedSize, selectedColor, quantity);
     navigate('/cart');
   };
-
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -70,9 +82,9 @@ export default function ProductDetail() {
           <div className="space-y-4">
             <div className="aspect-[3/4] relative overflow-hidden rounded-lg bg-muted">
               <img
-                src={product.images[0]}
+                src={product.images[currentImageIndex]}
                 alt={product.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-opacity duration-300"
               />
               {product.tags.includes('new-arrivals') && (
                 <Badge className="absolute top-4 left-4">NEW</Badge>
@@ -84,7 +96,18 @@ export default function ProductDetail() {
             {product.images.length > 1 && (
               <div className="grid grid-cols-4 gap-2">
                 {product.images.map((img, idx) => (
-                  <div key={idx} className="aspect-square rounded-md overflow-hidden bg-muted">
+                  <div 
+                    key={idx} 
+                    className={`aspect-square rounded-md overflow-hidden bg-muted cursor-pointer border-2 transition-all ${
+                      currentImageIndex === idx ? 'border-primary ring-2 ring-primary/20' : 'border-transparent'
+                    }`}
+                    onClick={() => {
+                      // Find a color that maps to this image index
+                      if (product.colors[idx]) {
+                        setSelectedColor(product.colors[idx].name);
+                      }
+                    }}
+                  >
                     <img src={img} alt={`${product.name} ${idx + 1}`} className="w-full h-full object-cover" />
                   </div>
                 ))}
@@ -110,32 +133,53 @@ export default function ProductDetail() {
 
             {/* Colors */}
             <div>
-              <p className="font-medium mb-3">Select Color</p>
-              <div className="flex gap-2">
+              <p className="font-medium mb-3">
+                Select Color
+                {selectedColor && (
+                  <span className="ml-2 text-muted-foreground font-normal">— {selectedColor}</span>
+                )}
+              </p>
+              <div className="flex gap-3">
                 {product.colors.map((color) => (
                   <button
                     key={color.name}
                     onClick={() => setSelectedColor(color.name)}
-                    className={`w-10 h-10 rounded-full border-2 transition-all ${
-                      selectedColor === color.name ? 'border-foreground scale-110' : 'border-border'
+                    className={`w-10 h-10 rounded-full transition-all relative ${
+                      selectedColor === color.name 
+                        ? 'ring-2 ring-offset-2 ring-primary scale-110' 
+                        : 'hover:scale-105'
                     }`}
                     style={{ backgroundColor: color.hex }}
                     title={color.name}
-                  />
+                    aria-label={`Select ${color.name} color`}
+                  >
+                    {selectedColor === color.name && (
+                      <span className="absolute inset-0 flex items-center justify-center">
+                        <span className="w-2 h-2 rounded-full bg-white shadow-md" />
+                      </span>
+                    )}
+                  </button>
                 ))}
               </div>
             </div>
 
             {/* Sizes */}
             <div>
-              <p className="font-medium mb-3">Select Size</p>
+              <p className="font-medium mb-3">
+                Select Size
+                {selectedSize && (
+                  <span className="ml-2 text-muted-foreground font-normal">— {selectedSize}</span>
+                )}
+              </p>
               <div className="flex flex-wrap gap-2">
                 {product.sizes.map((size) => (
                   <Button
                     key={size}
                     variant={selectedSize === size ? "default" : "outline"}
                     onClick={() => setSelectedSize(size)}
-                    className="min-w-[60px]"
+                    className={`min-w-[60px] transition-all ${
+                      selectedSize === size ? 'ring-2 ring-primary/30' : ''
+                    }`}
                   >
                     {size}
                   </Button>
@@ -167,8 +211,18 @@ export default function ProductDetail() {
 
             {/* Actions */}
             <div className="space-y-3">
+              {!isSelectionComplete && (
+                <p className="text-sm text-muted-foreground">
+                  Please select {!selectedColor && !selectedSize ? 'color and size' : !selectedColor ? 'a color' : 'a size'} to continue
+                </p>
+              )}
               <div className="flex gap-3">
-                <Button onClick={handleAddToCart} className="flex-1" size="lg">
+                <Button 
+                  onClick={handleAddToCart} 
+                  className="flex-1" 
+                  size="lg"
+                  disabled={!isSelectionComplete}
+                >
                   <ShoppingBag className="mr-2 h-5 w-5" />
                   Add to Cart
                 </Button>
@@ -185,11 +239,17 @@ export default function ProductDetail() {
                   <Heart className={isInWishlist(product.id) ? "fill-current" : ""} />
                 </Button>
               </div>
-              <Button onClick={handleBuyNow} variant="secondary" className="w-full" size="lg">
+              <Button 
+                onClick={handleBuyNow} 
+                variant="secondary" 
+                className="w-full" 
+                size="lg"
+                disabled={!isSelectionComplete}
+              >
                 Buy Now
               </Button>
               <VirtualTryOnDialog
-                productImageUrl={product.images[0]}
+                productImageUrl={product.images[currentImageIndex]}
                 productName={product.name}
                 category={product.category as "upper_body" | "lower_body" | "dresses"}
               />
