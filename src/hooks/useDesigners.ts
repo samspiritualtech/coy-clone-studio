@@ -29,6 +29,7 @@ export const useDesigners = (filters?: { search?: string; category?: string }) =
       return (data || []).map((designer) => ({
         ...designer,
         slug: designer.slug || '',
+        collection_name: designer.collection_name || '',
         product_images: Array.isArray(designer.product_images) 
           ? designer.product_images 
           : []
@@ -54,6 +55,7 @@ export const useDesigner = (id: string) => {
       return {
         ...data,
         slug: data.slug || '',
+        collection_name: data.collection_name || '',
         product_images: Array.isArray(data.product_images) 
           ? data.product_images 
           : []
