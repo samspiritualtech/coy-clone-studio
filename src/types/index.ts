@@ -1,3 +1,11 @@
+// Color variant with color-specific images
+export interface ColorVariant {
+  name: string;
+  hex: string;
+  images: string[];
+  available_sizes?: string[];
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -8,6 +16,7 @@ export interface Product {
   images: string[];
   sizes: string[];
   colors: Array<{ name: string; hex: string }>;
+  colorVariants?: ColorVariant[];
   description: string;
   material: string;
   inStock: boolean;
