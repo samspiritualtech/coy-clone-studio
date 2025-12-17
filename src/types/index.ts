@@ -97,6 +97,7 @@ export interface Designer {
   profile_image: string;
   product_images: string[];
   description: string;
+  collection_name?: string;
   is_active?: boolean;
   created_at?: string;
   updated_at?: string;

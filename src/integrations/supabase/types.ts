@@ -20,6 +20,7 @@ export type Database = {
           brand_name: string
           category: string
           city: string
+          collection_name: string | null
           contact_number: string | null
           created_at: string
           description: string | null
@@ -39,6 +40,7 @@ export type Database = {
           brand_name: string
           category: string
           city: string
+          collection_name?: string | null
           contact_number?: string | null
           created_at?: string
           description?: string | null
@@ -58,6 +60,7 @@ export type Database = {
           brand_name?: string
           category?: string
           city?: string
+          collection_name?: string | null
           contact_number?: string | null
           created_at?: string
           description?: string | null
