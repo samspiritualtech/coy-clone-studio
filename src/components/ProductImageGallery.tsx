@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { Play } from "lucide-react";
+import { Play, Copy } from "lucide-react";
 
 interface ProductImageGalleryProps {
   images: string[];
@@ -27,17 +27,17 @@ export const ProductImageGallery = ({
 
   return (
     <div className="flex gap-4 h-full">
-      {/* Vertical Thumbnail Strip */}
-      <div className="flex flex-col gap-2 w-20 shrink-0">
+      {/* Vertical Thumbnail Strip - Aza Style */}
+      <div className="flex flex-col gap-3 w-24 shrink-0">
         {galleryImages.map((image, idx) => (
           <button
             key={idx}
             onClick={() => setSelectedIndex(idx)}
             className={cn(
-              "relative aspect-[3/4] rounded-md overflow-hidden border-2 transition-all duration-200",
+              "relative aspect-[3/4] overflow-hidden transition-all duration-200",
               selectedIndex === idx
-                ? "border-primary ring-2 ring-primary/20"
-                : "border-border/50 hover:border-border"
+                ? "border-2 border-foreground"
+                : "border border-border/40 hover:border-border"
             )}
           >
             <img
@@ -45,10 +45,10 @@ export const ProductImageGallery = ({
               alt={`${productName} view ${idx + 1}`}
               className="w-full h-full object-cover"
             />
-            {/* Video indicator placeholder - can be used if video URLs are provided */}
+            {/* Video indicator */}
             {idx === galleryImages.length - 1 && galleryImages.length > 3 && (
-              <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                <Play className="w-6 h-6 text-white" />
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                <Play className="w-6 h-6 text-white fill-white" />
               </div>
             )}
           </button>
@@ -57,22 +57,28 @@ export const ProductImageGallery = ({
 
       {/* Main Image */}
       <div className="flex-1 relative">
-        <div className="aspect-[3/4] rounded-lg overflow-hidden bg-muted">
+        <div className="aspect-[3/4] overflow-hidden bg-muted">
           <img
             src={galleryImages[selectedIndex]}
             alt={productName}
-            className="w-full h-full object-cover transition-opacity duration-300"
+            className="w-full h-full object-cover transition-all duration-300 ease-in-out"
           />
         </div>
 
-        {/* View Similar Button */}
+        {/* View Similar Button - Top Right Aza Style */}
         {onViewSimilar && (
-          <button
-            onClick={onViewSimilar}
-            className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-background/95 backdrop-blur-sm border border-border px-6 py-2.5 rounded-full text-sm font-medium shadow-lg hover:bg-background transition-all hover:scale-105"
-          >
-            View Similar
-          </button>
+          <div className="absolute top-4 right-4 flex flex-col items-center gap-2">
+            <button
+              onClick={onViewSimilar}
+              className="bg-white/95 backdrop-blur-sm p-3 rounded-lg shadow-md hover:bg-white transition-all group"
+              title="View Similar"
+            >
+              <Copy className="w-5 h-5 text-gray-700 group-hover:text-gray-900" />
+            </button>
+            <span className="text-xs font-medium text-foreground/80 bg-white/90 px-2 py-1 rounded shadow-sm">
+              View Similar
+            </span>
+          </div>
         )}
       </div>
     </div>
