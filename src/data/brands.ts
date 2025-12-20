@@ -2,6 +2,23 @@ import { Brand } from "@/types";
 
 export const brands: Brand[] = [
   {
+    id: "indigo",
+    name: "INDIGO",
+    logo: "/indigo/product-1.jpg",
+    description: "Contemporary fashion with bold patterns and artisanal details",
+    productCount: 0,
+    instagramHandle: "@indigo.fashion",
+    instagramFollowers: "50K",
+    sellsOnInstagram: true,
+    galleryImages: [
+      "/indigo/product-1.jpg",
+      "/indigo/product-2.jpg",
+      "/indigo/product-3.jpg",
+      "/indigo/product-4.jpg",
+      "/indigo/product-5.jpg"
+    ]
+  },
+  {
     id: "ogura",
     name: "OGURA",
     logo: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=200&h=200&fit=crop",
