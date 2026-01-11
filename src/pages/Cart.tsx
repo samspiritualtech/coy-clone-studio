@@ -20,16 +20,18 @@ export default function Cart() {
     setIsLoading(true);
     
     try {
-      await fetch('https://hook.eu2.make.com/YOUR_WEBHOOK_URL_HERE', {
+      await fetch('https://hook.eu2.make.com/kxoh3ezj89zte1al5amyipk2kfp75dkl', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         mode: 'no-cors',
         body: JSON.stringify({
-          email: user?.email || 'guest@example.com',
-          name: user?.name || 'Guest User',
-          event: 'checkout_confirmed'
+          event: 'order_confirmed',
+          customer_name: user?.name || 'Guest User',
+          customer_email: user?.email || 'guest@example.com',
+          order_total: total,
+          currency: 'INR'
         }),
       });
 
