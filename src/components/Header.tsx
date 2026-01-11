@@ -35,7 +35,7 @@ export const Header = () => {
 
           <Link to="/" className="text-2xl font-bold tracking-tight">OGURA</Link>
 
-          <nav className="hidden md:flex items-center gap-6">
+          <nav className="hidden md:flex items-center gap-6 static">
             <MegaMenu isScrolled={true} />
             <Link to="/brands" className="text-sm font-medium hover:text-accent transition-colors">Brands</Link>
             <Link to="/designers" className="text-sm font-medium hover:text-accent transition-colors">Designer Labels</Link>
