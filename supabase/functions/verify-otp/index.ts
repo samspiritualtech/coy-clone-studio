@@ -95,32 +95,67 @@ serve(async (req) => {
 
     // Create or sign in user with phone-based email
     const phoneEmail = `${phone}@ogura.phone.auth`;
-    const phonePassword = `ogura_${phone}_${otpRecord.otp_hash.slice(0, 16)}`;
+    
+    // Check if user already exists by looking up by email
+    const { data: existingUsers } = await supabase.auth.admin.listUsers();
+    const existingUser = existingUsers?.users?.find(u => u.email === phoneEmail);
 
-    // Try to sign in first
-    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-      email: phoneEmail,
-      password: phonePassword
-    });
+    if (existingUser) {
+      // User exists - generate a magic link token for them
+      const { data: sessionData, error: sessionError } = await supabase.auth.admin.generateLink({
+        type: 'magiclink',
+        email: phoneEmail,
+      });
 
-    if (signInData?.session) {
-      // Existing user - update profile if name provided
+      if (sessionError || !sessionData) {
+        console.error('Error generating session:', sessionError);
+        return new Response(
+          JSON.stringify({ success: false, error: 'Failed to sign in. Please try again.' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Update profile if name provided
       if (name) {
         await supabase
           .from('profiles')
           .update({ name, phone })
-          .eq('id', signInData.user.id);
+          .eq('id', existingUser.id);
       }
 
       console.log(`User signed in: +91${phone}`);
-      
+
+      // Use the token to create a session
+      const { data: verifyData, error: verifyError } = await supabase.auth.verifyOtp({
+        token_hash: sessionData.properties?.hashed_token,
+        type: 'magiclink',
+      });
+
+      if (verifyError || !verifyData.session) {
+        // Fallback: return user info without session, client can handle
+        return new Response(
+          JSON.stringify({ 
+            success: true,
+            session: null,
+            user: {
+              id: existingUser.id,
+              name: name || existingUser.user_metadata?.name || `User ${phone.slice(-4)}`,
+              phone
+            },
+            needsRefresh: true,
+            message: 'Login successful'
+          }),
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
       return new Response(
         JSON.stringify({ 
           success: true,
-          session: signInData.session,
+          session: verifyData.session,
           user: {
-            id: signInData.user.id,
-            name: name || `User ${phone.slice(-4)}`,
+            id: existingUser.id,
+            name: name || existingUser.user_metadata?.name || `User ${phone.slice(-4)}`,
             phone
           },
           message: 'Login successful'
@@ -129,7 +164,9 @@ serve(async (req) => {
       );
     }
 
-    // New user - create account
+    // New user - create account with a consistent password
+    const phonePassword = `ogura_secure_${phone}_auth`;
+    
     const { data: signUpData, error: signUpError } = await supabase.auth.admin.createUser({
       email: phoneEmail,
       password: phonePassword,
