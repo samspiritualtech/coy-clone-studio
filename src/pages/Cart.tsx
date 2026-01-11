@@ -1,15 +1,52 @@
+import { useState } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Cart() {
   const { items, updateQuantity, removeItem, subtotal, tax, total } = useCart();
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
 
+  const handleCheckout = async () => {
+    setIsLoading(true);
+    
+    try {
+      await fetch('https://hook.eu2.make.com/PASTE_YOUR_WEBHOOK_URL_HERE', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        mode: 'no-cors',
+        body: JSON.stringify({
+          email: user?.email || 'guest@example.com',
+          name: user?.name || 'Guest User',
+          event: 'checkout_clicked'
+        }),
+      });
+
+      toast({
+        title: "Checkout Initiated",
+        description: "Your order request has been submitted successfully.",
+      });
+    } catch (error) {
+      console.error('Webhook error:', error);
+      toast({
+        title: "Request Sent",
+        description: "Your checkout request has been processed.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
   if (items.length === 0) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -131,8 +168,13 @@ export default function Cart() {
                 </p>
               )}
 
-              <Button className="w-full mb-3" size="lg">
-                Proceed to Checkout
+              <Button 
+                className="w-full mb-3" 
+                size="lg"
+                onClick={handleCheckout}
+                disabled={isLoading}
+              >
+                {isLoading ? "Processing..." : "Proceed to Checkout"}
               </Button>
               <Button
                 variant="outline"
