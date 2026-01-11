@@ -76,7 +76,7 @@ export const LuxuryHeader = () => {
             OGURA
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden md:flex items-center gap-8 static">
             <MegaMenu isScrolled={isScrolled} />
             {navItems.map((item) => (
               <Link
