@@ -20,7 +20,7 @@ export default function Cart() {
     setIsLoading(true);
     
     try {
-      await fetch('https://hook.eu2.make.com/PASTE_YOUR_WEBHOOK_URL_HERE', {
+      await fetch('https://hook.eu2.make.com/YOUR_WEBHOOK_URL_HERE', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -29,19 +29,19 @@ export default function Cart() {
         body: JSON.stringify({
           email: user?.email || 'guest@example.com',
           name: user?.name || 'Guest User',
-          event: 'checkout_clicked'
+          event: 'checkout_confirmed'
         }),
       });
 
       toast({
-        title: "Checkout Initiated",
-        description: "Your order request has been submitted successfully.",
+        title: "Order Confirmed",
+        description: "Your order confirmation has been submitted successfully.",
       });
     } catch (error) {
       console.error('Webhook error:', error);
       toast({
-        title: "Request Sent",
-        description: "Your checkout request has been processed.",
+        title: "Confirmation Sent",
+        description: "Your order confirmation has been processed.",
       });
     } finally {
       setIsLoading(false);
