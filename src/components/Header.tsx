@@ -7,6 +7,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { ImageSearchDialog } from "@/components/ImageSearchDialog";
+import { MegaMenu } from "@/components/MegaMenu";
+import { MegaMenuMobile } from "@/components/MegaMenuMobile";
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -34,7 +36,7 @@ export const Header = () => {
           <Link to="/" className="text-2xl font-bold tracking-tight">OGURA</Link>
 
           <nav className="hidden md:flex items-center gap-6">
-            <Link to="/collections" className="text-sm font-medium hover:text-accent transition-colors">Shop All</Link>
+            <MegaMenu isScrolled={true} />
             <Link to="/brands" className="text-sm font-medium hover:text-accent transition-colors">Brands</Link>
             <Link to="/designers" className="text-sm font-medium hover:text-accent transition-colors">Designer Labels</Link>
             <Link to="/occasions" className="text-sm font-medium hover:text-accent transition-colors">Occasions</Link>
@@ -63,7 +65,7 @@ export const Header = () => {
                   <User className="h-5 w-5" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" className="bg-background">
                 {user ? (
                   <>
                     <DropdownMenuItem onClick={() => navigate('/wishlist')}>
@@ -101,14 +103,16 @@ export const Header = () => {
       </div>
 
       {isMenuOpen && (
-        <div className="md:hidden border-t">
-          <nav className="container mx-auto px-4 py-4 flex flex-col gap-3">
-            <Link to="/collections" className="text-sm font-medium hover:text-accent transition-colors py-2" onClick={() => setIsMenuOpen(false)}>Shop All</Link>
-            <Link to="/brands" className="text-sm font-medium hover:text-accent transition-colors py-2" onClick={() => setIsMenuOpen(false)}>Brands</Link>
-            <Link to="/designers" className="text-sm font-medium hover:text-accent transition-colors py-2" onClick={() => setIsMenuOpen(false)}>Designer Labels</Link>
-            <Link to="/occasions" className="text-sm font-medium hover:text-accent transition-colors py-2" onClick={() => setIsMenuOpen(false)}>Occasions</Link>
-            <Link to="/stores" className="text-sm font-medium hover:text-accent transition-colors py-2" onClick={() => setIsMenuOpen(false)}>Stores</Link>
-          </nav>
+        <div className="md:hidden border-t bg-background">
+          <div className="container mx-auto px-4 py-4">
+            <MegaMenuMobile onItemClick={() => setIsMenuOpen(false)} />
+            <nav className="flex flex-col gap-3 mt-4 pt-4 border-t border-border">
+              <Link to="/brands" className="text-sm font-medium hover:text-accent transition-colors py-2" onClick={() => setIsMenuOpen(false)}>Brands</Link>
+              <Link to="/designers" className="text-sm font-medium hover:text-accent transition-colors py-2" onClick={() => setIsMenuOpen(false)}>Designer Labels</Link>
+              <Link to="/occasions" className="text-sm font-medium hover:text-accent transition-colors py-2" onClick={() => setIsMenuOpen(false)}>Occasions</Link>
+              <Link to="/stores" className="text-sm font-medium hover:text-accent transition-colors py-2" onClick={() => setIsMenuOpen(false)}>Stores</Link>
+            </nav>
+          </div>
         </div>
       )}
     </header>
