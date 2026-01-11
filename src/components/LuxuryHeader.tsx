@@ -7,6 +7,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { ImageSearchDialog } from "@/components/ImageSearchDialog";
+import { MegaMenu } from "@/components/MegaMenu";
+import { MegaMenuMobile } from "@/components/MegaMenuMobile";
 import { cn } from "@/lib/utils";
 
 export const LuxuryHeader = () => {
@@ -32,6 +34,14 @@ export const LuxuryHeader = () => {
       setSearchQuery("");
     }
   };
+
+  const navItems = [
+    { label: "Brands", path: "/brands" },
+    { label: "Designers", path: "/designers" },
+    { label: "Occasions", path: "/occasions" },
+    { label: "New", path: "/collections" },
+    { label: "Stores", path: "/stores" },
+  ];
 
   return (
     <header
@@ -67,16 +77,17 @@ export const LuxuryHeader = () => {
           </Link>
 
           <nav className="hidden md:flex items-center gap-8">
-            {["Shop All", "Brands", "Designers", "Occasions", "New", "Stores"].map((item) => (
+            <MegaMenu isScrolled={isScrolled} />
+            {navItems.map((item) => (
               <Link
-                key={item}
-                to={item === "Shop All" ? "/collections" : item === "New" ? "/collections" : `/${item.toLowerCase()}`}
+                key={item.label}
+                to={item.path}
                 className={cn(
                   "text-xs font-light uppercase tracking-[0.2em] transition-colors relative group",
                   isScrolled ? "text-foreground hover:text-accent" : "text-white/90 hover:text-white"
                 )}
               >
-                {item}
+                {item.label}
                 <span className={cn(
                   "absolute -bottom-1 left-0 w-0 h-px transition-all duration-300 group-hover:w-full",
                   isScrolled ? "bg-foreground" : "bg-white"
@@ -177,23 +188,27 @@ export const LuxuryHeader = () => {
       {/* Mobile Menu */}
       <div
         className={cn(
-          "md:hidden fixed inset-0 top-20 bg-background/98 backdrop-blur-md transition-all duration-300",
+          "md:hidden fixed inset-0 top-20 bg-background/98 backdrop-blur-md transition-all duration-300 overflow-y-auto",
           isMenuOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"
         )}
       >
-        <nav className="container mx-auto px-4 py-8 flex flex-col gap-6">
-          {["Shop All", "Brands", "Designers", "Occasions", "New Arrivals", "Stores"].map((item) => (
-            <Link
-              key={item}
-              to={item === "Shop All" || item === "New Arrivals" ? "/collections" : `/${item.toLowerCase()}`}
-              className="text-lg font-light uppercase tracking-[0.2em] text-foreground hover:text-accent transition-colors py-2 border-b border-border"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              {item}
-            </Link>
-          ))}
+        <div className="container mx-auto px-4 py-6">
+          <MegaMenuMobile onItemClick={() => setIsMenuOpen(false)} />
           
-          <form onSubmit={handleSearch} className="mt-4">
+          <nav className="flex flex-col gap-4 mt-6 pt-6 border-t border-border">
+            {navItems.map((item) => (
+              <Link
+                key={item.label}
+                to={item.path}
+                className="text-base font-light uppercase tracking-[0.15em] text-foreground hover:text-accent transition-colors py-2"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+          
+          <form onSubmit={handleSearch} className="mt-6 pt-6 border-t border-border">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -204,7 +219,7 @@ export const LuxuryHeader = () => {
               />
             </div>
           </form>
-        </nav>
+        </div>
       </div>
     </header>
   );
