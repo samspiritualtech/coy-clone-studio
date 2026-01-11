@@ -32,17 +32,17 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Get the latest unverified OTP for this phone
-    const { data: otpRecord, error: fetchError } = await supabase
+    // Get the latest OTP for this phone (including recently verified ones for retry scenarios)
+    const { data: otpRecords } = await supabase
       .from('otp_verifications')
       .select('*')
       .eq('phone', phone)
-      .eq('verified', false)
       .order('created_at', { ascending: false })
-      .limit(1)
-      .single();
+      .limit(1);
 
-    if (fetchError || !otpRecord) {
+    const otpRecord = otpRecords?.[0];
+
+    if (!otpRecord) {
       return new Response(
         JSON.stringify({ success: false, error: 'No OTP found. Please request a new one.' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -58,8 +58,8 @@ serve(async (req) => {
       );
     }
 
-    // Check attempts (max 3)
-    if (otpRecord.attempts >= 3) {
+    // Check attempts (max 5 to allow retries after backend failures)
+    if (!otpRecord.verified && otpRecord.attempts >= 5) {
       await supabase.from('otp_verifications').delete().eq('id', otpRecord.id);
       return new Response(
         JSON.stringify({ success: false, error: 'Too many attempts. Please request a new OTP.' }),
@@ -75,11 +75,13 @@ serve(async (req) => {
     const otpHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
     if (otpHash !== otpRecord.otp_hash) {
-      // Increment attempts
-      await supabase
-        .from('otp_verifications')
-        .update({ attempts: otpRecord.attempts + 1 })
-        .eq('id', otpRecord.id);
+      // Increment attempts only if not already verified (to allow retries)
+      if (!otpRecord.verified) {
+        await supabase
+          .from('otp_verifications')
+          .update({ attempts: otpRecord.attempts + 1 })
+          .eq('id', otpRecord.id);
+      }
 
       return new Response(
         JSON.stringify({ success: false, error: 'Invalid OTP. Please try again.' }),
@@ -87,11 +89,7 @@ serve(async (req) => {
       );
     }
 
-    // Mark OTP as verified
-    await supabase
-      .from('otp_verifications')
-      .update({ verified: true })
-      .eq('id', otpRecord.id);
+    // Don't mark as verified yet - wait until user creation/login succeeds
 
     // Create or sign in user with phone-based email
     const phoneEmail = `${phone}@ogura.phone.auth`;
@@ -133,6 +131,12 @@ serve(async (req) => {
 
       if (verifyError || !verifyData.session) {
         // Fallback: return user info without session, client can handle
+        // Mark OTP as verified since user exists
+        await supabase
+          .from('otp_verifications')
+          .update({ verified: true })
+          .eq('id', otpRecord.id);
+
         return new Response(
           JSON.stringify({ 
             success: true,
@@ -148,6 +152,12 @@ serve(async (req) => {
           { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
+
+      // Mark OTP as verified on successful login
+      await supabase
+        .from('otp_verifications')
+        .update({ verified: true })
+        .eq('id', otpRecord.id);
 
       return new Response(
         JSON.stringify({ 
@@ -198,6 +208,12 @@ serve(async (req) => {
     });
 
     console.log(`New user created: +91${phone}`);
+
+    // Mark OTP as verified on successful signup
+    await supabase
+      .from('otp_verifications')
+      .update({ verified: true })
+      .eq('id', otpRecord.id);
 
     return new Response(
       JSON.stringify({ 
