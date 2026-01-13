@@ -27,6 +27,12 @@ const categories = [
     slug: "accessories",
     image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=800&q=90",
   },
+  {
+    id: "made-to-order",
+    name: "Made to Order",
+    slug: "customize",
+    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=90",
+  },
 ];
 
 export const Premium3DCategorySection = () => {
