@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import { useRef, useEffect, useState } from "react";
+import lehengaImage from "@/assets/made-to-order-lehenga.jpg";
 
 const categories = [
   {
@@ -31,7 +32,7 @@ const categories = [
     id: "made-to-order",
     name: "Made to Order",
     slug: "customize",
-    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=90",
+    image: lehengaImage,
   },
 ];
 
