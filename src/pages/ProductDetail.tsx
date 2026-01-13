@@ -3,7 +3,21 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Heart, ShoppingBag, Truck, RotateCcw, Star, Share2 } from "lucide-react";
+import { 
+  Heart, 
+  ShoppingBag, 
+  Truck, 
+  RotateCcw, 
+  Star, 
+  Share2, 
+  Package, 
+  Wallet, 
+  Check,
+  Ruler,
+  AlertCircle,
+  Minus,
+  Plus
+} from "lucide-react";
 import { products } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
@@ -13,7 +27,10 @@ import { VirtualTryOnDialog } from "@/components/VirtualTryOnDialog";
 import { RecommendationCarousel } from "@/components/RecommendationCarousel";
 import { ProductImageGallery } from "@/components/ProductImageGallery";
 import { ViewSimilarModal } from "@/components/ViewSimilarModal";
+import { SizeGuideModal } from "@/components/SizeGuideModal";
+import { ProductDetailsAccordion } from "@/components/ProductDetailsAccordion";
 import { Product, ColorVariant } from "@/types";
+import { cn } from "@/lib/utils";
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -30,6 +47,7 @@ export default function ProductDetail() {
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [showSimilarModal, setShowSimilarModal] = useState(false);
+  const [showSizeGuide, setShowSizeGuide] = useState(false);
 
   // Initialize with first color variant when product changes
   useEffect(() => {
@@ -103,7 +121,7 @@ export default function ProductDetail() {
     }
     const colorToUse = selectedColor || currentProduct.colors[0]?.name || 'Default';
     addItem(currentProduct, selectedSize, colorToUse, quantity);
-    toast({ title: "Added to cart", description: `${currentProduct.name} has been added to your cart` });
+    toast({ title: "Added to bag", description: `${currentProduct.name} has been added to your bag` });
   };
 
   const handleBuyNow = () => {
@@ -116,15 +134,22 @@ export default function ProductDetail() {
     navigate('/cart');
   };
 
+  const handleWishlistToggle = () => {
+    toggleItem(currentProduct);
+    toast({
+      title: isInWishlist(currentProduct.id) ? "Removed from wishlist" : "Added to wishlist"
+    });
+  };
+
   const discountPercent = currentProduct.originalPrice 
     ? Math.round(((currentProduct.originalPrice - currentProduct.price) / currentProduct.originalPrice) * 100)
     : 0;
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-background">
       <Header />
-      <main className="flex-1 container mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 mb-16">
+      <main className="flex-1 container mx-auto px-4 py-6 lg:py-10">
+        <div className="grid lg:grid-cols-2 gap-6 lg:gap-12 mb-16">
           {/* Image Gallery - Left Side */}
           <div className="lg:sticky lg:top-24 lg:h-fit">
             <ProductImageGallery
@@ -135,49 +160,55 @@ export default function ProductDetail() {
           </div>
 
           {/* Product Info - Right Side */}
-          <div className="space-y-6">
-            {/* Brand & Title */}
-            <div>
-              <p className="text-sm text-muted-foreground uppercase tracking-widest mb-2">
+          <div className="space-y-5">
+            {/* Brand */}
+            <div className="space-y-1">
+              <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
                 {currentProduct.brand}
               </p>
-              <h1 className="text-2xl lg:text-3xl font-semibold mb-3">{currentProduct.name}</h1>
-              
-              {/* Rating */}
-              {currentProduct.rating && (
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="flex items-center gap-1 bg-green-600 text-white px-2 py-0.5 rounded text-sm">
-                    <span className="font-medium">{currentProduct.rating}</span>
-                    <Star className="w-3 h-3 fill-current" />
-                  </div>
-                  <span className="text-sm text-muted-foreground">
-                    {currentProduct.reviews?.toLocaleString()} Reviews
-                  </span>
+              <h1 className="text-xl lg:text-2xl font-light tracking-tight text-foreground leading-tight">
+                {currentProduct.name}
+              </h1>
+            </div>
+            
+            {/* Rating */}
+            {currentProduct.rating && (
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1.5 bg-green-50 border border-green-200 text-green-700 px-2.5 py-1 rounded-full text-sm">
+                  <Star className="w-3.5 h-3.5 fill-green-600 text-green-600" />
+                  <span className="font-semibold">{currentProduct.rating}</span>
                 </div>
-              )}
+                <button className="text-sm text-muted-foreground hover:text-foreground hover:underline transition-colors">
+                  {currentProduct.reviews?.toLocaleString()} Reviews
+                </button>
+              </div>
+            )}
 
-              {/* Price */}
+            {/* Price */}
+            <div className="space-y-1 pt-1">
               <div className="flex items-baseline gap-3 flex-wrap">
-                <p className="text-2xl lg:text-3xl font-bold">₹{currentProduct.price.toLocaleString()}</p>
+                <span className="text-2xl lg:text-3xl font-semibold">
+                  ₹{currentProduct.price.toLocaleString()}
+                </span>
                 {currentProduct.originalPrice && (
                   <>
-                    <p className="text-lg text-muted-foreground line-through">
-                      ₹{currentProduct.originalPrice.toLocaleString()}
-                    </p>
-                    <Badge variant="destructive" className="text-sm">
+                    <span className="text-base text-muted-foreground">
+                      MRP <span className="line-through">₹{currentProduct.originalPrice.toLocaleString()}</span>
+                    </span>
+                    <Badge className="bg-rose-50 text-rose-600 border-rose-200 hover:bg-rose-50 font-medium">
                       {discountPercent}% OFF
                     </Badge>
                   </>
                 )}
               </div>
-              <p className="text-sm text-muted-foreground mt-1">Inclusive of all taxes</p>
+              <p className="text-xs text-muted-foreground">Inclusive of all taxes</p>
             </div>
 
             {/* Tags */}
             {currentProduct.tags.length > 0 && (
               <div className="flex flex-wrap gap-2">
-                {currentProduct.tags.map(tag => (
-                  <Badge key={tag} variant="secondary" className="capitalize">
+                {currentProduct.tags.slice(0, 4).map(tag => (
+                  <Badge key={tag} variant="secondary" className="capitalize text-xs font-normal">
                     {tag.replace('-', ' ')}
                   </Badge>
                 ))}
@@ -185,38 +216,33 @@ export default function ProductDetail() {
             )}
 
             {/* Color Selection */}
-            <div className="pt-2">
-              <p className="font-medium mb-3">
-                Select Color
+            <div className="pt-3 border-t">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-sm font-medium">Color:</span>
                 {selectedColor && (
-                  <span className="ml-2 text-muted-foreground font-normal">— {selectedColor}</span>
+                  <span className="text-sm text-muted-foreground">{selectedColor}</span>
                 )}
-              </p>
-              <div className="flex flex-wrap gap-3">
+              </div>
+              <div className="flex flex-wrap gap-2">
                 {currentProduct.colorVariants?.map((variant) => {
                   const isSelected = selectedColor === variant.name;
                   return (
                     <button
                       key={variant.name}
                       onClick={() => handleColorSelect(variant)}
-                      className={`group relative w-12 h-12 rounded-full transition-all ${
+                      className={cn(
+                        "relative w-10 h-10 rounded-full transition-all duration-200",
                         isSelected
-                          ? 'ring-2 ring-offset-2 ring-foreground scale-110'
-                          : 'hover:scale-105 border border-border'
-                      }`}
+                          ? "ring-2 ring-offset-2 ring-foreground scale-110"
+                          : "border-2 border-border hover:border-foreground/50 hover:scale-105"
+                      )}
                       style={{ backgroundColor: variant.hex }}
                       title={variant.name}
                       aria-label={`Select ${variant.name} color`}
                     >
                       {isSelected && (
-                        <span className="absolute inset-0 flex items-center justify-center">
-                          <span className="w-2.5 h-2.5 rounded-full bg-white shadow-md" />
-                        </span>
+                        <Check className="absolute inset-0 m-auto h-4 w-4 text-white drop-shadow-md" />
                       )}
-                      {/* Tooltip */}
-                      <span className="absolute -bottom-7 left-1/2 -translate-x-1/2 text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
-                        {variant.name}
-                      </span>
                     </button>
                   );
                 })}
@@ -224,15 +250,21 @@ export default function ProductDetail() {
             </div>
 
             {/* Size Selection */}
-            <div className="pt-2">
+            <div className="pt-3">
               <div className="flex items-center justify-between mb-3">
-                <p className="font-medium">
-                  Select Size
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">Size:</span>
                   {selectedSize && (
-                    <span className="ml-2 text-muted-foreground font-normal">— {selectedSize}</span>
+                    <span className="text-sm text-muted-foreground">{selectedSize}</span>
                   )}
-                </p>
-                <button className="text-sm text-primary hover:underline">Size Guide</button>
+                </div>
+                <button 
+                  onClick={() => setShowSizeGuide(true)}
+                  className="text-sm font-medium text-primary hover:underline flex items-center gap-1"
+                >
+                  <Ruler className="h-3.5 w-3.5" />
+                  Size Guide
+                </button>
               </div>
               <div className="flex flex-wrap gap-2">
                 {currentProduct.sizes.map((size) => (
@@ -240,9 +272,12 @@ export default function ProductDetail() {
                     key={size}
                     variant={selectedSize === size ? "default" : "outline"}
                     onClick={() => setSelectedSize(size)}
-                    className={`min-w-[56px] transition-all ${
-                      selectedSize === size ? 'ring-2 ring-primary/30' : ''
-                    }`}
+                    className={cn(
+                      "min-w-[52px] h-11 text-sm font-medium transition-all",
+                      selectedSize === size 
+                        ? "bg-foreground text-background hover:bg-foreground/90" 
+                        : "hover:border-foreground"
+                    )}
                   >
                     {size}
                   </Button>
@@ -251,23 +286,26 @@ export default function ProductDetail() {
             </div>
 
             {/* Quantity */}
-            <div className="pt-2">
-              <p className="font-medium mb-3">Quantity</p>
-              <div className="flex items-center gap-3">
+            <div className="pt-3">
+              <span className="text-sm font-medium mb-3 block">Quantity</span>
+              <div className="flex items-center gap-1">
                 <Button
                   variant="outline"
                   size="icon"
+                  className="h-9 w-9"
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  disabled={quantity <= 1}
                 >
-                  -
+                  <Minus className="h-4 w-4" />
                 </Button>
-                <span className="w-12 text-center font-medium">{quantity}</span>
+                <span className="w-12 text-center font-medium text-sm">{quantity}</span>
                 <Button
                   variant="outline"
                   size="icon"
+                  className="h-9 w-9"
                   onClick={() => setQuantity(quantity + 1)}
                 >
-                  +
+                  <Plus className="h-4 w-4" />
                 </Button>
               </div>
             </div>
@@ -275,45 +313,50 @@ export default function ProductDetail() {
             {/* Actions */}
             <div className="space-y-3 pt-4">
               {!isSelectionComplete && (
-                <p className="text-sm text-amber-600">
+                <p className="text-sm text-amber-600 flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4" />
                   Please select a size to continue
                 </p>
               )}
-              <div className="flex gap-3">
+              
+              <div className="flex gap-2">
                 <Button
                   onClick={handleAddToCart}
-                  className="flex-1"
-                  size="lg"
+                  className="flex-1 h-12 text-sm font-medium rounded-full"
                   disabled={!isSelectionComplete}
                 >
-                  <ShoppingBag className="mr-2 h-5 w-5" />
-                  Add to Cart
+                  <ShoppingBag className="mr-2 h-4 w-4" />
+                  Add to Bag
                 </Button>
                 <Button
                   variant="outline"
-                  size="lg"
-                  onClick={() => {
-                    toggleItem(currentProduct);
-                    toast({
-                      title: isInWishlist(currentProduct.id) ? "Removed from wishlist" : "Added to wishlist"
-                    });
-                  }}
+                  size="icon"
+                  className="h-12 w-12 rounded-full shrink-0"
+                  onClick={handleWishlistToggle}
                 >
-                  <Heart className={isInWishlist(currentProduct.id) ? "fill-current text-destructive" : ""} />
+                  <Heart className={cn(
+                    "h-5 w-5 transition-colors",
+                    isInWishlist(currentProduct.id) && "fill-rose-500 text-rose-500"
+                  )} />
                 </Button>
-                <Button variant="outline" size="lg">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-12 w-12 rounded-full shrink-0"
+                >
                   <Share2 className="h-5 w-5" />
                 </Button>
               </div>
+              
               <Button
                 onClick={handleBuyNow}
-                variant="secondary"
-                className="w-full"
-                size="lg"
+                variant="outline"
+                className="w-full h-12 text-sm font-medium rounded-full border-2 border-foreground hover:bg-foreground hover:text-background transition-colors"
                 disabled={!isSelectionComplete}
               >
                 Buy Now
               </Button>
+
               <VirtualTryOnDialog
                 productImageUrl={currentProduct.images[0]}
                 productName={currentProduct.name}
@@ -321,67 +364,75 @@ export default function ProductDetail() {
               />
             </div>
 
-            {/* Delivery Info */}
-            <div className="border-t border-b py-6 space-y-4">
-              <div className="flex items-start gap-3">
-                <Truck className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
-                <div>
-                  <p className="font-medium">Free Delivery</p>
-                  <p className="text-sm text-muted-foreground">On orders over ₹999 • Estimated delivery 3-5 days</p>
+            {/* Delivery & Services */}
+            <div className="rounded-xl border bg-muted/30 p-4 space-y-4">
+              <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Delivery & Services
+              </h4>
+              
+              <div className="grid gap-3">
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-full bg-green-50">
+                    <Truck className="h-4 w-4 text-green-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">Free Delivery</p>
+                    <p className="text-xs text-muted-foreground">On orders above ₹999</p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <RotateCcw className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
-                <div>
-                  <p className="font-medium">Easy Returns & Exchange</p>
-                  <p className="text-sm text-muted-foreground">7-day return policy • Free pickup</p>
+                
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-full bg-blue-50">
+                    <Package className="h-4 w-4 text-blue-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">Estimated Delivery</p>
+                    <p className="text-xs text-muted-foreground">3-5 business days</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-full bg-orange-50">
+                    <RotateCcw className="h-4 w-4 text-orange-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">Easy Returns</p>
+                    <p className="text-xs text-muted-foreground">7-day return & exchange policy</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3">
+                  <div className="p-2 rounded-full bg-purple-50">
+                    <Wallet className="h-4 w-4 text-purple-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">Cash on Delivery</p>
+                    <p className="text-xs text-muted-foreground">Available on orders under ₹10,000</p>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Product Details */}
-            <div className="space-y-4">
-              <h3 className="font-semibold text-lg">Product Details</h3>
-              <p className="text-muted-foreground leading-relaxed">{currentProduct.description}</p>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="space-y-2">
-                  <div className="flex">
-                    <span className="text-muted-foreground w-24">Material</span>
-                    <span className="font-medium">{currentProduct.material}</span>
-                  </div>
-                  <div className="flex">
-                    <span className="text-muted-foreground w-24">Category</span>
-                    <span className="font-medium capitalize">{currentProduct.category}</span>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex">
-                    <span className="text-muted-foreground w-24">Brand</span>
-                    <span className="font-medium">{currentProduct.brand}</span>
-                  </div>
-                  <div className="flex">
-                    <span className="text-muted-foreground w-24">SKU</span>
-                    <span className="font-medium uppercase">{currentProduct.id}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+            {/* Product Details Accordion */}
+            <ProductDetailsAccordion product={currentProduct} />
           </div>
         </div>
 
         {/* Recommendations */}
-        <RecommendationCarousel
-          title={`More from ${currentProduct.brand}`}
-          type="brand"
-          brandName={currentProduct.brand}
-          productId={currentProduct.id}
-        />
+        <div className="space-y-8">
+          <RecommendationCarousel
+            title={`More from ${currentProduct.brand}`}
+            type="brand"
+            brandName={currentProduct.brand}
+            productId={currentProduct.id}
+          />
 
-        <RecommendationCarousel
-          title="You May Also Like"
-          type="similar"
-          productId={currentProduct.id}
-        />
+          <RecommendationCarousel
+            title="You May Also Like"
+            type="similar"
+            productId={currentProduct.id}
+          />
+        </div>
       </main>
       <Footer />
 
@@ -392,6 +443,39 @@ export default function ProductDetail() {
         products={similarProducts}
         currentProductId={currentProduct.id}
       />
+
+      {/* Size Guide Modal */}
+      <SizeGuideModal
+        isOpen={showSizeGuide}
+        onClose={() => setShowSizeGuide(false)}
+        category={currentProduct.category}
+      />
+
+      {/* Mobile Sticky Add to Bag Bar */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-background border-t p-3 flex gap-2 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-12 w-12 shrink-0"
+          onClick={handleWishlistToggle}
+        >
+          <Heart className={cn(
+            "h-5 w-5",
+            isInWishlist(currentProduct.id) && "fill-rose-500 text-rose-500"
+          )} />
+        </Button>
+        <Button
+          onClick={handleAddToCart}
+          className="flex-1 h-12 text-sm font-medium rounded-md"
+          disabled={!isSelectionComplete}
+        >
+          <ShoppingBag className="mr-2 h-4 w-4" />
+          {isSelectionComplete ? `Add to Bag • ₹${currentProduct.price.toLocaleString()}` : "Select Size"}
+        </Button>
+      </div>
+
+      {/* Spacer for mobile sticky bar */}
+      <div className="lg:hidden h-20" />
     </div>
   );
 }
