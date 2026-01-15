@@ -1,32 +1,41 @@
-import { useState, useRef } from "react";
+import { useRef } from "react";
 import { cn } from "@/lib/utils";
 import { Play, Copy, ZoomIn } from "lucide-react";
+import { useState } from "react";
 
 interface ProductImageGalleryProps {
   images: string[];
   productName: string;
+  selectedIndex: number;
+  onSelectIndex: (index: number) => void;
   onViewSimilar?: () => void;
 }
 
 export const ProductImageGallery = ({
   images,
   productName,
+  selectedIndex,
+  onSelectIndex,
   onViewSimilar,
 }: ProductImageGalleryProps) => {
-  const [selectedIndex, setSelectedIndex] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
   const [zoomPosition, setZoomPosition] = useState({ x: 50, y: 50 });
   const imageContainerRef = useRef<HTMLDivElement>(null);
 
-  // Generate multiple images if only one exists (for demo purposes)
-  const galleryImages = images.length > 1 
-    ? images 
-    : [
-        images[0],
-        images[0]?.replace('w=800', 'w=801') || images[0],
-        images[0]?.replace('w=800', 'w=802') || images[0],
-        images[0]?.replace('w=800', 'w=803') || images[0],
-      ];
+  // Use images directly - no fake generation
+  const galleryImages = images.length > 0 ? images : [];
+
+  // Guard against empty images
+  if (galleryImages.length === 0) {
+    return (
+      <div className="aspect-[3/4] bg-muted rounded-sm flex items-center justify-center">
+        <p className="text-muted-foreground">No images available</p>
+      </div>
+    );
+  }
+
+  // Ensure selectedIndex is within bounds
+  const safeIndex = Math.min(selectedIndex, galleryImages.length - 1);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!imageContainerRef.current) return;
@@ -44,11 +53,11 @@ export const ProductImageGallery = ({
       <div className="flex flex-col gap-2 lg:gap-3 w-16 lg:w-20 shrink-0">
         {galleryImages.map((image, idx) => (
           <button
-            key={idx}
-            onClick={() => setSelectedIndex(idx)}
+            key={`${image}-${idx}`}
+            onClick={() => onSelectIndex(idx)}
             className={cn(
               "relative aspect-[3/4] overflow-hidden rounded-sm transition-all duration-200",
-              selectedIndex === idx
+              safeIndex === idx
                 ? "ring-2 ring-foreground ring-offset-1"
                 : "border border-border/40 hover:border-foreground/50"
             )}
@@ -58,7 +67,7 @@ export const ProductImageGallery = ({
               alt={`${productName} view ${idx + 1}`}
               className="w-full h-full object-cover"
             />
-            {/* Video indicator */}
+            {/* Video indicator for last item */}
             {idx === galleryImages.length - 1 && galleryImages.length > 3 && (
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                 <Play className="w-4 h-4 lg:w-5 lg:h-5 text-white fill-white" />
@@ -78,7 +87,7 @@ export const ProductImageGallery = ({
           onMouseMove={handleMouseMove}
         >
           <img
-            src={galleryImages[selectedIndex]}
+            src={galleryImages[safeIndex]}
             alt={productName}
             className={cn(
               "w-full h-full object-cover transition-transform duration-200 ease-out",
