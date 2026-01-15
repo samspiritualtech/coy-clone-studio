@@ -25,6 +25,7 @@ import { toast } from "@/hooks/use-toast";
 import { useState, useMemo, useEffect } from "react";
 import { VirtualTryOnDialog } from "@/components/VirtualTryOnDialog";
 import { RecommendationCarousel } from "@/components/RecommendationCarousel";
+import { SimilarProductsGrid } from "@/components/SimilarProductsGrid";
 import { ProductImageGallery } from "@/components/ProductImageGallery";
 import { ViewSimilarModal } from "@/components/ViewSimilarModal";
 import { SizeGuideModal } from "@/components/SizeGuideModal";
@@ -426,6 +427,12 @@ export default function ProductDetail() {
             productId={currentProduct.id}
           />
         </div>
+
+        {/* Similar Products Grid - Myntra Style */}
+        <SimilarProductsGrid
+          currentProduct={currentProduct}
+          allProducts={products}
+        />
       </main>
       <Footer />
 
