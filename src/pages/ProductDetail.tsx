@@ -41,42 +41,34 @@ export default function ProductDetail() {
   // Find the current product
   const currentProduct = useMemo(() => products.find(p => p.id === id), [id]);
   
-  // State management for color variants
-  const [selectedVariant, setSelectedVariant] = useState<ColorVariant | null>(null);
-  const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  // Single source of truth: activeVariant controls images and color
+  const [activeVariant, setActiveVariant] = useState<ColorVariant | null>(null);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [showSimilarModal, setShowSimilarModal] = useState(false);
   const [showSizeGuide, setShowSizeGuide] = useState(false);
 
-  // Initialize with first color variant when product changes
+  // Initialize state when product changes
   useEffect(() => {
     if (currentProduct?.colorVariants?.[0]) {
-      const firstVariant = currentProduct.colorVariants[0];
-      setSelectedVariant(firstVariant);
-      setSelectedColor(firstVariant.name);
-    } else if (currentProduct?.colors?.[0]) {
-      setSelectedColor(currentProduct.colors[0].name);
+      setActiveVariant(currentProduct.colorVariants[0]);
+    } else {
+      setActiveVariant(null);
     }
+    setActiveImageIndex(0);
     setSelectedSize(null);
     setQuantity(1);
-  }, [id, currentProduct]);
+  }, [currentProduct?.id]);
 
-  // Get current images based on selected variant
-  const currentImages = useMemo(() => {
-    if (selectedVariant?.images?.length) {
-      return selectedVariant.images;
-    }
-    return currentProduct?.images || [];
-  }, [selectedVariant, currentProduct]);
-
-  // Get current sizes based on selected variant
-  const currentSizes = useMemo(() => {
-    if (selectedVariant?.available_sizes?.length) {
-      return selectedVariant.available_sizes;
-    }
-    return currentProduct?.sizes || [];
-  }, [selectedVariant, currentProduct]);
+  // Derived values - no redundant state
+  const selectedColor = activeVariant?.name || currentProduct?.colors?.[0]?.name || null;
+  const currentImages = activeVariant?.images?.length 
+    ? activeVariant.images 
+    : currentProduct?.images || [];
+  const currentSizes = activeVariant?.available_sizes?.length 
+    ? activeVariant.available_sizes 
+    : currentProduct?.sizes || [];
 
   // Similar products for the modal
   const similarProducts = useMemo(() => {
@@ -89,12 +81,11 @@ export default function ProductDetail() {
     ).slice(0, 12);
   }, [currentProduct]);
 
-  // Handle color selection - update state only, NO navigation
+  // Handle color selection - CRITICAL: reset image index on variant change
   const handleColorSelect = (variant: ColorVariant) => {
-    setSelectedVariant(variant);
-    setSelectedColor(variant.name);
-    // Reset size when color changes (variant may have different sizes)
-    setSelectedSize(null);
+    setActiveVariant(variant);
+    setActiveImageIndex(0); // Reset to first image of new variant
+    setSelectedSize(null);  // Reset size as variant may have different sizes
   };
 
   const isSelectionComplete = selectedSize !== null;
@@ -155,6 +146,8 @@ export default function ProductDetail() {
             <ProductImageGallery
               images={currentImages}
               productName={currentProduct.name}
+              selectedIndex={activeImageIndex}
+              onSelectIndex={setActiveImageIndex}
               onViewSimilar={() => setShowSimilarModal(true)}
             />
           </div>
