@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { cn } from "@/lib/utils";
-import { Play, Copy, ZoomIn } from "lucide-react";
+import { Copy, ZoomIn } from "lucide-react";
 import { useState } from "react";
 
 interface ProductImageGalleryProps {
@@ -67,12 +67,6 @@ export const ProductImageGallery = ({
               alt={`${productName} view ${idx + 1}`}
               className="w-full h-full object-cover"
             />
-            {/* Video indicator for last item */}
-            {idx === galleryImages.length - 1 && galleryImages.length > 3 && (
-              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                <Play className="w-4 h-4 lg:w-5 lg:h-5 text-white fill-white" />
-              </div>
-            )}
           </button>
         ))}
       </div>

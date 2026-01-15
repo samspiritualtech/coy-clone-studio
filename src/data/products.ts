@@ -211,15 +211,24 @@ const generateColorVariants = (
   const numVariants = 2 + (baseIndex % 3);
   const variants: ColorVariant[] = [];
   
+  // Different crop parameters to simulate different views of the same product
+  const viewParams = [
+    "w=800&q=80&fit=crop",                    // Main view
+    "w=800&q=80&fit=crop&crop=top",           // Top focus
+    "w=800&q=80&fit=crop&crop=bottom",        // Bottom focus
+    "w=800&q=80&fit=crop&crop=faces,center"   // Center focus
+  ];
+  
   for (let i = 0; i < numVariants; i++) {
     const color = colorPalette[(baseIndex + i) % colorPalette.length];
-    // Generate 3-4 unique images per color variant
+    // Get ONE base image for this variant
+    const imageIdx = (baseIndex + i) % images.length;
+    const imageId = images[imageIdx];
+    
+    // Generate 4 "views" of the SAME image with different crop parameters
     const variantImages: string[] = [];
     for (let j = 0; j < 4; j++) {
-      const imageIdx = (baseIndex + i * 3 + j) % images.length;
-      const imageId = images[imageIdx];
-      // Add slight variation to image params for each color
-      variantImages.push(`https://images.unsplash.com/photo-${imageId}?w=800&q=80&sat=${i * 10}`);
+      variantImages.push(`https://images.unsplash.com/photo-${imageId}?${viewParams[j]}`);
     }
     
     variants.push({
