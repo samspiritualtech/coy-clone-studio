@@ -369,20 +369,24 @@ export const oguraCategories: OguraCategory[] = [
     slug: "footwear-edit",
     name: "Footwear Edit",
     title: "Footwear Edit",
-    subtitle: "Statement shoes & sandals",
+    subtitle: "Step into style – statement footwear for every look",
     heroImage: "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=1920&q=90",
+    heroVideo: "https://res.cloudinary.com/dow8lbkui/video/upload/v1768727437/pdc7kwtt9nrmt0cvt1f9jmjmyw_result__c49r5p.mp4",
+    heroPoster: "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=1920&q=90",
+    ctaText: "Shop Footwear",
     cardImage: "https://images.unsplash.com/photo-1518049362265-d5b2a6467571?w=800&q=90",
+    cardVideo: "https://res.cloudinary.com/dow8lbkui/video/upload/v1768727437/pdc7kwtt9nrmt0cvt1f9jmjmyw_result__c49r5p.mp4",
+    cardVideoPoster: "https://images.unsplash.com/photo-1518049362265-d5b2a6467571?w=800&q=90",
     subCategories: [
       { name: "Heels", image: "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=200&q=80", filter: "heels" },
       { name: "Flats", image: "https://images.unsplash.com/photo-1518049362265-d5b2a6467571?w=200&q=80", filter: "flats" },
       { name: "Sandals", image: "https://images.unsplash.com/photo-1603487742131-4160ec999306?w=200&q=80", filter: "sandals" },
       { name: "Sneakers", image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=200&q=80", filter: "sneakers" },
-      { name: "Boots", image: "https://images.unsplash.com/photo-1542280756-74b2f55e73ab?w=200&q=80", filter: "boots" },
-      { name: "Wedges", image: "https://images.unsplash.com/photo-1596703263926-eb0762ee17e4?w=200&q=80", filter: "wedges" },
+      { name: "Festive Footwear", image: "https://images.unsplash.com/photo-1596703263926-eb0762ee17e4?w=200&q=80", filter: "festive" },
     ],
     featuredCollections: [
       {
-        title: "Statement Heels",
+        title: "Trending Now",
         images: [
           "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=600&q=80",
           "https://images.unsplash.com/photo-1518049362265-d5b2a6467571?w=600&q=80",
@@ -391,12 +395,21 @@ export const oguraCategories: OguraCategory[] = [
         ],
       },
       {
-        title: "Comfort Classics",
+        title: "Everyday Comfort",
         images: [
           "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=600&q=80",
           "https://images.unsplash.com/photo-1542280756-74b2f55e73ab?w=600&q=80",
           "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=600&q=80",
           "https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=600&q=80",
+        ],
+      },
+      {
+        title: "Festive Footwear Picks",
+        images: [
+          "https://images.unsplash.com/photo-1596703263926-eb0762ee17e4?w=600&q=80",
+          "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=600&q=80",
+          "https://images.unsplash.com/photo-1518049362265-d5b2a6467571?w=600&q=80",
+          "https://images.unsplash.com/photo-1603487742131-4160ec999306?w=600&q=80",
         ],
       },
     ],
