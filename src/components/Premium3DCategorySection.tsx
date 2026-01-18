@@ -64,19 +64,36 @@ export const Premium3DCategorySection = () => {
                 {/* Decorative Pattern Overlay */}
                 <div className="absolute inset-0 rounded-2xl opacity-10 bg-[radial-gradient(circle_at_30%_20%,white_1px,transparent_1px)] bg-[length:20px_20px]" />
 
-                {/* Image Container */}
+                {/* Image/Video Container */}
                 <div
                   className="absolute inset-x-0 top-0 bottom-16 flex items-center justify-center overflow-hidden"
                   style={{
                     transform: `translateX(${parallaxOffset * 0.1}px)`,
                   }}
                 >
-                  <img
-                    src={category.cardImage}
-                    alt={category.name}
-                    className="w-full h-full object-cover transition-all duration-500 ease-out group-hover:scale-110"
-                  />
-                  {/* Overlay on image */}
+                  {category.cardVideo ? (
+                    <>
+                      <video
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        poster={category.cardVideoPoster || category.cardImage}
+                        className="w-full h-full object-cover transition-all duration-500 ease-out group-hover:scale-110"
+                      >
+                        <source src={category.cardVideo} type="video/mp4" />
+                      </video>
+                      {/* Dark cinematic overlay for video */}
+                      <div className="absolute inset-0 bg-black/30" />
+                    </>
+                  ) : (
+                    <img
+                      src={category.cardImage}
+                      alt={category.name}
+                      className="w-full h-full object-cover transition-all duration-500 ease-out group-hover:scale-110"
+                    />
+                  )}
+                  {/* Gradient overlay for text readability */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                 </div>
 
