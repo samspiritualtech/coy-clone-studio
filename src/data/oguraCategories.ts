@@ -428,20 +428,24 @@ export const oguraCategories: OguraCategory[] = [
     slug: "bags-accessories",
     name: "Bags & Accessories",
     title: "Bags & Accessories",
-    subtitle: "Complete your look",
+    subtitle: "Elevate every look with statement details",
     heroImage: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=1920&q=90",
+    heroVideo: "https://res.cloudinary.com/dow8lbkui/video/upload/v1768727700/ypkv23106xrmw0cvt1h8ddvvhc_result__ffbnha.mp4",
+    heroPoster: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=1920&q=90",
+    ctaText: "Shop Accessories",
     cardImage: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&q=90",
+    cardVideo: "https://res.cloudinary.com/dow8lbkui/video/upload/v1768727700/ypkv23106xrmw0cvt1h8ddvvhc_result__ffbnha.mp4",
+    cardVideoPoster: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&q=90",
     subCategories: [
       { name: "Handbags", image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=200&q=80", filter: "handbag" },
+      { name: "Sling Bags", image: "https://images.unsplash.com/photo-1594223274512-ad4803739b7c?w=200&q=80", filter: "sling" },
       { name: "Clutches", image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=200&q=80", filter: "clutch" },
-      { name: "Totes", image: "https://images.unsplash.com/photo-1594223274512-ad4803739b7c?w=200&q=80", filter: "tote" },
-      { name: "Jewelry", image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=200&q=80", filter: "jewelry" },
-      { name: "Scarves", image: "https://images.unsplash.com/photo-1601370690183-1c7796ecec61?w=200&q=80", filter: "scarf" },
-      { name: "Belts", image: "https://images.unsplash.com/photo-1624222247344-550fb60583dc?w=200&q=80", filter: "belt" },
+      { name: "Jewellery", image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=200&q=80", filter: "jewelry" },
+      { name: "Belts & Extras", image: "https://images.unsplash.com/photo-1624222247344-550fb60583dc?w=200&q=80", filter: "belt" },
     ],
     featuredCollections: [
       {
-        title: "Arm Candy",
+        title: "Trending Accessories",
         images: [
           "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=600&q=80",
           "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600&q=80",
@@ -450,12 +454,21 @@ export const oguraCategories: OguraCategory[] = [
         ],
       },
       {
-        title: "Finishing Touches",
+        title: "Everyday Essentials",
         images: [
           "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600&q=80",
           "https://images.unsplash.com/photo-1601370690183-1c7796ecec61?w=600&q=80",
           "https://images.unsplash.com/photo-1624222247344-550fb60583dc?w=600&q=80",
           "https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=600&q=80",
+        ],
+      },
+      {
+        title: "Statement Picks",
+        images: [
+          "https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=600&q=80",
+          "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=600&q=80",
+          "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=600&q=80",
+          "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600&q=80",
         ],
       },
     ],
