@@ -32,28 +32,28 @@ export const Premium3DCategorySection = () => {
         </p>
       </div>
 
-      {/* Horizontal Scrollable Container */}
+      {/* Mobile: 2x3 Grid | Tablet/Desktop: Horizontal Scroll */}
       <div
         ref={scrollContainerRef}
-        className="flex gap-4 md:gap-6 lg:gap-8 overflow-x-auto px-4 md:px-8 lg:px-16 pb-8 snap-x snap-mandatory scrollbar-hide"
+        className="grid grid-cols-2 gap-4 px-4 pb-8 md:flex md:gap-6 lg:gap-8 md:overflow-x-auto md:px-8 lg:px-16 md:snap-x md:snap-mandatory md:scrollbar-hide"
         style={{
           scrollbarWidth: "none",
           msOverflowStyle: "none",
         }}
       >
         {oguraCategories.map((category, index) => {
-          // Calculate parallax offset based on scroll position
+          // Calculate parallax offset based on scroll position (tablet/desktop only)
           const parallaxOffset = (scrollX * 0.05) - (index * 10);
 
           return (
             <Link
               key={category.id}
               to={`/category/${category.slug}`}
-              className="group flex-shrink-0 snap-center"
+              className="group md:flex-shrink-0 md:snap-center"
             >
               {/* 3D Card */}
               <div
-                className="relative w-[260px] h-[340px] md:w-[280px] md:h-[360px] lg:w-[300px] lg:h-[380px] rounded-2xl overflow-hidden cursor-pointer transition-all duration-500 ease-out group-hover:-translate-y-3 group-hover:scale-[1.02]"
+                className="relative w-full aspect-[3/4] md:w-[280px] md:h-[360px] md:aspect-auto lg:w-[300px] lg:h-[380px] rounded-2xl overflow-hidden cursor-pointer transition-all duration-500 ease-out group-hover:-translate-y-3 group-hover:scale-[1.02]"
                 style={{
                   perspective: "1000px",
                 }}
