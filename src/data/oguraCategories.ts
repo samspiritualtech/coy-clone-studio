@@ -107,7 +107,12 @@ export const oguraCategories: OguraCategory[] = [
     title: "Co-ord Sets",
     subtitle: "Matching sets for effortless style",
     heroImage: "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=1920&q=90",
+    heroVideo: "https://res.cloudinary.com/dpnosz8im/video/upload/v1768724644/127a0nwz7hrmr0cvt0sraez4r8_result__mhvsut.mp4",
+    heroPoster: "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=1920&q=90",
+    ctaText: "Shop Matching Sets",
     cardImage: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&q=90",
+    cardVideo: "https://res.cloudinary.com/dpnosz8im/video/upload/v1768724644/127a0nwz7hrmr0cvt0sraez4r8_result__mhvsut.mp4",
+    cardVideoPoster: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&q=90",
     subCategories: [
       { name: "Printed Sets", image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=200&q=80", filter: "printed" },
       { name: "Solid Sets", image: "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=200&q=80", filter: "solid" },
