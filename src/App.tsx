@@ -23,7 +23,7 @@ import Stores from "./pages/Stores";
 import Wishlist from "./pages/Wishlist";
 import Search from "./pages/Search";
 import NotFound from "./pages/NotFound";
-
+import CategoryPage from "./pages/CategoryPage";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -53,6 +53,7 @@ const App = () => (
                   <Route path="/cart" element={<Cart />} />
                   <Route path="/wishlist" element={<Wishlist />} />
                   <Route path="/search" element={<Search />} />
+                  <Route path="/category/:slug" element={<CategoryPage />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>

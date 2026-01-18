@@ -1,40 +1,7 @@
 import { Link } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import { useRef, useEffect, useState } from "react";
-import lehengaImage from "@/assets/made-to-order-lehenga.jpg";
-
-const categories = [
-  {
-    id: "women-clothes",
-    name: "Women Clothes",
-    slug: "dresses",
-    image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=800&q=90",
-  },
-  {
-    id: "men-clothes",
-    name: "Men Clothes",
-    slug: "tops",
-    image: "https://images.unsplash.com/photo-1617137968427-85924c800a22?w=800&q=90",
-  },
-  {
-    id: "footwear",
-    name: "Footwear",
-    slug: "footwear",
-    image: "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=800&q=90",
-  },
-  {
-    id: "bags",
-    name: "Bags",
-    slug: "accessories",
-    image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=800&q=90",
-  },
-  {
-    id: "made-to-order",
-    name: "Made to Order",
-    slug: "customize",
-    image: lehengaImage,
-  },
-];
+import { oguraCategories } from "@/data/oguraCategories";
 
 export const Premium3DCategorySection = () => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -74,54 +41,44 @@ export const Premium3DCategorySection = () => {
           msOverflowStyle: "none",
         }}
       >
-        {categories.map((category, index) => {
+        {oguraCategories.map((category, index) => {
           // Calculate parallax offset based on scroll position
           const parallaxOffset = (scrollX * 0.05) - (index * 10);
 
           return (
             <Link
               key={category.id}
-              to={`/collections?category=${category.slug}`}
+              to={`/category/${category.slug}`}
               className="group flex-shrink-0 snap-center"
             >
               {/* 3D Card */}
               <div
-                className="relative w-[260px] h-[340px] md:w-[280px] md:h-[360px] lg:w-[300px] lg:h-[380px] rounded-2xl overflow-visible cursor-pointer transition-all duration-500 ease-out group-hover:-translate-y-3 group-hover:scale-[1.02]"
+                className="relative w-[260px] h-[340px] md:w-[280px] md:h-[360px] lg:w-[300px] lg:h-[380px] rounded-2xl overflow-hidden cursor-pointer transition-all duration-500 ease-out group-hover:-translate-y-3 group-hover:scale-[1.02]"
                 style={{
                   perspective: "1000px",
                 }}
               >
                 {/* Card Background with Festive Red Gradient */}
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-[#8B0000] via-[#A52A2A] to-[#DC143C] shadow-xl transition-shadow duration-500 group-hover:shadow-2xl group-hover:shadow-red-900/40" />
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-[#6B1C23] via-[#8B2D3B] to-[#A3404E] shadow-xl transition-shadow duration-500 group-hover:shadow-2xl group-hover:shadow-red-900/40" />
 
                 {/* Decorative Pattern Overlay */}
                 <div className="absolute inset-0 rounded-2xl opacity-10 bg-[radial-gradient(circle_at_30%_20%,white_1px,transparent_1px)] bg-[length:20px_20px]" />
 
-                {/* Image Container with 3D Pop Effect */}
+                {/* Image Container */}
                 <div
-                  className="absolute inset-x-0 top-4 bottom-16 flex items-end justify-center overflow-visible"
+                  className="absolute inset-x-0 top-0 bottom-16 flex items-center justify-center overflow-hidden"
                   style={{
                     transform: `translateX(${parallaxOffset * 0.1}px)`,
                   }}
                 >
-                  <div className="relative w-full h-full flex items-end justify-center">
-                    {/* Shadow beneath the image */}
-                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-3/4 h-8 bg-black/30 blur-xl rounded-full transition-all duration-500 group-hover:w-4/5 group-hover:blur-2xl" />
-
-                    {/* Product Image */}
-                    <img
-                      src={category.image}
-                      alt={category.name}
-                      className="relative z-10 w-auto h-[85%] max-w-[90%] object-contain object-bottom drop-shadow-2xl transition-all duration-500 ease-out group-hover:scale-110 group-hover:-translate-y-2"
-                      style={{
-                        filter: "drop-shadow(0 20px 30px rgba(0,0,0,0.4))",
-                      }}
-                    />
-                  </div>
+                  <img
+                    src={category.cardImage}
+                    alt={category.name}
+                    className="w-full h-full object-cover transition-all duration-500 ease-out group-hover:scale-110"
+                  />
+                  {/* Overlay on image */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                 </div>
-
-                {/* Bottom Gradient Overlay */}
-                <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/60 via-black/30 to-transparent rounded-b-2xl" />
 
                 {/* Category Label */}
                 <div className="absolute bottom-0 left-0 right-0 p-5 flex items-center justify-between">
