@@ -23,6 +23,9 @@ export interface OguraCategory {
   title: string;
   subtitle: string;
   heroImage: string;
+  heroVideo?: string;
+  heroPoster?: string;
+  ctaText?: string;
   cardImage: string;
   subCategories: SubCategory[];
   featuredCollections: FeaturedCollection[];
@@ -36,8 +39,11 @@ export const oguraCategories: OguraCategory[] = [
     slug: "bollywood-fashion",
     name: "Bollywood Fashion",
     title: "Bollywood Fashion",
-    subtitle: "Celebrity-inspired festive & glam looks",
+    subtitle: "Inspired by iconic Bollywood style & trends",
     heroImage: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=1920&q=90",
+    heroVideo: "https://res.cloudinary.com/dpnosz8im/video/upload/v1768723510/nvfa3tvknnrmy0cvt0gbe0nd5r_result__q3spyc.mp4",
+    heroPoster: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=1920&q=90",
+    ctaText: "Shop Bollywood Looks",
     cardImage: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800&q=90",
     subCategories: [
       { name: "Sarees", image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=200&q=80", filter: "saree" },

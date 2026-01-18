@@ -1,28 +1,55 @@
 import { ChevronLeft } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useState } from "react";
 
 interface CategoryHeroBannerProps {
   title: string;
   subtitle: string;
   heroImage: string;
+  heroVideo?: string;
+  heroPoster?: string;
+  ctaText?: string;
+  ctaLink?: string;
 }
 
 export const CategoryHeroBanner = ({
   title,
   subtitle,
   heroImage,
+  heroVideo,
+  heroPoster,
+  ctaText,
+  ctaLink,
 }: CategoryHeroBannerProps) => {
+  const [videoError, setVideoError] = useState(false);
+  const hasVideo = heroVideo && !videoError;
+
   return (
-    <section className="relative h-[300px] md:h-[400px] lg:h-[500px] w-full overflow-hidden">
-      {/* Background Image */}
-      <img
-        src={heroImage}
-        alt={title}
-        className="w-full h-full object-cover object-center"
-      />
+    <section className="relative h-[280px] md:h-[400px] lg:h-[500px] w-full overflow-hidden">
+      {/* Background Video or Image */}
+      {hasVideo ? (
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          poster={heroPoster || heroImage}
+          className="w-full h-full object-cover object-center"
+          onError={() => setVideoError(true)}
+        >
+          <source src={heroVideo} type="video/mp4" />
+        </video>
+      ) : (
+        <img
+          src={heroImage}
+          alt={title}
+          className="w-full h-full object-cover object-center"
+        />
+      )}
       
-      {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent" />
+      {/* Cinematic Dark Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30" />
+      {hasVideo && <div className="absolute inset-0 bg-black/10" />}
       
       {/* Back Button */}
       <Link
@@ -35,12 +62,40 @@ export const CategoryHeroBanner = ({
       
       {/* Content */}
       <div className="absolute bottom-8 md:bottom-12 lg:bottom-16 left-4 md:left-8 lg:left-16 right-4 md:right-auto max-w-2xl">
-        <h1 className="text-3xl md:text-4xl lg:text-6xl font-serif text-white tracking-wide mb-2 md:mb-4">
+        {/* Gold Gradient Title */}
+        <h1 
+          className={`text-3xl md:text-4xl lg:text-6xl font-serif tracking-wide mb-2 md:mb-4 animate-fade-in ${
+            hasVideo 
+              ? "text-transparent bg-clip-text bg-gradient-to-r from-[#F5E6C8] via-[#D4AF37] to-[#F5E6C8]" 
+              : "text-white"
+          }`}
+        >
           {title}
         </h1>
-        <p className="text-base md:text-lg lg:text-xl text-white/80 font-light">
+        
+        {/* Subtitle */}
+        <p 
+          className={`text-base md:text-lg lg:text-xl font-light mb-4 md:mb-6 animate-fade-in [animation-delay:200ms] ${
+            hasVideo ? "text-[#E8D5B7]/90" : "text-white/80"
+          }`}
+        >
           {subtitle}
         </p>
+        
+        {/* CTA Button */}
+        {ctaText && (
+          <Link to={ctaLink || "#products"}>
+            <button 
+              className={`px-6 md:px-8 py-2.5 md:py-3 border-2 font-medium tracking-widest uppercase text-sm transition-all duration-300 animate-fade-in [animation-delay:400ms] ${
+                hasVideo 
+                  ? "border-[#D4AF37] text-[#D4AF37] hover:bg-[#D4AF37] hover:text-black hover:shadow-[0_0_25px_rgba(212,175,55,0.5)]" 
+                  : "border-white text-white hover:bg-white hover:text-black"
+              }`}
+            >
+              {ctaText}
+            </button>
+          </Link>
+        )}
       </div>
       
       {/* Bottom Gradient for smooth transition */}

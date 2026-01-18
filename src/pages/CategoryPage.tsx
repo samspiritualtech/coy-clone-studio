@@ -29,6 +29,10 @@ const CategoryPage = () => {
           title={category.title}
           subtitle={category.subtitle}
           heroImage={category.heroImage}
+          heroVideo={category.heroVideo}
+          heroPoster={category.heroPoster}
+          ctaText={category.ctaText}
+          ctaLink={`/category/${category.slug}#products`}
         />
 
         {/* Sub-Category Scroll */}
