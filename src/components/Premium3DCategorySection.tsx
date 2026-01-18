@@ -32,10 +32,10 @@ export const Premium3DCategorySection = () => {
         </p>
       </div>
 
-      {/* Mobile: 2x3 Grid | Tablet/Desktop: Horizontal Scroll */}
+      {/* Mobile: 2x4 Grid | Tablet/Desktop: Horizontal Scroll */}
       <div
         ref={scrollContainerRef}
-        className="grid grid-cols-2 gap-4 px-4 pb-8 md:flex md:gap-6 lg:gap-8 md:overflow-x-auto md:px-8 lg:px-16 md:snap-x md:snap-mandatory md:scrollbar-hide"
+        className="grid grid-cols-2 gap-3 px-4 pb-8 md:flex md:gap-6 lg:gap-8 md:overflow-x-auto md:px-8 lg:px-16 md:snap-x md:snap-mandatory md:scrollbar-hide"
         style={{
           scrollbarWidth: "none",
           msOverflowStyle: "none",
@@ -53,7 +53,7 @@ export const Premium3DCategorySection = () => {
             >
               {/* 3D Card */}
               <div
-                className="relative w-full aspect-[3/4] md:w-[280px] md:h-[360px] md:aspect-auto lg:w-[300px] lg:h-[380px] rounded-2xl overflow-hidden cursor-pointer transition-all duration-500 ease-out group-hover:-translate-y-3 group-hover:scale-[1.02]"
+                className="relative w-full aspect-[4/5] md:w-[280px] md:h-[360px] md:aspect-auto lg:w-[300px] lg:h-[380px] rounded-2xl overflow-hidden cursor-pointer transition-all duration-500 ease-out group-hover:-translate-y-3 group-hover:scale-[1.02]"
                 style={{
                   perspective: "1000px",
                 }}
