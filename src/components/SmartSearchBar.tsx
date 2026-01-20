@@ -81,14 +81,14 @@ export const SmartSearchBar = ({
         (p) =>
           p.name.toLowerCase().includes(lowerQuery) ||
           p.brand?.toLowerCase().includes(lowerQuery) ||
-          p.categories?.[0]?.toLowerCase().includes(lowerQuery)
+          p.category?.toLowerCase().includes(lowerQuery)
       )
       .slice(0, 5)
       .map((p) => ({
         type: "product" as const,
         id: p.id,
         name: p.name,
-        image: p.images?.[0] || p.image,
+        image: p.images?.[0],
         price: p.price,
         path: `/product/${p.id}`,
       }));
