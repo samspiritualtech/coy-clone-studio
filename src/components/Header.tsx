@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ImageSearchDialog } from "@/components/ImageSearchDialog";
 import { MegaMenu } from "@/components/MegaMenu";
 import { MegaMenuMobile } from "@/components/MegaMenuMobile";
+import { HeaderLocationIndicator } from "@/components/HeaderLocationIndicator";
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -27,11 +28,26 @@ export const Header = () => {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      {/* Location bar for desktop */}
+      <div className="hidden md:block border-b border-border/50 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="flex h-8 items-center">
+            <HeaderLocationIndicator variant="compact" />
+          </div>
+        </div>
+      </div>
+      
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
-          <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            <Menu className="h-5 w-5" />
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+              <Menu className="h-5 w-5" />
+            </Button>
+            {/* Mobile location indicator */}
+            <div className="md:hidden">
+              <HeaderLocationIndicator variant="compact" />
+            </div>
+          </div>
 
           <Link to="/" className="text-2xl font-bold tracking-tight">OGURA</Link>
 

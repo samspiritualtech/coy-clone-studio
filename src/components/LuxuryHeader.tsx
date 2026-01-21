@@ -1,4 +1,4 @@
-import { Search, ShoppingBag, User, Menu, Heart, LogOut, Camera, X } from "lucide-react";
+import { Search, ShoppingBag, User, Menu, Heart, LogOut, Camera, X, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLocation } from "@/contexts/LocationContext";
 import { ImageSearchDialog } from "@/components/ImageSearchDialog";
 import { MegaMenu } from "@/components/MegaMenu";
 import { MegaMenuMobile } from "@/components/MegaMenuMobile";
@@ -18,6 +19,7 @@ export const LuxuryHeader = () => {
   const navigate = useNavigate();
   const { totalItems } = useCart();
   const { user, logout } = useAuth();
+  const { location: userLocation, setShowManualSelector, setShowPermissionModal } = useLocation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -52,6 +54,33 @@ export const LuxuryHeader = () => {
           : "bg-transparent"
       )}
     >
+      {/* Location bar */}
+      <div className={cn(
+        "transition-all duration-300",
+        isScrolled ? "bg-muted/50" : "bg-black/20"
+      )}>
+        <div className="container mx-auto px-4">
+          <div className="flex h-8 items-center justify-center">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => userLocation ? setShowManualSelector(true) : setShowPermissionModal(true)}
+              className={cn(
+                "gap-1 text-xs h-7 px-2",
+                isScrolled ? "text-foreground hover:bg-accent" : "text-white/90 hover:bg-white/10"
+              )}
+            >
+              <MapPin className="h-3 w-3" />
+              {userLocation ? (
+                <span>Delivering to {userLocation.city}, {userLocation.pincode}</span>
+              ) : (
+                <span>Select Location</span>
+              )}
+            </Button>
+          </div>
+        </div>
+      </div>
+      
       <div className="container mx-auto px-4">
         <div className="flex h-20 items-center justify-between">
           <Button
