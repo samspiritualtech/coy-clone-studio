@@ -1,10 +1,8 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { MobileOTPForm } from "./MobileOTPForm";
-import { EmailAuthForm } from "./EmailAuthForm";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
@@ -15,7 +13,6 @@ interface AuthModalProps {
 }
 
 export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
-  const [activeTab, setActiveTab] = useState<'mobile' | 'email'>('mobile');
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   
   const { signInWithGoogle } = useAuth();
@@ -37,7 +34,6 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
           variant: "destructive",
         });
       }
-      // Note: Successful Google sign-in will redirect, so we don't close the modal here
     } catch (error) {
       toast({
         title: "Error",
@@ -52,28 +48,20 @@ export const AuthModal = ({ open, onOpenChange }: AuthModalProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md p-0 overflow-hidden">
-        <DialogHeader className="px-6 pt-6 pb-0">
-          <DialogTitle className="text-center">Welcome to Ogura</DialogTitle>
+        <DialogHeader className="px-6 pt-6 pb-4">
+          <DialogTitle className="text-center text-xl font-semibold">
+            Welcome to Ogura
+          </DialogTitle>
+          <p className="text-sm text-center text-muted-foreground mt-1">
+            Login or signup with your mobile number
+          </p>
         </DialogHeader>
 
-        <div className="px-6 pt-4">
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'mobile' | 'email')}>
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="mobile">Mobile</TabsTrigger>
-              <TabsTrigger value="email">Email</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="mobile" className="mt-6">
-              <MobileOTPForm onSuccess={handleSuccess} />
-            </TabsContent>
-
-            <TabsContent value="email" className="mt-6">
-              <EmailAuthForm onSuccess={handleSuccess} />
-            </TabsContent>
-          </Tabs>
+        <div className="px-6 pb-4">
+          <MobileOTPForm onSuccess={handleSuccess} />
         </div>
 
-        <div className="px-6 pb-6 pt-4">
+        <div className="px-6 pb-6">
           <div className="relative my-4">
             <Separator />
             <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-background px-2 text-xs text-muted-foreground">
