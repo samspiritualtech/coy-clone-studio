@@ -17,6 +17,14 @@ export interface DeliveryInfo {
   expressAvailable: boolean;
 }
 
+interface PincodeLookupResult {
+  success: boolean;
+  city?: string;
+  state?: string;
+  country?: string;
+  error?: string;
+}
+
 interface LocationContextType {
   location: UserLocation | null;
   isLoading: boolean;
@@ -24,6 +32,7 @@ interface LocationContextType {
   requestLocation: () => Promise<void>;
   setManualLocation: (location: UserLocation) => Promise<void>;
   checkDelivery: (pincode: string) => Promise<DeliveryInfo | null>;
+  lookupPincode: (pincode: string) => Promise<PincodeLookupResult>;
   showPermissionModal: boolean;
   setShowPermissionModal: (show: boolean) => void;
   showManualSelector: boolean;
@@ -250,6 +259,24 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
+  const lookupPincode = useCallback(async (pincode: string): Promise<PincodeLookupResult> => {
+    try {
+      const response = await supabase.functions.invoke('pincode-lookup', {
+        body: { pincode }
+      });
+      
+      if (response.error) {
+        console.error('Pincode lookup error:', response.error);
+        return { success: false, error: 'Unable to detect location. Please enter manually.' };
+      }
+      
+      return response.data as PincodeLookupResult;
+    } catch (error) {
+      console.error('Pincode lookup error:', error);
+      return { success: false, error: 'Connection error. Please try again.' };
+    }
+  }, []);
+
   return (
     <LocationContext.Provider
       value={{
@@ -259,6 +286,7 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
         requestLocation,
         setManualLocation,
         checkDelivery,
+        lookupPincode,
         showPermissionModal,
         setShowPermissionModal,
         showManualSelector,
