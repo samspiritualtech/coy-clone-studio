@@ -30,6 +30,7 @@ import { ProductImageGallery } from "@/components/ProductImageGallery";
 import { ViewSimilarModal } from "@/components/ViewSimilarModal";
 import { SizeGuideModal } from "@/components/SizeGuideModal";
 import { ProductDetailsAccordion } from "@/components/ProductDetailsAccordion";
+import { DeliveryChecker } from "@/components/DeliveryChecker";
 import { Product, ColorVariant } from "@/types";
 import { cn } from "@/lib/utils";
 
@@ -358,16 +359,19 @@ export default function ProductDetail() {
               />
             </div>
 
+            {/* Delivery Checker */}
+            <DeliveryChecker className="bg-muted/30" />
+
             {/* Delivery & Services */}
             <div className="rounded-xl border bg-muted/30 p-4 space-y-4">
               <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Delivery & Services
+                Services
               </h4>
               
               <div className="grid gap-3">
                 <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-full bg-green-50">
-                    <Truck className="h-4 w-4 text-green-600" />
+                  <div className="p-2 rounded-full bg-primary/10">
+                    <Truck className="h-4 w-4 text-primary" />
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-medium">Free Delivery</p>
@@ -376,18 +380,8 @@ export default function ProductDetail() {
                 </div>
                 
                 <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-full bg-blue-50">
-                    <Package className="h-4 w-4 text-blue-600" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">Estimated Delivery</p>
-                    <p className="text-xs text-muted-foreground">3-5 business days</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-full bg-orange-50">
-                    <RotateCcw className="h-4 w-4 text-orange-600" />
+                  <div className="p-2 rounded-full bg-primary/10">
+                    <RotateCcw className="h-4 w-4 text-primary" />
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-medium">Easy Returns</p>
@@ -396,8 +390,8 @@ export default function ProductDetail() {
                 </div>
                 
                 <div className="flex items-start gap-3">
-                  <div className="p-2 rounded-full bg-purple-50">
-                    <Wallet className="h-4 w-4 text-purple-600" />
+                  <div className="p-2 rounded-full bg-primary/10">
+                    <Wallet className="h-4 w-4 text-primary" />
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-medium">Cash on Delivery</p>

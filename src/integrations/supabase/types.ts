@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      delivery_zones: {
+        Row: {
+          city: string | null
+          created_at: string | null
+          delivery_days: number | null
+          express_available: boolean | null
+          id: string
+          is_deliverable: boolean | null
+          pincode: string
+          state: string | null
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string | null
+          delivery_days?: number | null
+          express_available?: boolean | null
+          id?: string
+          is_deliverable?: boolean | null
+          pincode: string
+          state?: string | null
+        }
+        Update: {
+          city?: string | null
+          created_at?: string | null
+          delivery_days?: number | null
+          express_available?: boolean | null
+          id?: string
+          is_deliverable?: boolean | null
+          pincode?: string
+          state?: string | null
+        }
+        Relationships: []
+      }
       designers: {
         Row: {
           banner_image: string | null
@@ -215,29 +248,47 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          city: string | null
+          country: string | null
           created_at: string | null
           email: string | null
           id: string
+          latitude: number | null
+          longitude: number | null
           name: string | null
           phone: string | null
+          pincode: string | null
+          state: string | null
           updated_at: string | null
         }
         Insert: {
           avatar_url?: string | null
+          city?: string | null
+          country?: string | null
           created_at?: string | null
           email?: string | null
           id: string
+          latitude?: number | null
+          longitude?: number | null
           name?: string | null
           phone?: string | null
+          pincode?: string | null
+          state?: string | null
           updated_at?: string | null
         }
         Update: {
           avatar_url?: string | null
+          city?: string | null
+          country?: string | null
           created_at?: string | null
           email?: string | null
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           name?: string | null
           phone?: string | null
+          pincode?: string | null
+          state?: string | null
           updated_at?: string | null
         }
         Relationships: []
