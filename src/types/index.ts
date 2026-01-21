@@ -38,6 +38,7 @@ export interface User {
   name: string;
   email: string;
   phone?: string;
+  avatarUrl?: string;
 }
 
 export interface FilterState {
