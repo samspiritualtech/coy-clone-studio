@@ -5,15 +5,42 @@ import { Session } from '@supabase/supabase-js';
 
 interface AuthContextType {
   user: User | null;
-  sendOtp: (phone: string) => Promise<{ success: boolean; error?: string; demoOtp?: string }>;
-  verifyOtp: (phone: string, otp: string, name?: string) => Promise<{ success: boolean; error?: string }>;
-  signInWithGoogle: () => Promise<{ success: boolean; error?: string }>;
+  signUp: (email: string, password: string, name: string) => Promise<{ success: boolean; error?: string }>;
+  signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   isAuthenticated: boolean;
   isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const handleAuthError = (error: any): string => {
+  const message = error?.message || 'Authentication failed';
+  
+  // Handle provider-related errors
+  if (message.includes('provider') || message.includes('OAuth')) {
+    return 'This authentication method is not currently supported.';
+  }
+  
+  // Handle common errors
+  if (message === 'Invalid login credentials') {
+    return 'Invalid email or password.';
+  }
+  
+  if (message.includes('Email not confirmed')) {
+    return 'Please verify your email before logging in.';
+  }
+  
+  if (message.includes('already registered') || message.includes('already been registered')) {
+    return 'An account with this email already exists.';
+  }
+
+  if (message.includes('Password should be at least')) {
+    return 'Password must be at least 6 characters.';
+  }
+  
+  return message;
+};
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -93,76 +120,41 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const signInWithGoogle = async (): Promise<{ success: boolean; error?: string }> => {
+  const signUp = async (email: string, password: string, name: string): Promise<{ success: boolean; error?: string }> => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
         options: {
-          redirectTo: `${window.location.origin}/`
+          emailRedirectTo: window.location.origin,
+          data: { full_name: name }
         }
       });
 
       if (error) {
-        console.error('Google sign-in error:', error);
-        return { success: false, error: error.message };
+        return { success: false, error: handleAuthError(error) };
       }
 
       return { success: true };
-    } catch (error: any) {
-      console.error('Google sign-in error:', error);
-      return { success: false, error: error.message || 'Failed to sign in with Google' };
+    } catch (error) {
+      return { success: false, error: handleAuthError(error) };
     }
   };
 
-  const sendOtp = async (phone: string): Promise<{ success: boolean; error?: string; demoOtp?: string }> => {
+  const signIn = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
-      const { data, error } = await supabase.functions.invoke('send-otp', {
-        body: { phone }
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password
       });
 
       if (error) {
-        console.error('Send OTP error:', error);
-        return { success: false, error: error.message || 'Failed to send OTP' };
-      }
-
-      if (!data.success) {
-        return { success: false, error: data.error };
-      }
-
-      return { success: true, demoOtp: data.demoOtp };
-    } catch (error: any) {
-      console.error('Send OTP error:', error);
-      return { success: false, error: error.message || 'Failed to send OTP. Please try again.' };
-    }
-  };
-
-  const verifyOtp = async (phone: string, otp: string, name?: string): Promise<{ success: boolean; error?: string }> => {
-    try {
-      const { data, error } = await supabase.functions.invoke('verify-otp', {
-        body: { phone, otp, name }
-      });
-
-      if (error) {
-        console.error('Verify OTP error:', error);
-        return { success: false, error: error.message || 'Verification failed' };
-      }
-
-      if (!data.success) {
-        return { success: false, error: data.error };
-      }
-
-      // Set the session from the response
-      if (data.session) {
-        await supabase.auth.setSession({
-          access_token: data.session.access_token,
-          refresh_token: data.session.refresh_token
-        });
+        return { success: false, error: handleAuthError(error) };
       }
 
       return { success: true };
-    } catch (error: any) {
-      console.error('Verify OTP error:', error);
-      return { success: false, error: error.message || 'Verification failed. Please try again.' };
+    } catch (error) {
+      return { success: false, error: handleAuthError(error) };
     }
   };
 
@@ -175,9 +167,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   return (
     <AuthContext.Provider value={{
       user,
-      sendOtp,
-      verifyOtp,
-      signInWithGoogle,
+      signUp,
+      signIn,
       logout,
       isAuthenticated: !!session,
       isLoading
