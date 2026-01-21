@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { Home, Building2, MapPin, Loader2, Check, X, Navigation } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useLocation } from '@/contexts/LocationContext';
 import { cn } from '@/lib/utils';
-import type { UserAddress } from './AddressCard';
+import type { UserAddress } from '@/types';
 
 interface AddressFormProps {
   initialData?: Partial<UserAddress>;

@@ -35,7 +35,7 @@ import { DeliveryChecker } from "@/components/DeliveryChecker";
 import { AddressSelectionModal } from "@/components/AddressSelectionModal";
 import { Product, ColorVariant } from "@/types";
 import { cn } from "@/lib/utils";
-import type { UserAddress } from "@/components/AddressCard";
+import type { UserAddress } from "@/types";
 
 export default function ProductDetail() {
   const { id } = useParams();

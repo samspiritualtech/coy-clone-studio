@@ -8,11 +8,12 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { AddressCard, type UserAddress } from './AddressCard';
+import { AddressCard } from './AddressCard';
 import { AddressForm } from './AddressForm';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import type { UserAddress } from '@/types';
 
 interface AddressSelectionModalProps {
   open: boolean;

@@ -130,3 +130,20 @@ export interface ProductFilters {
   colors?: string[];
   inStockOnly?: boolean;
 }
+
+// User address for delivery
+export interface UserAddress {
+  id: string;
+  user_id: string;
+  full_name: string;
+  mobile: string;
+  pincode: string;
+  address_line: string;
+  city: string;
+  state: string;
+  landmark?: string;
+  address_type: 'home' | 'work';
+  is_default: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
