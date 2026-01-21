@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import type { UserAddress } from '@/components/AddressCard';
 
 export interface UserLocation {
   city: string;
@@ -26,23 +27,37 @@ interface PincodeLookupResult {
 }
 
 interface LocationContextType {
+  // Browse location (IP-based or manually set)
   location: UserLocation | null;
   isLoading: boolean;
   permissionStatus: 'prompt' | 'granted' | 'denied' | 'unavailable';
+  
+  // Location actions
   requestLocation: () => Promise<void>;
   setManualLocation: (location: UserLocation) => Promise<void>;
+  detectLocationByIP: () => Promise<void>;
+  
+  // Delivery
   checkDelivery: (pincode: string) => Promise<DeliveryInfo | null>;
   lookupPincode: (pincode: string) => Promise<PincodeLookupResult>;
+  
+  // Modals
   showPermissionModal: boolean;
   setShowPermissionModal: (show: boolean) => void;
   showManualSelector: boolean;
   setShowManualSelector: (show: boolean) => void;
+  
+  // Address selection for checkout
+  showAddressModal: boolean;
+  setShowAddressModal: (show: boolean) => void;
+  selectedAddress: UserAddress | null;
+  setSelectedAddress: (address: UserAddress | null) => void;
 }
 
 const LocationContext = createContext<LocationContextType | undefined>(undefined);
 
 const LOCATION_STORAGE_KEY = 'ogura_user_location';
-const PERMISSION_ASKED_KEY = 'ogura_location_asked';
+const SELECTED_ADDRESS_KEY = 'ogura_selected_address';
 
 export const LocationProvider = ({ children }: { children: ReactNode }) => {
   const { user, isAuthenticated } = useAuth();
@@ -51,8 +66,42 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
   const [permissionStatus, setPermissionStatus] = useState<'prompt' | 'granted' | 'denied' | 'unavailable'>('prompt');
   const [showPermissionModal, setShowPermissionModal] = useState(false);
   const [showManualSelector, setShowManualSelector] = useState(false);
+  const [showAddressModal, setShowAddressModal] = useState(false);
+  const [selectedAddress, setSelectedAddress] = useState<UserAddress | null>(null);
 
-  // Load location from storage or database on mount
+  // Detect location silently using IP on mount
+  const detectLocationByIP = useCallback(async () => {
+    try {
+      console.log('Detecting location by IP...');
+      const response = await supabase.functions.invoke('ip-geolocation');
+      
+      if (response.data?.success) {
+        const ipLocation: UserLocation = {
+          city: response.data.city,
+          state: response.data.state,
+          country: response.data.country || 'India',
+          pincode: '', // IP detection doesn't provide pincode
+        };
+        
+        console.log('IP location detected:', ipLocation);
+        setLocation(ipLocation);
+        localStorage.setItem(LOCATION_STORAGE_KEY, JSON.stringify(ipLocation));
+      }
+    } catch (error) {
+      console.error('IP geolocation error:', error);
+      // Silent failure - just set a default location
+      const defaultLocation: UserLocation = {
+        city: 'Delhi',
+        state: 'Delhi',
+        country: 'India',
+        pincode: '',
+      };
+      setLocation(defaultLocation);
+      localStorage.setItem(LOCATION_STORAGE_KEY, JSON.stringify(defaultLocation));
+    }
+  }, []);
+
+  // Load location from storage or database on mount, then fallback to IP detection
   useEffect(() => {
     const loadLocation = async () => {
       // First check localStorage
@@ -85,27 +134,40 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
             };
             setLocation(dbLocation);
             localStorage.setItem(LOCATION_STORAGE_KEY, JSON.stringify(dbLocation));
+            return; // We have location, no need for IP detection
           }
         } catch (e) {
           console.error('Failed to fetch location from database:', e);
         }
       }
+
+      // If no stored location, detect by IP (silently, no popup)
+      if (!storedLocation) {
+        detectLocationByIP();
+      }
     };
 
     loadLocation();
-  }, [isAuthenticated, user?.id]);
+  }, [isAuthenticated, user?.id, detectLocationByIP]);
 
-  // Check if we should show permission modal
+  // Load selected address from storage
   useEffect(() => {
-    const hasAsked = localStorage.getItem(PERMISSION_ASKED_KEY);
-    if (!hasAsked && !location) {
-      // Delay showing modal for better UX
-      const timer = setTimeout(() => {
-        setShowPermissionModal(true);
-      }, 2000);
-      return () => clearTimeout(timer);
+    const storedAddress = localStorage.getItem(SELECTED_ADDRESS_KEY);
+    if (storedAddress) {
+      try {
+        setSelectedAddress(JSON.parse(storedAddress));
+      } catch (e) {
+        console.error('Failed to parse stored address:', e);
+      }
     }
-  }, [location]);
+  }, []);
+
+  // Save selected address to storage
+  useEffect(() => {
+    if (selectedAddress) {
+      localStorage.setItem(SELECTED_ADDRESS_KEY, JSON.stringify(selectedAddress));
+    }
+  }, [selectedAddress]);
 
   // Check geolocation permission status
   useEffect(() => {
@@ -182,6 +244,7 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Request GPS location - ONLY called when user explicitly clicks "Use My Current Location"
   const requestLocation = useCallback(async () => {
     if (!('geolocation' in navigator)) {
       setPermissionStatus('unavailable');
@@ -190,7 +253,6 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
     }
 
     setIsLoading(true);
-    localStorage.setItem(PERMISSION_ASKED_KEY, 'true');
     setShowPermissionModal(false);
 
     try {
@@ -225,7 +287,6 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
   }, [isAuthenticated, user?.id]);
 
   const setManualLocation = useCallback(async (loc: UserLocation) => {
-    localStorage.setItem(PERMISSION_ASKED_KEY, 'true');
     setShowPermissionModal(false);
     setShowManualSelector(false);
     await saveLocation(loc);
@@ -237,7 +298,7 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
         .from('delivery_zones')
         .select('is_deliverable, delivery_days, express_available')
         .eq('pincode', pincode)
-        .single();
+        .maybeSingle();
 
       if (error || !data) {
         // If pincode not found, assume deliverable with default days
@@ -285,12 +346,17 @@ export const LocationProvider = ({ children }: { children: ReactNode }) => {
         permissionStatus,
         requestLocation,
         setManualLocation,
+        detectLocationByIP,
         checkDelivery,
         lookupPincode,
         showPermissionModal,
         setShowPermissionModal,
         showManualSelector,
         setShowManualSelector,
+        showAddressModal,
+        setShowAddressModal,
+        selectedAddress,
+        setSelectedAddress,
       }}
     >
       {children}

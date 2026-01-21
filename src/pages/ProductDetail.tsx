@@ -21,6 +21,7 @@ import {
 import { products } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
+import { useLocation } from "@/contexts/LocationContext";
 import { toast } from "@/hooks/use-toast";
 import { useState, useMemo, useEffect } from "react";
 import { VirtualTryOnDialog } from "@/components/VirtualTryOnDialog";
@@ -31,14 +32,17 @@ import { ViewSimilarModal } from "@/components/ViewSimilarModal";
 import { SizeGuideModal } from "@/components/SizeGuideModal";
 import { ProductDetailsAccordion } from "@/components/ProductDetailsAccordion";
 import { DeliveryChecker } from "@/components/DeliveryChecker";
+import { AddressSelectionModal } from "@/components/AddressSelectionModal";
 import { Product, ColorVariant } from "@/types";
 import { cn } from "@/lib/utils";
+import type { UserAddress } from "@/components/AddressCard";
 
 export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addItem } = useCart();
   const { toggleItem, isInWishlist } = useWishlist();
+  const { setShowAddressModal, showAddressModal, selectedAddress, setSelectedAddress } = useLocation();
 
   // Find the current product
   const currentProduct = useMemo(() => products.find(p => p.id === id), [id]);
@@ -50,6 +54,7 @@ export default function ProductDetail() {
   const [quantity, setQuantity] = useState(1);
   const [showSimilarModal, setShowSimilarModal] = useState(false);
   const [showSizeGuide, setShowSizeGuide] = useState(false);
+  const [pendingBuyNow, setPendingBuyNow] = useState(false);
 
   // Initialize state when product changes
   useEffect(() => {
@@ -124,7 +129,19 @@ export default function ProductDetail() {
     }
     const colorToUse = selectedColor || currentProduct.colors[0]?.name || 'Default';
     addItem(currentProduct, selectedSize, colorToUse, quantity);
-    navigate('/cart');
+    
+    // Show address selection modal before proceeding to cart
+    setPendingBuyNow(true);
+    setShowAddressModal(true);
+  };
+
+  // Handle address selection for Buy Now flow
+  const handleAddressSelect = (address: UserAddress) => {
+    setSelectedAddress(address);
+    if (pendingBuyNow) {
+      setPendingBuyNow(false);
+      navigate('/cart');
+    }
   };
 
   const handleWishlistToggle = () => {
@@ -443,6 +460,17 @@ export default function ProductDetail() {
         isOpen={showSizeGuide}
         onClose={() => setShowSizeGuide(false)}
         category={currentProduct.category}
+      />
+
+      {/* Address Selection Modal */}
+      <AddressSelectionModal
+        open={showAddressModal}
+        onOpenChange={(open) => {
+          setShowAddressModal(open);
+          if (!open) setPendingBuyNow(false);
+        }}
+        onAddressSelect={handleAddressSelect}
+        selectedAddressId={selectedAddress?.id}
       />
 
       {/* Mobile Sticky Add to Bag Bar */}
