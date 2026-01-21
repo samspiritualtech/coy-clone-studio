@@ -3,20 +3,30 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, MapPin, ChevronRight } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLocation } from "@/contexts/LocationContext";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { AddressSelectionModal } from "@/components/AddressSelectionModal";
+import { AddressCard, type UserAddress } from "@/components/AddressCard";
 
 export default function Cart() {
   const { items, updateQuantity, removeItem, subtotal, tax, total } = useCart();
   const { user } = useAuth();
+  const { selectedAddress, setSelectedAddress, setShowAddressModal, showAddressModal } = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleCheckout = async () => {
+    // If no address selected, show address modal
+    if (!selectedAddress) {
+      setShowAddressModal(true);
+      return;
+    }
+
     setIsLoading(true);
     
     try {
@@ -28,8 +38,16 @@ export default function Cart() {
         mode: 'no-cors',
         body: JSON.stringify({
           event: 'order_confirmed',
-          customer_name: user?.name || 'Guest User',
+          customer_name: selectedAddress.full_name || user?.name || 'Guest User',
           customer_email: user?.email || 'guest@example.com',
+          customer_phone: selectedAddress.mobile,
+          shipping_address: {
+            address_line: selectedAddress.address_line,
+            city: selectedAddress.city,
+            state: selectedAddress.state,
+            pincode: selectedAddress.pincode,
+            landmark: selectedAddress.landmark,
+          },
           order_total: total,
           currency: 'INR'
         }),
@@ -49,6 +67,15 @@ export default function Cart() {
       setIsLoading(false);
     }
   };
+
+  const handleAddressSelect = (address: UserAddress) => {
+    setSelectedAddress(address);
+    toast({
+      title: "Delivery Address Selected",
+      description: `Delivering to ${address.city}, ${address.pincode}`,
+    });
+  };
+
   if (items.length === 0) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -74,6 +101,43 @@ export default function Cart() {
 
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-4">
+            {/* Delivery Address Section */}
+            <Card className="p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-5 w-5 text-primary" />
+                  <span className="font-semibold">Delivery Address</span>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  onClick={() => setShowAddressModal(true)}
+                  className="text-primary"
+                >
+                  {selectedAddress ? 'Change' : 'Add'}
+                  <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
+              </div>
+              
+              {selectedAddress ? (
+                <AddressCard 
+                  address={selectedAddress} 
+                  selectable={false}
+                  showActions={false}
+                />
+              ) : (
+                <button
+                  onClick={() => setShowAddressModal(true)}
+                  className="w-full border-2 border-dashed border-muted-foreground/30 rounded-lg p-6 flex flex-col items-center justify-center gap-2 text-muted-foreground hover:border-primary hover:text-primary transition-colors"
+                >
+                  <MapPin className="h-8 w-8" />
+                  <span className="font-medium">Add Delivery Address</span>
+                  <span className="text-sm">Click to add your delivery address</span>
+                </button>
+              )}
+            </Card>
+
+            {/* Cart Items */}
             {items.map((item) => (
               <Card key={`${item.product.id}-${item.size}-${item.color}`} className="p-4">
                 <div className="flex gap-4">
@@ -176,7 +240,7 @@ export default function Cart() {
                 onClick={handleCheckout}
                 disabled={isLoading}
               >
-                {isLoading ? "Processing..." : "Proceed to Checkout"}
+                {isLoading ? "Processing..." : selectedAddress ? "Proceed to Checkout" : "Select Address & Checkout"}
               </Button>
               <Button
                 variant="outline"
@@ -190,6 +254,14 @@ export default function Cart() {
         </div>
       </main>
       <Footer />
+
+      {/* Address Selection Modal */}
+      <AddressSelectionModal
+        open={showAddressModal}
+        onOpenChange={setShowAddressModal}
+        onAddressSelect={handleAddressSelect}
+        selectedAddressId={selectedAddress?.id}
+      />
     </div>
   );
 }

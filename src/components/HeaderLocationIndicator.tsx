@@ -53,7 +53,7 @@ export const HeaderLocationIndicator = ({ className, variant = 'default' }: Head
         <span className="text-[10px] text-muted-foreground leading-none">Delivering to</span>
         {location ? (
           <span className="text-sm font-medium leading-tight">
-            {location.city}, {location.pincode}
+            {location.city}{location.pincode ? `, ${location.pincode}` : `, ${location.state}`}
           </span>
         ) : (
           <span className="text-sm font-medium leading-tight text-primary">
