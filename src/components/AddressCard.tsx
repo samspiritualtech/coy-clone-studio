@@ -1,22 +1,7 @@
 import { Home, Building2, Phone, Edit2, Trash2, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-
-export interface UserAddress {
-  id: string;
-  user_id: string;
-  full_name: string;
-  mobile: string;
-  pincode: string;
-  address_line: string;
-  city: string;
-  state: string;
-  landmark?: string;
-  address_type: 'home' | 'work';
-  is_default: boolean;
-  created_at?: string;
-  updated_at?: string;
-}
+import type { UserAddress } from '@/types';
 
 interface AddressCardProps {
   address: UserAddress;
@@ -71,8 +56,8 @@ export const AddressCard = ({
             <span className={cn(
               "inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded",
               address.address_type === 'home' 
-                ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
-                : "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                ? "bg-secondary text-secondary-foreground"
+                : "bg-accent text-accent-foreground"
             )}>
               {address.address_type === 'home' ? (
                 <Home className="h-3 w-3" />

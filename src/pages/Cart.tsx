@@ -10,7 +10,8 @@ import { useLocation } from "@/contexts/LocationContext";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { AddressSelectionModal } from "@/components/AddressSelectionModal";
-import { AddressCard, type UserAddress } from "@/components/AddressCard";
+import { AddressCard } from "@/components/AddressCard";
+import type { UserAddress } from "@/types";
 
 export default function Cart() {
   const { items, updateQuantity, removeItem, subtotal, tax, total } = useCart();
