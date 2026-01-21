@@ -1,24 +1,26 @@
-import { Search, ShoppingBag, User, Menu, Heart, LogOut, Camera, X, MapPin } from "lucide-react";
+import { Search, ShoppingBag, User, Menu, Camera, X, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
-import { useAuth } from "@/contexts/AuthContext";
 import { useLocation } from "@/contexts/LocationContext";
 import { ImageSearchDialog } from "@/components/ImageSearchDialog";
 import { MegaMenu } from "@/components/MegaMenu";
 import { MegaMenuMobile } from "@/components/MegaMenuMobile";
+import { NykaaLoginDropdown } from "@/components/auth/NykaaLoginDropdown";
+import { AuthModal } from "@/components/auth/AuthModal";
 import { cn } from "@/lib/utils";
 
 export const LuxuryHeader = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isScrolled, setIsScrolled] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const navigate = useNavigate();
   const { totalItems } = useCart();
-  const { user, logout } = useAuth();
   const { location: userLocation, setShowManualSelector, setShowPermissionModal } = useLocation();
 
   useEffect(() => {
@@ -35,6 +37,11 @@ export const LuxuryHeader = () => {
       navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
       setSearchQuery("");
     }
+  };
+
+  const handleLoginClick = () => {
+    setIsPopoverOpen(false);
+    setShowAuthModal(true);
   };
 
   const navItems = [
@@ -161,8 +168,8 @@ export const LuxuryHeader = () => {
               />
             </form>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+            <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+              <PopoverTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -173,51 +180,16 @@ export const LuxuryHeader = () => {
                 >
                   <User className="h-5 w-5" />
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-background/95 backdrop-blur-md w-64">
-                {user ? (
-                  <>
-                    {/* User Profile Info */}
-                    <div className="px-3 py-3 border-b border-border">
-                      <div className="flex items-center gap-3">
-                        {user.avatarUrl ? (
-                          <img 
-                            src={user.avatarUrl} 
-                            alt={user.name}
-                            className="h-10 w-10 rounded-full object-cover"
-                          />
-                        ) : (
-                          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                            <span className="text-sm font-medium text-primary">{user.name.charAt(0).toUpperCase()}</span>
-                          </div>
-                        )}
-                        <div className="flex flex-col min-w-0">
-                          <span className="text-sm font-medium truncate">
-                            {user.name}
-                          </span>
-                          <span className="text-xs text-muted-foreground truncate">
-                            {user.email}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <DropdownMenuItem onClick={() => navigate("/wishlist")} className="mt-1">
-                      <Heart className="mr-2 h-4 w-4" />
-                      Wishlist
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={logout} className="text-destructive focus:text-destructive">
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Logout
-                    </DropdownMenuItem>
-                  </>
-                ) : (
-                  <DropdownMenuItem onClick={() => navigate("/auth")}>
-                    Login / Sign Up
-                  </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="p-0 w-auto border-0 shadow-xl rounded-xl bg-background/95 backdrop-blur-md">
+                <NykaaLoginDropdown 
+                  onLoginClick={handleLoginClick}
+                  onClose={() => setIsPopoverOpen(false)}
+                />
+              </PopoverContent>
+            </Popover>
+
+            <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
 
             <Button
               variant="ghost"

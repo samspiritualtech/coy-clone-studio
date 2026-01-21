@@ -3,11 +3,26 @@ import { User } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
 import { Session } from '@supabase/supabase-js';
 
+interface SendOTPResult {
+  success: boolean;
+  demoOtp?: string;
+  error?: string;
+}
+
+interface SignInWithOTPResult {
+  success: boolean;
+  error?: string;
+  isNewUser?: boolean;
+  needsName?: boolean;
+}
+
 interface AuthContextType {
   user: User | null;
   signUp: (email: string, password: string, name: string) => Promise<{ success: boolean; error?: string }>;
   signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signInWithGoogle: () => Promise<{ success: boolean; error?: string }>;
+  sendOTP: (phone: string) => Promise<SendOTPResult>;
+  signInWithOTP: (phone: string, otp: string, name?: string) => Promise<SignInWithOTPResult>;
   logout: () => void;
   isAuthenticated: boolean;
   isLoading: boolean;
@@ -184,12 +199,73 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setSession(null);
   };
 
+  const sendOTP = async (phone: string): Promise<SendOTPResult> => {
+    try {
+      const response = await supabase.functions.invoke('send-otp', {
+        body: { phone }
+      });
+      
+      if (response.error) {
+        return { success: false, error: response.error.message };
+      }
+      
+      if (response.data?.success) {
+        return { 
+          success: true, 
+          demoOtp: response.data.demoOtp 
+        };
+      }
+      
+      return { success: false, error: response.data?.error || 'Failed to send OTP' };
+    } catch (error: any) {
+      return { success: false, error: error.message || 'Failed to send OTP' };
+    }
+  };
+
+  const signInWithOTP = async (phone: string, otp: string, name?: string): Promise<SignInWithOTPResult> => {
+    try {
+      const response = await supabase.functions.invoke('verify-otp', {
+        body: { phone, otp, name }
+      });
+      
+      if (response.error) {
+        return { success: false, error: response.error.message };
+      }
+      
+      if (response.data?.success) {
+        // If session is returned, set it
+        if (response.data.session) {
+          await supabase.auth.setSession({
+            access_token: response.data.session.access_token,
+            refresh_token: response.data.session.refresh_token
+          });
+        }
+        
+        return { 
+          success: true,
+          isNewUser: response.data.isNewUser
+        };
+      }
+      
+      // Check if we need name for new user
+      if (response.data?.needsName) {
+        return { success: false, needsName: true };
+      }
+      
+      return { success: false, error: response.data?.error || 'Verification failed' };
+    } catch (error: any) {
+      return { success: false, error: error.message || 'Verification failed' };
+    }
+  };
+
   return (
     <AuthContext.Provider value={{
       user,
       signUp,
       signIn,
       signInWithGoogle,
+      sendOTP,
+      signInWithOTP,
       logout,
       isAuthenticated: !!session,
       isLoading
