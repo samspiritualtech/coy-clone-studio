@@ -12,3 +12,6 @@ verify_jwt = false
 [functions.image-analysis]
 verify_jwt = false
 
+[functions.pincode-lookup]
+verify_jwt = false
+
