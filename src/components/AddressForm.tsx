@@ -145,8 +145,8 @@ export const AddressForm = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto space-y-4 px-1">
+    <form onSubmit={handleSubmit} className="flex flex-col h-full min-h-0">
+      <div className="flex-1 overflow-y-auto space-y-4 pr-1 -mr-1 min-h-0 pb-4">
         {/* Full Name */}
         <div className="space-y-2">
           <Label htmlFor="fullName">Full Name *</Label>
@@ -285,13 +285,14 @@ export const AddressForm = ({
         </div>
 
         {/* Landmark */}
-        <div className="space-y-2">
+        <div className="space-y-2 mt-4 mb-2">
           <Label htmlFor="landmark">Landmark (Optional)</Label>
           <Input
             id="landmark"
             value={landmark}
             onChange={(e) => setLandmark(e.target.value)}
             placeholder="Near Central Park, etc."
+            className="w-full"
           />
         </div>
 
@@ -345,7 +346,7 @@ export const AddressForm = ({
       </div>
 
       {/* Action Buttons - Always at bottom */}
-      <div className="flex gap-3 pt-4 mt-4 border-t">
+      <div className="flex gap-3 pt-4 mt-auto border-t shrink-0 bg-background">
         {onCancel && (
           <Button
             type="button"

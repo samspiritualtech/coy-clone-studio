@@ -257,13 +257,13 @@ export const AddressSelectionModal = ({
   if (showAddForm || editingAddress) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-lg max-h-[90vh] flex flex-col">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-lg max-h-[90vh] max-h-[calc(100vh-2rem)] overflow-hidden flex flex-col p-0">
+          <DialogHeader className="px-6 pt-6 pb-4 shrink-0">
             <DialogTitle>
               {editingAddress ? 'Edit Address' : 'Add New Address'}
             </DialogTitle>
           </DialogHeader>
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1 min-h-0 px-6 pb-6">
             <AddressForm
               initialData={editingAddress || undefined}
               onSubmit={editingAddress ? handleUpdateAddress : handleAddAddress}
