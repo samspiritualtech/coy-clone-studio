@@ -1,29 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Mail, Lock, User, ArrowRight, Loader2, ShieldCheck, Eye, EyeOff } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
+import { Loader2, ShieldCheck } from 'lucide-react';
+import { MobileOTPForm } from '@/components/auth/MobileOTPForm';
 
 const Auth = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { signUp, signIn, signInWithGoogle, isAuthenticated } = useAuth();
+  const { signInWithGoogle, isAuthenticated } = useAuth();
   const { toast } = useToast();
   
   const from = (location.state as { from?: { pathname: string } })?.from?.pathname || '/';
 
-  const [activeTab, setActiveTab] = useState('login');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   useEffect(() => {
@@ -32,128 +26,29 @@ const Auth = () => {
     }
   }, [isAuthenticated, navigate, from]);
 
-  const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  const validatePassword = (password: string): boolean => {
-    return password.length >= 6;
-  };
-
-  const handleLogin = async () => {
-    if (!validateEmail(email)) {
-      toast({
-        title: "Invalid Email",
-        description: "Please enter a valid email address.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (!validatePassword(password)) {
-      toast({
-        title: "Invalid Password",
-        description: "Password must be at least 6 characters.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setIsLoading(true);
-    const result = await signIn(email, password);
-    setIsLoading(false);
-
-    if (result.success) {
-      toast({
-        title: "Login Successful",
-        description: "Welcome back to Ogura!",
-      });
-      navigate(from, { replace: true });
-    } else {
-      toast({
-        title: "Login Failed",
-        description: result.error,
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleSignUp = async () => {
-    if (!name.trim()) {
-      toast({
-        title: "Name Required",
-        description: "Please enter your name to create an account.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (!validateEmail(email)) {
-      toast({
-        title: "Invalid Email",
-        description: "Please enter a valid email address.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (!validatePassword(password)) {
-      toast({
-        title: "Invalid Password",
-        description: "Password must be at least 6 characters.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setIsLoading(true);
-    const result = await signUp(email, password, name);
-    setIsLoading(false);
-
-    if (result.success) {
-      toast({
-        title: "Account Created",
-        description: "Welcome to Ogura!",
-      });
-      navigate(from, { replace: true });
-    } else {
-      toast({
-        title: "Sign Up Failed",
-        description: result.error,
-        variant: "destructive"
-      });
-    }
-  };
-
-  const handleTabChange = (value: string) => {
-    setActiveTab(value);
-    setEmail('');
-    setPassword('');
-    setName('');
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      if (activeTab === 'login') {
-        handleLogin();
-      } else {
-        handleSignUp();
-      }
-    }
+  const handleSuccess = () => {
+    navigate(from, { replace: true });
   };
 
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
-    const result = await signInWithGoogle();
-    setIsGoogleLoading(false);
-
-    if (!result.success) {
+    try {
+      const result = await signInWithGoogle();
+      if (!result.success) {
+        toast({
+          title: "Google Sign-In Failed",
+          description: result.error || "Could not sign in with Google",
+          variant: "destructive"
+        });
+      }
+    } catch (error) {
       toast({
-        title: "Google Sign-In Failed",
-        description: result.error,
+        title: "Error",
+        description: "Something went wrong. Please try again.",
         variant: "destructive"
       });
+    } finally {
+      setIsGoogleLoading(false);
     }
   };
 
@@ -169,19 +64,17 @@ const Auth = () => {
             </div>
             <CardTitle className="text-2xl font-bold">Welcome to Ogura</CardTitle>
             <CardDescription>
-              {activeTab === 'login' 
-                ? 'Sign in to your account'
-                : 'Create a new account'
-              }
+              Login or signup with your mobile number
             </CardDescription>
           </CardHeader>
 
-          <CardContent>
+          <CardContent className="space-y-6">
+            {/* Google Sign-In */}
             <Button
               variant="outline"
-              className="w-full h-11 gap-3 mb-4"
+              className="w-full h-11 gap-3"
               onClick={handleGoogleSignIn}
-              disabled={isGoogleLoading || isLoading}
+              disabled={isGoogleLoading}
             >
               {isGoogleLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -208,138 +101,32 @@ const Auth = () => {
               Continue with Google
             </Button>
 
-            <div className="relative mb-4">
+            {/* Divider */}
+            <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t border-border" />
+                <Separator className="w-full" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">Or continue with email</span>
+                <span className="bg-card px-2 text-muted-foreground">
+                  Or continue with mobile
+                </span>
               </div>
             </div>
 
-            <Tabs value={activeTab} onValueChange={handleTabChange}>
-              <TabsList className="grid w-full grid-cols-2 mb-6">
-                <TabsTrigger value="login">Login</TabsTrigger>
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
-              </TabsList>
+            {/* Mobile OTP Form */}
+            <MobileOTPForm onSuccess={handleSuccess} />
 
-              <TabsContent value="login" className="space-y-4">
-                <div className="space-y-4">
-                  <div className="relative">
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                      <Mail className="h-4 w-4" />
-                    </div>
-                    <Input
-                      type="email"
-                      placeholder="Email address"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      className="pl-10"
-                    />
-                  </div>
-                  <div className="relative">
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                      <Lock className="h-4 w-4" />
-                    </div>
-                    <Input
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="Password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      className="pl-10 pr-10"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
-                  <Button 
-                    onClick={handleLogin} 
-                    disabled={isLoading || !email || !password}
-                    className="w-full"
-                  >
-                    {isLoading ? (
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    ) : (
-                      <ArrowRight className="h-4 w-4 mr-2" />
-                    )}
-                    Login
-                  </Button>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="signup" className="space-y-4">
-                <div className="space-y-4">
-                  <div className="relative">
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                      <User className="h-4 w-4" />
-                    </div>
-                    <Input
-                      type="text"
-                      placeholder="Full Name"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      className="pl-10"
-                      maxLength={50}
-                    />
-                  </div>
-                  <div className="relative">
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                      <Mail className="h-4 w-4" />
-                    </div>
-                    <Input
-                      type="email"
-                      placeholder="Email address"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      className="pl-10"
-                    />
-                  </div>
-                  <div className="relative">
-                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-                      <Lock className="h-4 w-4" />
-                    </div>
-                    <Input
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="Password (min 6 characters)"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      className="pl-10 pr-10"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                    >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                  </div>
-                  <Button 
-                    onClick={handleSignUp} 
-                    disabled={isLoading || !name.trim() || !email || !password}
-                    className="w-full"
-                  >
-                    {isLoading ? (
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    ) : (
-                      <ArrowRight className="h-4 w-4 mr-2" />
-                    )}
-                    Create Account
-                  </Button>
-                </div>
-              </TabsContent>
-            </Tabs>
-
-            <p className="text-xs text-muted-foreground text-center mt-6">
-              By continuing, you agree to our Terms of Service and Privacy Policy.
+            {/* Terms */}
+            <p className="text-xs text-muted-foreground text-center">
+              By continuing, you agree to our{" "}
+              <a href="#" className="underline hover:text-foreground">
+                Terms of Service
+              </a>{" "}
+              and{" "}
+              <a href="#" className="underline hover:text-foreground">
+                Privacy Policy
+              </a>
+              .
             </p>
           </CardContent>
         </Card>
