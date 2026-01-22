@@ -1,7 +1,6 @@
-import { Search, ShoppingBag, User, Menu, Camera } from "lucide-react";
+import { Search, ShoppingBag, Menu, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
@@ -9,14 +8,10 @@ import { ImageSearchDialog } from "@/components/ImageSearchDialog";
 import { MegaMenu } from "@/components/MegaMenu";
 import { MegaMenuMobile } from "@/components/MegaMenuMobile";
 import { HeaderLocationIndicator } from "@/components/HeaderLocationIndicator";
-import { NykaaLoginDropdown } from "@/components/auth/NykaaLoginDropdown";
-import { AuthModal } from "@/components/auth/AuthModal";
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const navigate = useNavigate();
   const { totalItems } = useCart();
 
@@ -26,11 +21,6 @@ export const Header = () => {
       navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
       setSearchQuery("");
     }
-  };
-
-  const handleLoginClick = () => {
-    setIsPopoverOpen(false);
-    setShowAuthModal(true);
   };
 
   return (
@@ -81,22 +71,6 @@ export const Header = () => {
                 }
               />
             </form>
-
-            <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
-              <PopoverTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <User className="h-5 w-5" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent align="end" className="p-0 w-auto border-0 shadow-xl rounded-xl">
-                <NykaaLoginDropdown 
-                  onLoginClick={handleLoginClick}
-                  onClose={() => setIsPopoverOpen(false)}
-                />
-              </PopoverContent>
-            </Popover>
-
-            <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
 
             <Button variant="ghost" size="icon" className="relative" onClick={() => navigate('/cart')}>
               <ShoppingBag className="h-5 w-5" />
