@@ -8,13 +8,11 @@ import { FilterProvider } from "@/contexts/FilterContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { WishlistProvider } from "@/contexts/WishlistContext";
 import { LocationProvider } from "@/contexts/LocationContext";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { LocationPermissionModal } from "@/components/LocationPermissionModal";
 import { ManualLocationSelector } from "@/components/ManualLocationSelector";
 import Index from "./pages/Index";
 import Collections from "./pages/Collections";
 import ProductDetail from "./pages/ProductDetail";
-import Auth from "./pages/Auth";
 import Cart from "./pages/Cart";
 import Brands from "./pages/Brands";
 import BrandDetail from "./pages/BrandDetail";
@@ -43,26 +41,22 @@ const App = () => (
                 <Sonner />
                 <BrowserRouter>
                   <Routes>
-                    {/* Public route */}
-                    <Route path="/auth" element={<Auth />} />
-                    
-                    {/* Protected routes */}
-                    <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-                    <Route path="/collections" element={<ProtectedRoute><Collections /></ProtectedRoute>} />
-                    <Route path="/collections/:category" element={<ProtectedRoute><Collections /></ProtectedRoute>} />
-                    <Route path="/product/:id" element={<ProtectedRoute><ProductDetail /></ProtectedRoute>} />
-                    <Route path="/brands" element={<ProtectedRoute><Brands /></ProtectedRoute>} />
-                    <Route path="/brands/:brandId" element={<ProtectedRoute><BrandDetail /></ProtectedRoute>} />
-                    <Route path="/designers" element={<ProtectedRoute><Designers /></ProtectedRoute>} />
-                    <Route path="/designers/:designerId" element={<ProtectedRoute><DesignerDetail /></ProtectedRoute>} />
-                    <Route path="/designer/:slug" element={<ProtectedRoute><DesignerProfilePage /></ProtectedRoute>} />
-                    <Route path="/occasions" element={<ProtectedRoute><Occasions /></ProtectedRoute>} />
-                    <Route path="/occasions/:occasionId" element={<ProtectedRoute><OccasionDetail /></ProtectedRoute>} />
-                    <Route path="/stores" element={<ProtectedRoute><Stores /></ProtectedRoute>} />
-                    <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
-                    <Route path="/wishlist" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
-                    <Route path="/search" element={<ProtectedRoute><Search /></ProtectedRoute>} />
-                    <Route path="/category/:slug" element={<ProtectedRoute><CategoryPage /></ProtectedRoute>} />
+                    <Route path="/" element={<Index />} />
+                    <Route path="/collections" element={<Collections />} />
+                    <Route path="/collections/:category" element={<Collections />} />
+                    <Route path="/product/:id" element={<ProductDetail />} />
+                    <Route path="/brands" element={<Brands />} />
+                    <Route path="/brands/:brandId" element={<BrandDetail />} />
+                    <Route path="/designers" element={<Designers />} />
+                    <Route path="/designers/:designerId" element={<DesignerDetail />} />
+                    <Route path="/designer/:slug" element={<DesignerProfilePage />} />
+                    <Route path="/occasions" element={<Occasions />} />
+                    <Route path="/occasions/:occasionId" element={<OccasionDetail />} />
+                    <Route path="/stores" element={<Stores />} />
+                    <Route path="/cart" element={<Cart />} />
+                    <Route path="/wishlist" element={<Wishlist />} />
+                    <Route path="/search" element={<Search />} />
+                    <Route path="/category/:slug" element={<CategoryPage />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </BrowserRouter>

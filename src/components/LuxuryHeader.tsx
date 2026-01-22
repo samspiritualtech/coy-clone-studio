@@ -1,7 +1,6 @@
-import { Search, ShoppingBag, User, Menu, Camera, X, MapPin } from "lucide-react";
+import { Search, ShoppingBag, Menu, Camera, X, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
@@ -9,16 +8,12 @@ import { useLocation } from "@/contexts/LocationContext";
 import { ImageSearchDialog } from "@/components/ImageSearchDialog";
 import { MegaMenu } from "@/components/MegaMenu";
 import { MegaMenuMobile } from "@/components/MegaMenuMobile";
-import { NykaaLoginDropdown } from "@/components/auth/NykaaLoginDropdown";
-import { AuthModal } from "@/components/auth/AuthModal";
 import { cn } from "@/lib/utils";
 
 export const LuxuryHeader = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isScrolled, setIsScrolled] = useState(false);
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const navigate = useNavigate();
   const { totalItems } = useCart();
   const { location: userLocation, setShowManualSelector, setShowPermissionModal } = useLocation();
@@ -37,11 +32,6 @@ export const LuxuryHeader = () => {
       navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
       setSearchQuery("");
     }
-  };
-
-  const handleLoginClick = () => {
-    setIsPopoverOpen(false);
-    setShowAuthModal(true);
   };
 
   const navItems = [
@@ -167,29 +157,6 @@ export const LuxuryHeader = () => {
                 }
               />
             </form>
-
-            <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className={cn(
-                    "transition-colors",
-                    !isScrolled && "text-white hover:bg-white/10"
-                  )}
-                >
-                  <User className="h-5 w-5" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent align="end" className="p-0 w-auto border-0 shadow-xl rounded-xl bg-background/95 backdrop-blur-md">
-                <NykaaLoginDropdown 
-                  onLoginClick={handleLoginClick}
-                  onClose={() => setIsPopoverOpen(false)}
-                />
-              </PopoverContent>
-            </Popover>
-
-            <AuthModal open={showAuthModal} onOpenChange={setShowAuthModal} />
 
             <Button
               variant="ghost"
