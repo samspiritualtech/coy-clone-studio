@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { InstantSearch, useHits, useSearchBox, Configure } from "react-instantsearch";
+import { InstantSearch, useHits, useSearchBox, Configure, useInstantSearch } from "react-instantsearch";
 import { Search, X, ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { searchClient, ALGOLIA_INDEX_NAME } from "@/lib/algoliaClient";
@@ -17,6 +17,7 @@ const MobileSearchContent = () => {
   const navigate = useNavigate();
   const { query, refine, clear } = useSearchBox();
   const { hits } = useHits();
+  const { status } = useInstantSearch();
   const [showResults, setShowResults] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -38,8 +39,13 @@ const MobileSearchContent = () => {
     setShowResults(false);
   };
 
+  const isLoading = status === "loading" || status === "stalled";
+
   return (
     <div className="relative">
+      {/* Configure always active so Algolia fetches results immediately */}
+      <Configure hitsPerPage={5} />
+      
       <form onSubmit={handleSubmit}>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -71,8 +77,6 @@ const MobileSearchContent = () => {
 
       {showResults && (
         <div className="absolute top-full left-0 right-0 mt-2 bg-background border border-border rounded-lg shadow-xl overflow-hidden z-50 max-h-[60vh] overflow-y-auto">
-          <Configure hitsPerPage={5} />
-          
           {!query ? (
             <AlgoliaTrendingProducts
               onSearchClick={(q) => {
@@ -83,11 +87,18 @@ const MobileSearchContent = () => {
               }}
               onClose={() => setShowResults(false)}
             />
+          ) : isLoading ? (
+            <div className="p-6 flex items-center justify-center">
+              <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full" />
+            </div>
           ) : hits.length === 0 ? (
             <AlgoliaNoResults />
           ) : (
             <>
               <div className="p-3">
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+                  Products ({hits.length} found)
+                </h4>
                 <ul className="space-y-1">
                   {hits.slice(0, 5).map((hit: any) => (
                     <li key={hit.objectID}>

@@ -63,6 +63,7 @@ export default function Search() {
             query: query,
           },
         }}
+        future={{ preserveSharedStateOnUnmount: true }}
       >
         <Configure hitsPerPage={12} />
         <SearchContent />
