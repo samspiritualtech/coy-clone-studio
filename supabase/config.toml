@@ -15,3 +15,6 @@ verify_jwt = false
 [functions.pincode-lookup]
 verify_jwt = false
 
+[functions.sync-algolia]
+verify_jwt = false
+
