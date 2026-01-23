@@ -1,6 +1,5 @@
-import { Search, ShoppingBag, Menu, Camera } from "lucide-react";
+import { ShoppingBag, Menu, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
@@ -8,20 +7,12 @@ import { ImageSearchDialog } from "@/components/ImageSearchDialog";
 import { MegaMenu } from "@/components/MegaMenu";
 import { MegaMenuMobile } from "@/components/MegaMenuMobile";
 import { HeaderLocationIndicator } from "@/components/HeaderLocationIndicator";
+import { AlgoliaSearchDropdown, AlgoliaMobileSearch } from "@/components/search";
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   const { totalItems } = useCart();
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
-      setSearchQuery("");
-    }
-  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -58,19 +49,10 @@ export const Header = () => {
           </nav>
 
           <div className="flex items-center gap-2">
-            <form onSubmit={handleSearch} className="hidden md:flex items-center gap-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Search..." className="pl-10 w-48" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-              </div>
-              <ImageSearchDialog
-                trigger={
-                  <Button variant="ghost" size="icon" title="Search by image">
-                    <Camera className="h-5 w-5" />
-                  </Button>
-                }
-              />
-            </form>
+            {/* Desktop Algolia Search */}
+            <div className="hidden md:block">
+              <AlgoliaSearchDropdown isScrolled={true} />
+            </div>
 
             <Button variant="ghost" size="icon" className="relative" onClick={() => navigate('/cart')}>
               <ShoppingBag className="h-5 w-5" />
@@ -83,13 +65,9 @@ export const Header = () => {
           </div>
         </div>
 
+        {/* Mobile Algolia Search */}
         <div className="md:hidden pb-4">
-          <form onSubmit={handleSearch}>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Search products..." className="pl-10" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-            </div>
-          </form>
+          <AlgoliaMobileSearch />
         </div>
       </div>
 
