@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { InstantSearch, useHits, useSearchBox, Configure } from "react-instantsearch";
+import { InstantSearch, useHits, useSearchBox, Configure, useInstantSearch } from "react-instantsearch";
 import { ArrowRight, Camera } from "lucide-react";
 import { searchClient, ALGOLIA_INDEX_NAME } from "@/lib/algoliaClient";
 import { AlgoliaSearchBox } from "./AlgoliaSearchBox";
@@ -19,6 +19,7 @@ interface AlgoliaSearchDropdownProps {
 const SearchResults = ({ onResultClick }: { onResultClick: () => void }) => {
   const { hits } = useHits();
   const { query } = useSearchBox();
+  const { status } = useInstantSearch();
   const navigate = useNavigate();
 
   if (!query) {
@@ -31,6 +32,15 @@ const SearchResults = ({ onResultClick }: { onResultClick: () => void }) => {
         }}
         onClose={onResultClick}
       />
+    );
+  }
+
+  // Show loading while searching
+  if (status === "loading" || status === "stalled") {
+    return (
+      <div className="p-6 flex items-center justify-center">
+        <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full" />
+      </div>
     );
   }
 
@@ -48,7 +58,7 @@ const SearchResults = ({ onResultClick }: { onResultClick: () => void }) => {
     <div className="max-h-[400px] overflow-y-auto">
       <div className="p-3">
         <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-          Products
+          Products ({hits.length} found)
         </h4>
         <ul className="space-y-1">
           {hits.slice(0, 6).map((hit: any) => (
@@ -100,6 +110,9 @@ const SearchDropdownContent = ({
 
   return (
     <>
+      {/* Configure always active so Algolia fetches results immediately */}
+      <Configure hitsPerPage={6} />
+      
       <div className="flex items-center gap-1">
         <AlgoliaSearchBox
           isScrolled={isScrolled}
@@ -126,7 +139,6 @@ const SearchDropdownContent = ({
 
       {isOpen && (
         <div className="absolute top-full left-0 right-0 mt-2 bg-background border border-border rounded-lg shadow-xl overflow-hidden z-50 animate-fade-in min-w-[320px]">
-          <Configure hitsPerPage={6} />
           <SearchResults onResultClick={handleResultClick} />
         </div>
       )}
