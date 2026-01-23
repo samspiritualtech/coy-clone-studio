@@ -1,18 +1,16 @@
-import { Search, ShoppingBag, Menu, Camera, X, MapPin } from "lucide-react";
+import { ShoppingBag, Menu, X, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
 import { useLocation } from "@/contexts/LocationContext";
-import { ImageSearchDialog } from "@/components/ImageSearchDialog";
 import { MegaMenu } from "@/components/MegaMenu";
 import { MegaMenuMobile } from "@/components/MegaMenuMobile";
+import { AlgoliaSearchDropdown, AlgoliaMobileSearch } from "@/components/search";
 import { cn } from "@/lib/utils";
 
 export const LuxuryHeader = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const [isScrolled, setIsScrolled] = useState(false);
   const navigate = useNavigate();
   const { totalItems } = useCart();
@@ -25,14 +23,6 @@ export const LuxuryHeader = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
-      setSearchQuery("");
-    }
-  };
 
   const navItems = [
     { label: "Brands", path: "/brands" },
@@ -123,40 +113,10 @@ export const LuxuryHeader = () => {
           </nav>
 
           <div className="flex items-center gap-3">
-            <form onSubmit={handleSearch} className="hidden md:flex items-center gap-1">
-              <div className="relative">
-                <Search className={cn(
-                  "absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 transition-colors",
-                  isScrolled ? "text-muted-foreground" : "text-white/70"
-                )} />
-                <Input
-                  placeholder="Search..."
-                  className={cn(
-                    "pl-10 w-48 border transition-all",
-                    isScrolled
-                      ? "bg-background border-input"
-                      : "bg-white/10 border-white/20 text-white placeholder:text-white/50 focus:bg-white/20"
-                  )}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-              <ImageSearchDialog
-                trigger={
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className={cn(
-                      "transition-colors",
-                      !isScrolled && "text-white hover:bg-white/10"
-                    )}
-                    title="Search by image"
-                  >
-                    <Camera className="h-5 w-5" />
-                  </Button>
-                }
-              />
-            </form>
+            {/* Desktop Algolia Search */}
+            <div className="hidden md:block">
+              <AlgoliaSearchDropdown isScrolled={isScrolled} />
+            </div>
 
             <Button
               variant="ghost"
@@ -201,17 +161,10 @@ export const LuxuryHeader = () => {
             ))}
           </nav>
           
-          <form onSubmit={handleSearch} className="mt-6 pt-6 border-t border-border">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search products..."
-                className="pl-10"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-          </form>
+          {/* Mobile Algolia Search */}
+          <div className="mt-6 pt-6 border-t border-border">
+            <AlgoliaMobileSearch />
+          </div>
         </div>
       </div>
     </header>
