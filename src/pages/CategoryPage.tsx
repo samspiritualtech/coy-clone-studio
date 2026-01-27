@@ -8,10 +8,16 @@ import { FeaturedCollectionGrid } from "@/components/category/FeaturedCollection
 import { LuxeEditSection } from "@/components/category/LuxeEditSection";
 import { CategoryProductGrid } from "@/components/category/CategoryProductGrid";
 import { getCategoryBySlug } from "@/data/oguraCategories";
+import MadeToOrderPage from "./MadeToOrderPage";
 
 const CategoryPage = () => {
   const { slug } = useParams<{ slug: string }>();
   const [activeSubCategory, setActiveSubCategory] = useState<string>("");
+
+  // Use dedicated Made to Order page
+  if (slug === "made-to-order") {
+    return <MadeToOrderPage />;
+  }
 
   const category = slug ? getCategoryBySlug(slug) : undefined;
 
