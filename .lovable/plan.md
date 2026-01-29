@@ -1,307 +1,156 @@
 
-# Made to Order: Designer-Led Customization Journey
+
+# Make.com Webhook Integration for Auto Social Media Posting
 
 ## Overview
 
-Transform the current generic category page into a premium, designer-led customization experience that guides users through co-creating bespoke outfits with fashion designers. The design maintains OGURA's luxury editorial aesthetic while emphasizing human craftsmanship over technology.
+Integrate a Make.com webhook trigger into the Made-to-Order journey to automatically post custom design creations to social media. This enables showcasing customer designs and driving engagement when new custom orders are created.
+
+---
+
+## Integration Points
+
+The webhook will trigger at two key moments in the Made-to-Order flow:
+
+| Trigger Event | When | Data Sent |
+|---------------|------|-----------|
+| Design Preview Generated | After step 4 (AI generates design variations) | Design details, preview image URL, customizations |
+| Custom Order Confirmed | After final order submission | Full order details, designer info, final design |
 
 ---
 
 ## Architecture
 
-Create a dedicated Made to Order page structure that replaces the generic CategoryPage content for the `made-to-order` slug:
-
 ```text
-src/pages/MadeToOrderPage.tsx (new - main page)
-src/components/made-to-order/
-  - MTOHeroSection.tsx
-  - MTOEntryPaths.tsx
-  - MTOInspirationUpload.tsx
-  - MTODesignerSelector.tsx
-  - MTOBaseDesignGallery.tsx
-  - MTOCustomizationPanel.tsx
-  - MTOAIDesignPreview.tsx
-  - MTODesignComparison.tsx
-  - MTODesignerReview.tsx
-  - MTOOrderSummary.tsx
-  - MTOProgressIndicator.tsx
+User creates custom design → Edge Function → Make.com Webhook
+                                    ↓
+                           Auto Social Post
+                           (Instagram, Facebook, etc.)
 ```
 
 ---
 
-## Section-by-Section Implementation
+## Implementation Plan
 
-### 1. Hero Section
+### Step 1: Create Webhook Edge Function
 
-**Location**: Top of page, full-width cinematic
+Create a new edge function `social-post-webhook` that:
+- Receives design/order data from the frontend
+- Validates the payload
+- Sends to Make.com webhook in `no-cors` mode
+- Returns success/failure status
 
-**Design**:
-- Reuse existing video background from Made to Order category
-- Headline: "Designed With Fashion Designers" (gold gradient typography)
-- Subtext: "Co-create your outfit with expert boutique designers. Every design is personally reviewed and approved."
-- Primary CTA button: "Design With a Fashion Designer"
-
-**Component**: `MTOHeroSection.tsx`
-- Props: none (uses existing category video)
-- Styling: Full viewport height on desktop, 70vh on mobile
-- Gold gradient text (`from-[#F5E6C8] via-[#D4AF37] to-[#F5E6C8]`)
-
----
-
-### 2. Entry Paths Section
-
-**Location**: Below hero
-
-**Design**: Three elegant cards presenting entry options
-
-| Path | Icon | Title | Description |
-|------|------|-------|-------------|
-| Inspiration | Upload icon | Start from Inspiration | Upload reference images and let our designers bring your vision to life |
-| Designer-Led | Users icon | Start with a Designer | Browse our curated designers and begin your journey with an expert |
-| Base Design | Grid icon | Start from a Base Design | Customize one of our signature designs with your personal touches |
-
-**Component**: `MTOEntryPaths.tsx`
-- Three cards in a row (stacked on mobile)
-- Hover effects with subtle scale and shadow
-- Each card navigates to corresponding section/step
-- Premium beige/cream gradient background
-
----
-
-### 3. Inspiration Upload Section
-
-**Location**: Shown when "Start from Inspiration" selected
-
-**Features**:
-- Image upload zone (reuse existing `ImageUploadZone` component)
-- Form fields:
-  - Occasion dropdown (Wedding, Reception, Festive, Cocktail, etc.)
-  - Budget range slider (Rs 25K - Rs 5L+)
-  - Notes textarea for special requirements
-- "Style Cues Detected" badge (pre-filled from image analysis - placeholder for now)
-
-**Component**: `MTOInspirationUpload.tsx`
-- Uses existing upload component
-- Form with Occasion, Budget, Notes
-- CTA: "Find Matching Designers"
-
----
-
-### 4. Designer Selector Section
-
-**Location**: After inspiration upload OR when "Start with a Designer" selected
-
-**Design**:
-- Horizontal scroll carousel of designer cards (reuse `AzaDesignerCarousel` pattern)
-- Filter pills: Category, City, Price Range
-- Each card shows: Profile image, Brand name, City, Category, "View Portfolio" button
-- Selected designer highlighted with gold border
-
-**Component**: `MTODesignerSelector.tsx`
-- Fetches designers from Supabase using `useDesigners` hook
-- Filter by category (Bridal, Couture, etc.)
-- Card click expands to show portfolio preview
-
----
-
-### 5. Base Design Gallery
-
-**Location**: When "Start from a Base Design" selected
-
-**Design**:
-- Grid of base design cards (4 columns desktop, 2 mobile)
-- Each card: Product image, Name, Starting price, "Customize" button
-- Filter by dress type (Lehenga, Saree, Gown, Suit)
-
-**Component**: `MTOBaseDesignGallery.tsx`
-- Displays curated base designs (can use static data initially)
-- "Customize This" button starts customization flow
-
----
-
-### 6. Customization Panel
-
-**Location**: Main customization interface
-
-**Design** (split layout):
-- Left: Live preview area (60%)
-- Right: Customization controls (40%)
-
-**Customization Options**:
-
-| Option | Type | Values |
-|--------|------|--------|
-| Dress Type | Tabs | Lehenga, Saree, Gown, Anarkali, Suit |
-| Fabric | Dropdown | Silk, Velvet, Georgette, Organza, Net (designer-approved only) |
-| Color Palette | Color swatches | Curated palette (12-16 colors) |
-| Embroidery Level | Slider | Minimal, Moderate, Heavy, Royal |
-
-**Live Price Range**: Updates dynamically based on selections
-- Format: "Estimated: Rs 45,000 - Rs 65,000"
-- Note: "Final price confirmed by designer"
-
-**Component**: `MTOCustomizationPanel.tsx`
-- State management for all selections
-- Price calculation logic
-- Real-time updates
-
----
-
-### 7. AI-Assisted Design Preview
-
-**Location**: Within customization panel
-
-**Design**:
-- Button: "Generate Design Variations" (subtle, secondary styling)
-- Shows 2-3 AI-generated mockup thumbnails
-- Clear label: "AI-Assisted Preview" with info icon
-- Disclaimer: "These are conceptual previews. Final design reviewed by your designer."
-
-**Component**: `MTOAIDesignPreview.tsx`
-- Integrates with Lovable AI (google/gemini-2.5-flash-image for image generation)
-- Loading state with shimmer
-- Generated images displayed in a row
-- "Select as Reference" button on each
-
----
-
-### 8. Design Comparison View
-
-**Location**: After selecting variations
-
-**Design**:
-- Side-by-side comparison of 2-3 designs
-- Toggle buttons to switch between views
-- Each design shows:
-  - Mockup image
-  - Customization summary
-  - Estimated price range
-  - Estimated delivery time
-
-**Component**: `MTODesignComparison.tsx`
-- Compare up to 3 designs
-- "Proceed with this design" CTA
-
----
-
-### 9. Designer Review Section
-
-**Location**: After design finalization
-
-**Design**:
-- Status badge system:
-  - Pending Review (amber)
-  - Approved (green)
-  - Changes Suggested (blue)
-- Designer profile mini-card
-- Comments section (read-only initially)
-- "Lock Design" button (only when approved)
-
-**Component**: `MTODesignerReview.tsx`
-- Shows current review status
-- Designer comments display
-- Final design lock confirmation
-
----
-
-### 10. Order Summary
-
-**Location**: Final step before checkout
-
-**Design**:
-- Final design snapshot (large image)
-- Order details card:
-  - Designer name with profile image
-  - Customization details (Fabric, Color, Embroidery)
-  - Final confirmed price
-  - Estimated delivery (e.g., "8-10 weeks")
-- Terms checkbox
-- CTA: "Confirm Custom Order"
-
-**Component**: `MTOOrderSummary.tsx`
-- Summary of all selections
-- Payment/checkout integration placeholder
-
----
-
-### 11. Progress Indicator
-
-**Location**: Fixed at top during journey
-
-**Design**:
-- Horizontal step indicator
-- Steps: Inspiration, Designer, Customize, Preview, Review, Order
-- Current step highlighted with gold
-- Completed steps show checkmark
-
-**Component**: `MTOProgressIndicator.tsx`
-- Props: currentStep, totalSteps
-- Animated transitions between steps
-
----
-
-## State Management
-
-Create a context to manage the Made-to-Order journey state:
-
-**`src/contexts/MadeToOrderContext.tsx`**
+**File**: `supabase/functions/social-post-webhook/index.ts`
 
 ```typescript
-interface MTOState {
-  currentStep: number;
-  entryPath: 'inspiration' | 'designer' | 'base-design' | null;
-  inspirationImages: File[];
-  occasion: string;
-  budget: [number, number];
-  notes: string;
-  selectedDesigner: Designer | null;
-  selectedBaseDesign: BaseDesign | null;
+// Edge function structure
+- CORS headers configuration
+- Validate incoming payload (title, description, imageUrl, etc.)
+- POST to Make.com webhook URL
+- Handle success/error responses
+```
+
+---
+
+### Step 2: Create Webhook Service
+
+Create a frontend service to call the edge function with design data.
+
+**File**: `src/services/socialPostService.ts`
+
+```typescript
+interface SocialPostData {
+  title: string;
+  description: string;
+  imageUrl: string;
+  designerName?: string;
   customizations: {
     dressType: string;
     fabric: string;
     color: string;
     embroideryLevel: string;
   };
-  generatedPreviews: string[];
-  selectedPreview: string | null;
-  designerReviewStatus: 'pending' | 'approved' | 'changes-suggested';
-  designerComments: string[];
-  estimatedPrice: [number, number];
+  priceRange: string;
+  pageUrl: string;
 }
+
+async function triggerSocialPost(data: SocialPostData): Promise<boolean>
 ```
 
 ---
 
-## Routing Update
+### Step 3: Add Webhook Configuration Storage
 
-Modify `App.tsx` to use dedicated page for made-to-order:
+Store the Make.com webhook URL securely. Two options:
 
-```typescript
-// Update route
-<Route path="/category/made-to-order" element={<MadeToOrderPage />} />
-```
+**Option A: Environment Secret (Recommended)**
+- Store webhook URL as a backend secret `MAKE_WEBHOOK_URL`
+- Edge function reads from environment
 
-Or conditionally render in `CategoryPage.tsx`:
-
-```typescript
-if (slug === 'made-to-order') {
-  return <MadeToOrderPage />;
-}
-```
+**Option B: Admin Settings (Future)**
+- Create admin UI to configure webhook URL
+- Store in database settings table
 
 ---
 
-## Visual Design Guidelines
+### Step 4: Integrate with Made-to-Order Flow
 
-| Element | Specification |
-|---------|---------------|
-| Background | Clean white / subtle cream gradients |
-| Typography | Serif for headings, sans-serif for body |
-| Gold accent | `#D4AF37` for CTAs, active states, highlights |
-| Shadows | Soft (`shadow-black/5` to `shadow-black/10`) |
-| Animations | Subtle 200-300ms transitions |
-| Cards | Rounded corners (xl), generous padding |
-| Spacing | Generous whitespace (py-12 to py-20 sections) |
+Modify the customization panel and order summary to trigger the webhook:
+
+**Files to Modify**:
+- `src/components/made-to-order/MTOCustomizationPanel.tsx`
+- `src/pages/MadeToOrderPage.tsx` (for order confirmation trigger)
+
+**Trigger Points**:
+1. After "Generate Design Variations" button click (with preview image)
+2. After "Confirm Custom Order" button click (with final order)
+
+---
+
+### Step 5: Add User Consent Toggle (Optional)
+
+Add a checkbox allowing users to opt-in to having their design featured:
+
+```text
+☑️ Feature my design on Ogura's social media
+```
+
+This ensures privacy compliance and curates quality content.
+
+---
+
+## Data Payload Structure
+
+The webhook will send the following JSON to Make.com:
+
+```json
+{
+  "event": "custom_design_created",
+  "timestamp": "2026-01-29T12:00:00Z",
+  "design": {
+    "title": "Custom Silk Lehenga",
+    "description": "A stunning Royal embroidered Silk Lehenga in Maroon, crafted by Studio XYZ.",
+    "imageUrl": "https://..../preview.jpg",
+    "designer": {
+      "name": "Studio XYZ",
+      "city": "Mumbai"
+    },
+    "customizations": {
+      "dressType": "Lehenga",
+      "fabric": "Silk",
+      "color": "Maroon",
+      "colorHex": "#8B0000",
+      "embroideryLevel": "Royal"
+    },
+    "priceRange": "₹95,000 - ₹1,25,000",
+    "occasion": "Wedding"
+  },
+  "source": {
+    "url": "https://ogura.in/category/made-to-order",
+    "platform": "Ogura Fashion"
+  }
+}
+```
 
 ---
 
@@ -309,20 +158,8 @@ if (slug === 'made-to-order') {
 
 | File | Purpose |
 |------|---------|
-| `src/pages/MadeToOrderPage.tsx` | Main page component |
-| `src/contexts/MadeToOrderContext.tsx` | Journey state management |
-| `src/components/made-to-order/MTOHeroSection.tsx` | Hero with video background |
-| `src/components/made-to-order/MTOEntryPaths.tsx` | Three entry path cards |
-| `src/components/made-to-order/MTOInspirationUpload.tsx` | Upload + form |
-| `src/components/made-to-order/MTODesignerSelector.tsx` | Designer carousel |
-| `src/components/made-to-order/MTOBaseDesignGallery.tsx` | Base design grid |
-| `src/components/made-to-order/MTOCustomizationPanel.tsx` | Customization controls |
-| `src/components/made-to-order/MTOAIDesignPreview.tsx` | AI preview generation |
-| `src/components/made-to-order/MTODesignComparison.tsx` | Compare designs |
-| `src/components/made-to-order/MTODesignerReview.tsx` | Review status |
-| `src/components/made-to-order/MTOOrderSummary.tsx` | Final order |
-| `src/components/made-to-order/MTOProgressIndicator.tsx` | Step progress |
-| `src/components/made-to-order/index.ts` | Export barrel |
+| `supabase/functions/social-post-webhook/index.ts` | Edge function to proxy webhook calls |
+| `src/services/socialPostService.ts` | Frontend service for triggering posts |
 
 ---
 
@@ -330,47 +167,36 @@ if (slug === 'made-to-order') {
 
 | File | Changes |
 |------|---------|
-| `src/pages/CategoryPage.tsx` | Add conditional redirect for made-to-order slug |
-| `src/App.tsx` | Add route for MadeToOrderPage |
+| `supabase/config.toml` | Add social-post-webhook function config |
+| `src/components/made-to-order/MTOCustomizationPanel.tsx` | Add webhook trigger on design generation |
+| `src/contexts/MadeToOrderContext.tsx` | Add consent state and social sharing flag |
 
 ---
 
 ## Technical Considerations
 
-1. **AI Image Generation**: Uses Lovable AI gateway with `google/gemini-2.5-flash-image` model for generating design variations. Requires edge function to handle the API call.
+1. **Webhook URL Storage**: The Make.com webhook URL will be stored as a backend secret (`MAKE_WEBHOOK_URL`) to keep it secure and easily configurable.
 
-2. **Designer Data**: Fetches from existing Supabase `designers` table using `useDesigners` hook.
+2. **Error Handling**: The webhook call will be fire-and-forget to not block the user journey. Failures are logged but don't interrupt the flow.
 
-3. **File Storage**: Inspiration uploads will use Supabase Storage (existing `tryon-images` bucket or new bucket).
+3. **Rate Limiting**: The edge function will include basic rate limiting to prevent abuse (e.g., max 10 posts per hour).
 
-4. **Order Persistence**: Future phase - will require new database tables for custom orders.
+4. **Image Handling**: For social posts, the preview image URL must be publicly accessible. We'll use Supabase Storage URLs.
 
 ---
 
-## Implementation Phases
+## Make.com Workflow Setup (User Action Required)
 
-**Phase 1 (This Implementation)**:
-- Hero section with new copy
-- Entry paths section
-- Inspiration upload form (UI only)
-- Designer selector with real data
-- Customization panel (UI only)
-- Progress indicator
+After implementation, you'll need to configure your Make.com scenario to:
 
-**Phase 2 (Future)**:
-- AI design generation integration
-- Designer review workflow (requires backend)
-- Order submission and persistence
-- Payment integration
+1. Receive the webhook trigger
+2. Parse the JSON payload
+3. Format the social media post content
+4. Post to connected social platforms (Instagram, Facebook, Twitter, etc.)
 
 ---
 
 ## Summary
 
-This implementation creates a complete designer-led customization journey that:
-- Emphasizes human craftsmanship over technology
-- Provides multiple entry points for different user needs
-- Maintains OGURA's premium luxury aesthetic
-- Uses existing components and patterns where possible
-- Is extensible for future AI and backend integrations
+This integration creates a seamless pipeline from custom design creation to automatic social media posting, helping showcase customer creations and drive engagement for Ogura Fashion's Made-to-Order service.
 
