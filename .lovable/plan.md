@@ -1,133 +1,125 @@
 
 
-# Add Temporary Test Button for Social Media Webhook
+# Fix Make.com Webhook Payload Structure
 
-## Overview
+## Problem Analysis
 
-Add a small, admin-style test button to the ProductDetail page that triggers the Make.com webhook with sample product data. This allows testing the social media automation pipeline without going through the full Made-to-Order flow.
+Based on the logs, the edge function IS successfully:
+1. Receiving the full payload from the frontend
+2. Logging it correctly: `"Sending to Make.com webhook: { \"event\": \"custom_design_created\", \"design\": { \"title\": \"Evening Gown Dress\"...`
+3. Getting a success response from Make.com
+
+The issue is that **Make.com expects specific field names at the root level**, but the current payload uses a nested structure. Make.com's webhook module may not be parsing nested JSON properly, or it's looking for flattened fields.
+
+## Current vs Expected Structure
+
+**Currently Sending (nested):**
+```json
+{
+  "event": "custom_design_created",
+  "design": {
+    "title": "Evening Gown Dress",
+    "description": "A stunning custom design...",
+    "imageUrl": "https://..."
+  },
+  "source": {
+    "url": "https://..."
+  }
+}
+```
+
+**What Make.com Likely Expects (flattened):**
+```json
+{
+  "title": "Evening Gown Dress",
+  "description": "A stunning custom design...",
+  "image": "https://...",
+  "url": "https://...",
+  "event": "custom_design_created",
+  "designerName": "URBAN",
+  "fabric": "Silk",
+  "color": "Maroon"
+}
+```
 
 ---
 
-## Implementation
+## Solution
 
-### Button Placement
-
-Add a fixed-position test button in the bottom-left corner of the ProductDetail page. It will be styled as a developer/admin tool (small, subtle) and clearly labeled as a test.
-
-### Data to Send
-
-Use the current product's actual data to build a realistic test payload:
-
-| Field | Source |
-|-------|--------|
-| title | Current product name |
-| description | Generated from product brand + category |
-| imageUrl | First product image |
-| designerName | Product brand name |
-| customizations | Sample values (Lehenga, Silk, Maroon, Heavy) |
-| priceRange | Formatted product price |
-| pageUrl | Current window URL |
+Modify the edge function to send a **flattened payload** with the specific field names Make.com expects (`title`, `description`, `image`, `url`), while keeping the original nested structure as an additional `metadata` field for reference.
 
 ---
 
 ## Technical Changes
 
-### File to Modify: `src/pages/ProductDetail.tsx`
+### File: `supabase/functions/social-post-webhook/index.ts`
 
-1. **Import the service**:
-```typescript
-import { triggerSocialPost } from "@/services/socialPostService";
-```
+Update the payload sent to Make.com to flatten the structure:
 
-2. **Add state for loading**:
 ```typescript
-const [isTestingWebhook, setIsTestingWebhook] = useState(false);
-```
-
-3. **Add handler function**:
-```typescript
-const handleTestSocialWebhook = async () => {
-  setIsTestingWebhook(true);
-  const success = await triggerSocialPost({
-    title: currentProduct.name,
-    description: `A stunning custom design inspired by ${currentProduct.name}`,
-    imageUrl: currentProduct.images[0],
-    designerName: currentProduct.brand,
-    designerCity: "Mumbai",
-    customizations: {
-      dressType: "Lehenga",
-      fabric: "Silk",
-      color: "Maroon",
-      colorHex: "#8B0000",
-      embroideryLevel: "Heavy",
-    },
-    priceRange: `₹${currentProduct.price.toLocaleString()}`,
-    occasion: "Wedding",
-    pageUrl: window.location.href,
-  });
+// Build flattened payload for Make.com
+const makePayload = {
+  // Primary fields Make.com expects
+  title: payload.design.title,
+  description: payload.design.description,
+  image: payload.design.imageUrl,
+  url: payload.source.url,
   
-  toast({
-    title: success ? "Webhook triggered!" : "Webhook failed",
-    description: success 
-      ? "Check Make.com for the incoming data" 
-      : "Check console for errors",
-    variant: success ? "default" : "destructive",
-  });
-  setIsTestingWebhook(false);
+  // Additional useful fields at root level
+  event: payload.event,
+  timestamp: payload.timestamp,
+  platform: payload.source.platform,
+  priceRange: payload.design.priceRange,
+  occasion: payload.design.occasion || "",
+  
+  // Designer info
+  designerName: payload.design.designer?.name || "",
+  designerCity: payload.design.designer?.city || "",
+  
+  // Customizations flattened
+  dressType: payload.design.customizations.dressType,
+  fabric: payload.design.customizations.fabric,
+  color: payload.design.customizations.color,
+  colorHex: payload.design.customizations.colorHex,
+  embroideryLevel: payload.design.customizations.embroideryLevel,
 };
-```
 
-4. **Add test button UI** (before the closing `</div>` of the component, around line 500):
-```tsx
-{/* Temporary Test Button - Remove after testing */}
-<button
-  onClick={handleTestSocialWebhook}
-  disabled={isTestingWebhook}
-  className="fixed bottom-24 left-4 z-50 bg-violet-600 hover:bg-violet-700 text-white text-xs px-3 py-2 rounded-md shadow-lg transition-colors disabled:opacity-50"
->
-  {isTestingWebhook ? "Sending..." : "🧪 Test Social Webhook"}
-</button>
+// Send flattened payload to Make.com
+const webhookResponse = await fetch(webhookUrl, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify(makePayload),
+});
 ```
 
 ---
 
-## Visual Preview
+## Updated Payload Structure
 
-The button will appear as a small purple pill in the bottom-left corner:
+After the fix, Make.com will receive:
 
-```text
-┌─────────────────────────────────────────────┐
-│                                             │
-│           Product Detail Page               │
-│                                             │
-│                                             │
-├─────────────────────────────────────────────┤
-│                                             │
-│   [🧪 Test Social Webhook]                  │
-│                        [Mobile Add to Bag]  │
-└─────────────────────────────────────────────┘
+```json
+{
+  "title": "Evening Gown Dress",
+  "description": "A stunning custom design inspired by Evening Gown Dress",
+  "image": "https://images.unsplash.com/photo-1539008835657-9e8e9680c956?w=800&q=80&fit=crop",
+  "url": "https://d4269340-6a04-445b-9b9c-a83ba6ae72f8.lovableproject.com/product/dres-16",
+  "event": "custom_design_created",
+  "timestamp": "2026-01-29T07:49:34.143Z",
+  "platform": "Ogura Fashion",
+  "priceRange": "₹6,442",
+  "occasion": "Wedding",
+  "designerName": "URBAN",
+  "designerCity": "Mumbai",
+  "dressType": "Lehenga",
+  "fabric": "Silk",
+  "color": "Maroon",
+  "colorHex": "#8B0000",
+  "embroideryLevel": "Heavy"
+}
 ```
-
----
-
-## Expected Behavior
-
-1. User clicks the "🧪 Test Social Webhook" button
-2. Button shows "Sending..." state
-3. `triggerSocialPost()` is called with sample data
-4. Edge function `social-post-webhook` receives the payload
-5. Payload is forwarded to Make.com webhook URL
-6. Toast notification shows success or failure
-7. User can check Make.com to verify the incoming data
-
----
-
-## Cleanup Note
-
-This is a temporary test button. Once Make.com integration is verified:
-- Remove the test button code
-- Remove the handler function
-- Remove the isTestingWebhook state
 
 ---
 
@@ -135,5 +127,25 @@ This is a temporary test button. Once Make.com integration is verified:
 
 | File | Changes |
 |------|---------|
-| `src/pages/ProductDetail.tsx` | Add import, state, handler, and test button UI |
+| `supabase/functions/social-post-webhook/index.ts` | Flatten payload before sending to Make.com webhook |
+
+---
+
+## Why This Fixes the Issue
+
+1. **Field names match**: Make.com will see `title`, `description`, `image`, `url` at the root level
+2. **No nested parsing required**: All fields are directly accessible in Make.com modules
+3. **Backward compatible**: The edge function still receives the same nested structure from the frontend
+4. **Full data preserved**: All customization details are included as flattened fields
+
+---
+
+## Testing After Implementation
+
+1. Click the "🧪 Test Social Webhook" button on any product page
+2. Check Make.com scenario - you should now see all fields populated:
+   - `title`: "Evening Gown Dress"
+   - `description`: "A stunning custom design..."
+   - `image`: Full image URL
+   - `url`: Page URL
 
