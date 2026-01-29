@@ -31,6 +31,7 @@ export interface MTOState {
   designerReviewStatus: "pending" | "approved" | "changes-suggested";
   designerComments: string[];
   estimatedPrice: [number, number];
+  consentToSocialShare: boolean;
 }
 
 interface MTOContextType {
@@ -46,6 +47,7 @@ interface MTOContextType {
   setCustomizations: (customizations: Partial<MTOCustomizations>) => void;
   setGeneratedPreviews: (previews: string[]) => void;
   setSelectedPreview: (preview: string | null) => void;
+  setConsentToSocialShare: (consent: boolean) => void;
   resetJourney: () => void;
 }
 
@@ -69,6 +71,7 @@ const initialState: MTOState = {
   designerReviewStatus: "pending",
   designerComments: [],
   estimatedPrice: [45000, 65000],
+  consentToSocialShare: false,
 };
 
 const MadeToOrderContext = createContext<MTOContextType | undefined>(undefined);
@@ -123,6 +126,10 @@ export const MadeToOrderProvider = ({ children }: { children: ReactNode }) => {
     setState((prev) => ({ ...prev, selectedPreview: preview }));
   };
 
+  const setConsentToSocialShare = (consent: boolean) => {
+    setState((prev) => ({ ...prev, consentToSocialShare: consent }));
+  };
+
   const resetJourney = () => {
     setState(initialState);
   };
@@ -142,6 +149,7 @@ export const MadeToOrderProvider = ({ children }: { children: ReactNode }) => {
         setCustomizations,
         setGeneratedPreviews,
         setSelectedPreview,
+        setConsentToSocialShare,
         resetJourney,
       }}
     >

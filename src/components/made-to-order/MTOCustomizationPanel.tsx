@@ -3,7 +3,7 @@ import { useMadeToOrder } from "@/contexts/MadeToOrderContext";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -12,8 +12,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowRight, Sparkles, Info } from "lucide-react";
+import { ArrowRight, Sparkles, Info, Share2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { triggerSocialPost, generateSocialDescription } from "@/services/socialPostService";
 
 const dressTypes = ["Lehenga", "Saree", "Gown", "Anarkali", "Suit"];
 const fabrics = [
@@ -50,8 +51,9 @@ interface MTOCustomizationPanelProps {
 }
 
 export const MTOCustomizationPanel = ({ onProceed }: MTOCustomizationPanelProps) => {
-  const { state, setCustomizations, setCurrentStep } = useMadeToOrder();
+  const { state, setCustomizations, setCurrentStep, setConsentToSocialShare } = useMadeToOrder();
   const [estimatedPrice, setEstimatedPrice] = useState<[number, number]>([45000, 65000]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const basePrice = state.selectedBaseDesign?.startingPrice || 50000;
 
@@ -79,7 +81,39 @@ export const MTOCustomizationPanel = ({ onProceed }: MTOCustomizationPanelProps)
     }).format(price);
   };
 
-  const handleProceed = () => {
+  const handleProceed = async () => {
+    setIsSubmitting(true);
+    
+    // Trigger social post if user consented
+    if (state.consentToSocialShare) {
+      const colorName = colors.find(c => c.value === state.customizations.color)?.name || "Custom";
+      const description = generateSocialDescription(
+        {
+          ...state.customizations,
+          color: colorName,
+          colorHex: state.customizations.color,
+        },
+        state.selectedDesigner?.brand_name
+      );
+
+      await triggerSocialPost({
+        title: `Custom ${state.customizations.fabric} ${state.customizations.dressType}`,
+        description,
+        imageUrl: state.selectedBaseDesign?.image || "",
+        designerName: state.selectedDesigner?.brand_name,
+        designerCity: state.selectedDesigner?.city,
+        customizations: {
+          ...state.customizations,
+          color: colorName,
+          colorHex: state.customizations.color,
+        },
+        priceRange: `${formatPrice(estimatedPrice[0])} - ${formatPrice(estimatedPrice[1])}`,
+        occasion: state.occasion,
+        pageUrl: window.location.href,
+      });
+    }
+
+    setIsSubmitting(false);
     setCurrentStep(4);
     onProceed();
   };
@@ -273,14 +307,39 @@ export const MTOCustomizationPanel = ({ onProceed }: MTOCustomizationPanelProps)
               </p>
             </Card>
 
+            {/* Social Share Consent */}
+            <Card className="p-5 border-dashed">
+              <div className="flex items-start gap-3">
+                <Checkbox
+                  id="social-consent"
+                  checked={state.consentToSocialShare}
+                  onCheckedChange={(checked) => setConsentToSocialShare(checked === true)}
+                  className="mt-0.5"
+                />
+                <div className="flex-1">
+                  <Label
+                    htmlFor="social-consent"
+                    className="text-sm font-medium cursor-pointer flex items-center gap-2"
+                  >
+                    <Share2 className="w-4 h-4 text-muted-foreground" />
+                    Feature my design on Ogura's social media
+                  </Label>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Help inspire others by sharing your custom creation
+                  </p>
+                </div>
+              </div>
+            </Card>
+
             {/* Proceed Button */}
             <Button
               onClick={handleProceed}
               size="lg"
+              disabled={isSubmitting}
               className="w-full bg-gradient-to-r from-[#D4AF37] to-[#B8860B] hover:from-[#B8860B] hover:to-[#8B6914] text-white"
             >
               <Sparkles className="w-4 h-4 mr-2" />
-              Generate Design Variations
+              {isSubmitting ? "Processing..." : "Generate Design Variations"}
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </div>
