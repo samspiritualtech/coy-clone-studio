@@ -66,15 +66,42 @@ serve(async (req) => {
       );
     }
 
-    console.log("Sending to Make.com webhook:", JSON.stringify(payload, null, 2));
+    // Build flattened payload for Make.com (expects root-level fields)
+    const makePayload = {
+      // Primary fields Make.com expects
+      title: payload.design.title,
+      description: payload.design.description,
+      image: payload.design.imageUrl,
+      url: payload.source.url,
+      
+      // Additional useful fields at root level
+      event: payload.event,
+      timestamp: payload.timestamp,
+      platform: payload.source.platform,
+      priceRange: payload.design.priceRange,
+      occasion: payload.design.occasion || "",
+      
+      // Designer info
+      designerName: payload.design.designer?.name || "",
+      designerCity: payload.design.designer?.city || "",
+      
+      // Customizations flattened
+      dressType: payload.design.customizations.dressType,
+      fabric: payload.design.customizations.fabric,
+      color: payload.design.customizations.color,
+      colorHex: payload.design.customizations.colorHex,
+      embroideryLevel: payload.design.customizations.embroideryLevel,
+    };
 
-    // Send to Make.com webhook
+    console.log("Sending flattened payload to Make.com:", JSON.stringify(makePayload, null, 2));
+
+    // Send flattened payload to Make.com
     const webhookResponse = await fetch(webhookUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(makePayload),
     });
 
     if (!webhookResponse.ok) {
