@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { triggerSocialPost } from "@/services/socialPostService";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -55,6 +56,7 @@ export default function ProductDetail() {
   const [showSimilarModal, setShowSimilarModal] = useState(false);
   const [showSizeGuide, setShowSizeGuide] = useState(false);
   const [pendingBuyNow, setPendingBuyNow] = useState(false);
+  const [isTestingWebhook, setIsTestingWebhook] = useState(false);
 
   // Initialize state when product changes
   useEffect(() => {
@@ -149,6 +151,37 @@ export default function ProductDetail() {
     toast({
       title: isInWishlist(currentProduct.id) ? "Removed from wishlist" : "Added to wishlist"
     });
+  };
+
+  const handleTestSocialWebhook = async () => {
+    if (!currentProduct) return;
+    setIsTestingWebhook(true);
+    const success = await triggerSocialPost({
+      title: currentProduct.name,
+      description: `A stunning custom design inspired by ${currentProduct.name}`,
+      imageUrl: currentProduct.images[0],
+      designerName: currentProduct.brand,
+      designerCity: "Mumbai",
+      customizations: {
+        dressType: "Lehenga",
+        fabric: "Silk",
+        color: "Maroon",
+        colorHex: "#8B0000",
+        embroideryLevel: "Heavy",
+      },
+      priceRange: `₹${currentProduct.price.toLocaleString()}`,
+      occasion: "Wedding",
+      pageUrl: window.location.href,
+    });
+    
+    toast({
+      title: success ? "Webhook triggered!" : "Webhook failed",
+      description: success 
+        ? "Check Make.com for the incoming data" 
+        : "Check console for errors",
+      variant: success ? "default" : "destructive",
+    });
+    setIsTestingWebhook(false);
   };
 
   const discountPercent = currentProduct.originalPrice 
@@ -498,6 +531,15 @@ export default function ProductDetail() {
 
       {/* Spacer for mobile sticky bar */}
       <div className="lg:hidden h-20" />
+
+      {/* Temporary Test Button - Remove after testing */}
+      <button
+        onClick={handleTestSocialWebhook}
+        disabled={isTestingWebhook}
+        className="fixed bottom-24 left-4 z-50 bg-violet-600 hover:bg-violet-700 text-white text-xs px-3 py-2 rounded-md shadow-lg transition-colors disabled:opacity-50"
+      >
+        {isTestingWebhook ? "Sending..." : "🧪 Test Social Webhook"}
+      </button>
     </div>
   );
 }
