@@ -26,6 +26,7 @@ import Wishlist from "./pages/Wishlist";
 import Search from "./pages/Search";
 import NotFound from "./pages/NotFound";
 import CategoryPage from "./pages/CategoryPage";
+import JoinUs from "./pages/JoinUs";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +58,7 @@ const App = () => (
                     <Route path="/wishlist" element={<Wishlist />} />
                     <Route path="/search" element={<Search />} />
                     <Route path="/category/:slug" element={<CategoryPage />} />
+                    <Route path="/join" element={<JoinUs />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </BrowserRouter>
