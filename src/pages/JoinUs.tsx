@@ -1,21 +1,18 @@
-import { Link } from "react-router-dom";
 import { LuxuryHeader } from "@/components/LuxuryHeader";
 import { LuxuryFooter } from "@/components/LuxuryFooter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { JourneyTimeline } from "@/components/join-us/JourneyTimeline";
 import { 
   Users, 
-  Upload, 
-  MessageSquare, 
-  Sparkles, 
-  Package, 
   CheckCircle2,
   Building2,
   Palette,
   Eye,
   ShieldCheck,
-  ArrowRight
+  ArrowRight,
+  MessageSquare
 } from "lucide-react";
 
 const AnimatedSection = ({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) => {
@@ -35,34 +32,6 @@ const AnimatedSection = ({ children, className = "", delay = 0 }: { children: Re
   );
 };
 
-const StepCard = ({ step, icon: Icon, title, description, delay }: { step: number; icon: any; title: string; description: string; delay: number }) => {
-  const { ref, isVisible } = useScrollAnimation(0.1);
-  return (
-    <Card 
-      ref={ref}
-      className="border-l-4 border-l-primary group hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
-      style={{ 
-        opacity: isVisible ? 1 : 0, 
-        transform: isVisible ? 'translateX(0)' : 'translateX(-30px)',
-        transitionDelay: `${delay}ms`,
-        transitionDuration: '500ms'
-      }}
-    >
-      <CardContent className="p-6 flex gap-4">
-        <div className="flex-shrink-0 w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-primary/20 group-hover:scale-110 transition-all duration-300">
-          <Icon className="w-6 h-6 text-primary" />
-        </div>
-        <div>
-          <div className="text-sm font-medium text-primary mb-1">Step {step}</div>
-          <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors duration-300">
-            {title}
-          </h3>
-          <p className="text-muted-foreground">{description}</p>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
 
 const JoinUs = () => {
   return (
@@ -118,57 +87,8 @@ const JoinUs = () => {
           </div>
         </section>
 
-        {/* How It Works */}
-        <section className="py-16 md:py-24 bg-background">
-          <div className="container mx-auto px-4 max-w-5xl">
-            <AnimatedSection className="text-center mb-12">
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
-                How It Works
-              </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
-                A step-by-step process from listing your work to delivering custom outfits.
-              </p>
-            </AnimatedSection>
-
-            <div className="grid gap-6 md:gap-8">
-              <StepCard 
-                step={1}
-                icon={Upload}
-                title="Create Your Profile & Lookbook"
-                description="Set up a structured profile with your specialisation, price range, and location. Upload your lookbook — past work, signature pieces, and design samples. This is not a social feed. It is a professional portfolio."
-                delay={0}
-              />
-              <StepCard 
-                step={2}
-                icon={Eye}
-                title="Customers Discover You"
-                description="Customers browse by category, occasion, or city. They view your lookbook, read your profile, and understand your style. If interested, they initiate a design discussion."
-                delay={100}
-              />
-              <StepCard 
-                step={3}
-                icon={MessageSquare}
-                title="Design Discussion"
-                description="You and the customer discuss requirements — fabric, colour, embroidery, silhouette. This happens through Ogura's messaging system. You clarify scope, share references, and align on expectations."
-                delay={200}
-              />
-              <StepCard 
-                step={4}
-                icon={Sparkles}
-                title="AI Visualisation (Optional)"
-                description="Ogura offers AI-generated previews to help customers visualise their outfit before production. This is a communication tool, not a design tool. You remain in control of the actual design. The AI shows an approximate representation based on inputs."
-                delay={300}
-              />
-              <StepCard 
-                step={5}
-                icon={Package}
-                title="Production & Delivery"
-                description="Once the customer confirms, production begins. If you are a studio owner, you stitch and dispatch from your premises. If you are an independent designer, you work with the customer or Ogura's partner production units. Delivery is tracked through Ogura."
-                delay={400}
-              />
-            </div>
-          </div>
-        </section>
+        {/* How It Works - Journey Timeline */}
+        <JourneyTimeline />
 
         {/* Your Journey on Ogura */}
         <section className="py-16 md:py-24 bg-muted/30">
