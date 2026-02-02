@@ -1,67 +1,26 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
+import { lovable } from '@/integrations/lovable/index';
 import { Session } from '@supabase/supabase-js';
-
-interface SendOTPResult {
-  success: boolean;
-  demoOtp?: string;
-  error?: string;
-}
-
-interface SignInWithOTPResult {
-  success: boolean;
-  error?: string;
-  isNewUser?: boolean;
-  needsName?: boolean;
-}
 
 interface AuthContextType {
   user: User | null;
-  signUp: (email: string, password: string, name: string) => Promise<{ success: boolean; error?: string }>;
-  signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signInWithGoogle: () => Promise<{ success: boolean; error?: string }>;
-  sendOTP: (phone: string) => Promise<SendOTPResult>;
-  signInWithOTP: (phone: string, otp: string, name?: string) => Promise<SignInWithOTPResult>;
   logout: () => void;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isNewUser: boolean;
+  completeOnboarding: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-const handleAuthError = (error: any): string => {
-  const message = error?.message || 'Authentication failed';
-  
-  // Handle provider-related errors
-  if (message.includes('provider') || message.includes('OAuth')) {
-    return 'This authentication method is not currently supported.';
-  }
-  
-  // Handle common errors
-  if (message === 'Invalid login credentials') {
-    return 'Invalid email or password.';
-  }
-  
-  if (message.includes('Email not confirmed')) {
-    return 'Please verify your email before logging in.';
-  }
-  
-  if (message.includes('already registered') || message.includes('already been registered')) {
-    return 'An account with this email already exists.';
-  }
-
-  if (message.includes('Password should be at least')) {
-    return 'Password must be at least 6 characters.';
-  }
-  
-  return message;
-};
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isNewUser, setIsNewUser] = useState(false);
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -76,6 +35,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           }, 0);
         } else {
           setUser(null);
+          setIsNewUser(false);
           setIsLoading(false);
         }
       }
@@ -110,6 +70,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           phone: profile.phone || undefined,
           avatarUrl: profile.avatar_url || currentSession?.user?.user_metadata?.avatar_url
         });
+        // Check if user has completed onboarding
+        setIsNewUser(profile.is_onboarded === false);
       } else if (currentSession?.user) {
         // Fallback to session metadata if profile doesn't exist yet
         setUser({
@@ -119,6 +81,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           phone: currentSession.user.user_metadata?.phone,
           avatarUrl: currentSession.user.user_metadata?.avatar_url
         });
+        // New user without profile
+        setIsNewUser(true);
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -136,60 +100,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const signUp = async (email: string, password: string, name: string): Promise<{ success: boolean; error?: string }> => {
-    try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: window.location.origin,
-          data: { full_name: name }
-        }
-      });
-
-      if (error) {
-        return { success: false, error: handleAuthError(error) };
-      }
-
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: handleAuthError(error) };
-    }
-  };
-
-  const signIn = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password
-      });
-
-      if (error) {
-        return { success: false, error: handleAuthError(error) };
-      }
-
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: handleAuthError(error) };
-    }
-  };
-
   const signInWithGoogle = async (): Promise<{ success: boolean; error?: string }> => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/`
-        }
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin,
       });
 
-      if (error) {
-        return { success: false, error: handleAuthError(error) };
+      if (result.error) {
+        return { success: false, error: result.error.message || 'Google sign-in failed' };
       }
 
       return { success: true };
-    } catch (error) {
-      return { success: false, error: handleAuthError(error) };
+    } catch (error: any) {
+      return { success: false, error: error.message || 'An unexpected error occurred' };
     }
   };
 
@@ -197,78 +120,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await supabase.auth.signOut();
     setUser(null);
     setSession(null);
+    setIsNewUser(false);
   };
 
-  const sendOTP = async (phone: string): Promise<SendOTPResult> => {
-    try {
-      const response = await supabase.functions.invoke('send-otp', {
-        body: { phone }
-      });
-      
-      if (response.error) {
-        return { success: false, error: response.error.message };
-      }
-      
-      if (response.data?.success) {
-        return { 
-          success: true, 
-          demoOtp: response.data.demoOtp 
-        };
-      }
-      
-      return { success: false, error: response.data?.error || 'Failed to send OTP' };
-    } catch (error: any) {
-      return { success: false, error: error.message || 'Failed to send OTP' };
-    }
-  };
+  const completeOnboarding = async () => {
+    if (!user?.id) return;
 
-  const signInWithOTP = async (phone: string, otp: string, name?: string): Promise<SignInWithOTPResult> => {
-    try {
-      const response = await supabase.functions.invoke('verify-otp', {
-        body: { phone, otp, name }
-      });
-      
-      if (response.error) {
-        return { success: false, error: response.error.message };
-      }
-      
-      if (response.data?.success) {
-        // If session is returned, set it
-        if (response.data.session) {
-          await supabase.auth.setSession({
-            access_token: response.data.session.access_token,
-            refresh_token: response.data.session.refresh_token
-          });
-        }
-        
-        return { 
-          success: true,
-          isNewUser: response.data.isNewUser
-        };
-      }
-      
-      // Check if we need name for new user
-      if (response.data?.needsName) {
-        return { success: false, needsName: true };
-      }
-      
-      return { success: false, error: response.data?.error || 'Verification failed' };
-    } catch (error: any) {
-      return { success: false, error: error.message || 'Verification failed' };
+    const { error } = await supabase
+      .from('profiles')
+      .update({ is_onboarded: true, updated_at: new Date().toISOString() })
+      .eq('id', user.id);
+
+    if (error) {
+      console.error('Error completing onboarding:', error);
+      throw error;
     }
+
+    setIsNewUser(false);
   };
 
   return (
     <AuthContext.Provider value={{
       user,
-      signUp,
-      signIn,
       signInWithGoogle,
-      sendOTP,
-      signInWithOTP,
       logout,
       isAuthenticated: !!session,
-      isLoading
+      isLoading,
+      isNewUser,
+      completeOnboarding
     }}>
       {children}
     </AuthContext.Provider>

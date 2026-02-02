@@ -10,6 +10,7 @@ import { WishlistProvider } from "@/contexts/WishlistContext";
 import { LocationProvider } from "@/contexts/LocationContext";
 import { LocationPermissionModal } from "@/components/LocationPermissionModal";
 import { ManualLocationSelector } from "@/components/ManualLocationSelector";
+import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import Index from "./pages/Index";
 import Collections from "./pages/Collections";
 import ProductDetail from "./pages/ProductDetail";
@@ -27,6 +28,10 @@ import Search from "./pages/Search";
 import NotFound from "./pages/NotFound";
 import CategoryPage from "./pages/CategoryPage";
 import JoinUs from "./pages/JoinUs";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import Onboarding from "./pages/Onboarding";
+import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -42,7 +47,9 @@ const App = () => (
                 <Sonner />
                 <BrowserRouter>
                   <Routes>
+                    {/* Public Routes */}
                     <Route path="/" element={<Index />} />
+                    <Route path="/login" element={<Login />} />
                     <Route path="/collections" element={<Collections />} />
                     <Route path="/collections/:category" element={<Collections />} />
                     <Route path="/product/:id" element={<ProductDetail />} />
@@ -54,11 +61,17 @@ const App = () => (
                     <Route path="/occasions" element={<Occasions />} />
                     <Route path="/occasions/:occasionId" element={<OccasionDetail />} />
                     <Route path="/stores" element={<Stores />} />
-                    <Route path="/cart" element={<Cart />} />
-                    <Route path="/wishlist" element={<Wishlist />} />
                     <Route path="/search" element={<Search />} />
                     <Route path="/category/:slug" element={<CategoryPage />} />
                     <Route path="/join" element={<JoinUs />} />
+                    
+                    {/* Protected Routes */}
+                    <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                    <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
+                    <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+                    <Route path="/wishlist" element={<ProtectedRoute><Wishlist /></ProtectedRoute>} />
+                    <Route path="/cart" element={<ProtectedRoute><Cart /></ProtectedRoute>} />
+                    
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </BrowserRouter>

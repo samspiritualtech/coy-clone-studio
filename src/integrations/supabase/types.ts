@@ -253,6 +253,7 @@ export type Database = {
           created_at: string | null
           email: string | null
           id: string
+          is_onboarded: boolean | null
           latitude: number | null
           longitude: number | null
           name: string | null
@@ -268,6 +269,7 @@ export type Database = {
           created_at?: string | null
           email?: string | null
           id: string
+          is_onboarded?: boolean | null
           latitude?: number | null
           longitude?: number | null
           name?: string | null
@@ -283,6 +285,7 @@ export type Database = {
           created_at?: string | null
           email?: string | null
           id?: string
+          is_onboarded?: boolean | null
           latitude?: number | null
           longitude?: number | null
           name?: string | null
