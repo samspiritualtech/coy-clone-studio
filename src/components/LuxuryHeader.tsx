@@ -7,6 +7,7 @@ import { useLocation } from "@/contexts/LocationContext";
 import { MegaMenu } from "@/components/MegaMenu";
 import { MegaMenuMobile } from "@/components/MegaMenuMobile";
 import { AlgoliaSearchDropdown, AlgoliaMobileSearch } from "@/components/search";
+import { UserMenu } from "@/components/auth/UserMenu";
 import { cn } from "@/lib/utils";
 
 export const LuxuryHeader = () => {
@@ -117,6 +118,9 @@ export const LuxuryHeader = () => {
             <div className="hidden md:block">
               <AlgoliaSearchDropdown isScrolled={isScrolled} />
             </div>
+
+            {/* User Menu */}
+            <UserMenu isScrolled={isScrolled} />
 
             <Button
               variant="ghost"

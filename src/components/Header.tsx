@@ -1,13 +1,13 @@
-import { ShoppingBag, Menu, Camera } from "lucide-react";
+import { ShoppingBag, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
-import { ImageSearchDialog } from "@/components/ImageSearchDialog";
 import { MegaMenu } from "@/components/MegaMenu";
 import { MegaMenuMobile } from "@/components/MegaMenuMobile";
 import { HeaderLocationIndicator } from "@/components/HeaderLocationIndicator";
 import { AlgoliaSearchDropdown, AlgoliaMobileSearch } from "@/components/search";
+import { UserMenu } from "@/components/auth/UserMenu";
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -53,6 +53,9 @@ export const Header = () => {
             <div className="hidden md:block">
               <AlgoliaSearchDropdown isScrolled={true} />
             </div>
+
+            {/* User Menu */}
+            <UserMenu isScrolled={true} />
 
             <Button variant="ghost" size="icon" className="relative" onClick={() => navigate('/cart')}>
               <ShoppingBag className="h-5 w-5" />
