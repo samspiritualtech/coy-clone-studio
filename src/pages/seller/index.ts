@@ -1,0 +1,9 @@
+export { default as SellerDashboard } from './SellerDashboard';
+export { default as SellerProducts } from './SellerProducts';
+export { default as SellerAddProduct } from './SellerAddProduct';
+export { default as SellerInventory } from './SellerInventory';
+export { default as SellerOrders } from './SellerOrders';
+export { default as SellerPayouts } from './SellerPayouts';
+export { default as SellerAnalytics } from './SellerAnalytics';
+export { default as SellerSupport } from './SellerSupport';
+export { default as SellerSettings } from './SellerSettings';

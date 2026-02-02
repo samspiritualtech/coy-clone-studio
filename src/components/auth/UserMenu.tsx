@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSeller } from "@/contexts/SellerContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -10,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { User, LogOut, LayoutDashboard, Settings, Heart, ShoppingBag } from "lucide-react";
+import { User, LogOut, LayoutDashboard, Settings, Heart, ShoppingBag, Store } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface UserMenuProps {
@@ -19,6 +20,7 @@ interface UserMenuProps {
 
 export const UserMenu = ({ isScrolled = true }: UserMenuProps) => {
   const { user, isAuthenticated, logout, isLoading } = useAuth();
+  const { seller, isApprovedSeller } = useSeller();
   const navigate = useNavigate();
 
   if (isLoading) {
@@ -85,6 +87,28 @@ export const UserMenu = ({ isScrolled = true }: UserMenuProps) => {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        {isApprovedSeller && (
+          <>
+            <DropdownMenuItem asChild>
+              <Link to="/seller" className="flex items-center gap-2 cursor-pointer">
+                <Store className="h-4 w-4" />
+                Seller Dashboard
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </>
+        )}
+        {!seller && (
+          <>
+            <DropdownMenuItem asChild>
+              <Link to="/join" className="flex items-center gap-2 cursor-pointer">
+                <Store className="h-4 w-4" />
+                Become a Seller
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </>
+        )}
         <DropdownMenuItem asChild>
           <Link to="/dashboard" className="flex items-center gap-2 cursor-pointer">
             <LayoutDashboard className="h-4 w-4" />

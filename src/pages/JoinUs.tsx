@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { JourneyTimeline } from "@/components/join-us/JourneyTimeline";
+import { SellerApplicationForm } from "@/components/seller/SellerApplicationForm";
 import { 
   Users, 
   CheckCircle2,
@@ -282,34 +283,21 @@ const JoinUs = () => {
           </div>
         </section>
 
-        {/* Final CTA with Background */}
-        <section className="py-16 md:py-20 relative overflow-hidden">
-          {/* Background Image */}
-          <div className="absolute inset-0 z-0">
-            <img 
-              src="https://images.unsplash.com/photo-1445205170230-053b83016050?w=1920&q=80"
-              alt="Fashion Fabric"
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-primary/90" />
+        {/* Seller Application Form */}
+        <section className="py-16 md:py-20 bg-muted/30" id="apply">
+          <div className="container mx-auto px-4">
+            <AnimatedSection className="text-center mb-8">
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+                Ready to Join?
+              </h2>
+              <p className="text-muted-foreground max-w-xl mx-auto">
+                Submit your application below. We review each profile individually and respond within 5 working days.
+              </p>
+            </AnimatedSection>
+            <AnimatedSection>
+              <SellerApplicationForm />
+            </AnimatedSection>
           </div>
-          
-          <AnimatedSection className="container mx-auto px-4 max-w-2xl text-center relative z-10">
-            <h2 className="text-2xl md:text-3xl font-bold text-primary-foreground mb-4">
-              Ready to Join?
-            </h2>
-            <p className="text-primary-foreground/80 mb-8">
-              Submit your application. We review each profile individually and respond within 5 working days.
-            </p>
-            <Button 
-              size="lg" 
-              variant="secondary"
-              className="px-8 py-6 text-lg font-semibold group hover:scale-105 transition-transform duration-300"
-            >
-              Apply to Join Ogura
-              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
-            </Button>
-          </AnimatedSection>
         </section>
       </main>
 
