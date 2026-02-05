@@ -63,6 +63,14 @@ export const LuxuryFooter = () => {
                   </Link>
                 </li>
               ))}
+              <li>
+                <Link
+                  to="/join"
+                  className="text-sm text-background/60 hover:text-background transition-colors"
+                >
+                  Join as Fashion Designer
+                </Link>
+              </li>
             </ul>
           </div>
           
