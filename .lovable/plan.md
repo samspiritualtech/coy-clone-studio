@@ -1,266 +1,262 @@
 
-# Secure Google-Only Authentication System
 
-## Overview
+# Database & Asset Visibility Analysis Report
 
-This plan implements a secure authentication system for Ogura using **Google Sign-In as the only authentication method**. The system will remove all email/password and OTP login options, add protected routes, and create dedicated pages for login, dashboard, onboarding, and profile management.
+## Executive Summary
+
+After conducting a comprehensive technical audit of the Ogura fashion platform, I have identified **critical issues** causing assets and products to not appear across various pages. The root causes are a combination of **database configuration problems**, **dual data source architecture**, and **RLS policy restrictions**.
 
 ---
 
-## Architecture
+## Critical Finding #1: ALL Database Products Have status = 'draft'
+
+**Impact: SEVERE - No database products visible to public users**
 
 ```text
-┌─────────────────────────────────────────────────────────────────┐
-│                        Authentication Flow                       │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                   │
-│  User visits protected route                                      │
-│         │                                                         │
-│         ▼                                                         │
-│  ┌─────────────────┐                                             │
-│  │  ProtectedRoute │──── Not authenticated ────▶ /login          │
-│  └─────────────────┘                                             │
-│         │                                                         │
-│         │ Authenticated                                           │
-│         ▼                                                         │
-│  ┌─────────────────┐                                             │
-│  │  Check Profile  │                                             │
-│  └─────────────────┘                                             │
-│         │                                                         │
-│    ┌────┴────┐                                                   │
-│    │         │                                                   │
-│  New User  Existing User                                         │
-│    │         │                                                   │
-│    ▼         ▼                                                   │
-│ /onboarding  /dashboard                                          │
-│                                                                   │
-└─────────────────────────────────────────────────────────────────┘
+Database Query Result:
+┌─────────────────┬─────────────┐
+│ status          │ total_count │
+├─────────────────┼─────────────┤
+│ draft           │     34      │
+│ live            │      0      │
+└─────────────────┴─────────────┘
 ```
 
----
-
-## Database Changes
-
-### Update Profiles Table
-
-Add `is_onboarded` column to track if user has completed onboarding:
+The RLS policy on the `products` table only allows viewing products where `status = 'live' AND is_available = true`:
 
 ```sql
-ALTER TABLE profiles ADD COLUMN is_onboarded boolean DEFAULT false;
+-- Current RLS Policy (blocking all products)
+Policy: "Anyone can view live products"
+USING: ((status = 'live'::text) AND (is_available = true))
 ```
 
-### Update Database Trigger
+**Result**: All 34 database products are invisible to non-seller users because none have `status = 'live'`.
 
-Modify the existing `handle_new_user` trigger to include Google OAuth metadata:
+---
 
+## Critical Finding #2: Dual Data Source Architecture
+
+The application uses **two completely separate data sources** that are NOT synchronized:
+
+```text
+┌─────────────────────────────────────────────────────────────────────┐
+│                     DUAL DATA SOURCE MAP                            │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  ┌──────────────────────┐      ┌──────────────────────┐            │
+│  │   STATIC DATA        │      │   DATABASE (Supabase) │            │
+│  │   (src/data/*.ts)    │      │   (products table)    │            │
+│  ├──────────────────────┤      ├──────────────────────┤            │
+│  │ • 691 products       │      │ • 34 products         │            │
+│  │ • 7 brands           │      │ • 9 designers         │            │
+│  │ • Static occasions   │      │ • 3 vendors           │            │
+│  │ • Unsplash images    │      │ • All status='draft'  │            │
+│  └──────────────────────┘      └──────────────────────┘            │
+│           │                             │                           │
+│           ▼                             ▼                           │
+│  ┌──────────────────────┐      ┌──────────────────────┐            │
+│  │ PAGES USING STATIC   │      │ PAGES USING DATABASE │            │
+│  ├──────────────────────┤      ├──────────────────────┤            │
+│  │ • /collections       │      │ • /designers         │            │
+│  │ • /product/:id       │      │ • /designer/:slug    │            │
+│  │ • /brands            │      │ • /designers/:id     │            │
+│  │ • /brands/:brandId   │      │ • Designer Products  │            │
+│  │ • Home carousels     │      │                      │            │
+│  │ • Category pages     │      │                      │            │
+│  │ • /search (Algolia)  │      │                      │            │
+│  └──────────────────────┘      └──────────────────────┘            │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Navigational Flow Analysis
+
+### Pages Using STATIC Data (Working)
+
+| Route | Data Source | Status |
+|-------|-------------|--------|
+| `/` (Homepage) | Static products + DB designers | Partial - designers load, carousels work |
+| `/collections` | `src/data/products.ts` (691 items) | Working |
+| `/product/:id` | `src/data/products.ts` | Working |
+| `/brands` | `src/data/brands.ts` (7 brands) | Working |
+| `/brands/:brandId` | Static brands + static products filtered by brand name | Working (but limited products) |
+| `/search` | Algolia index | Working (if synced) |
+
+### Pages Using DATABASE (Issues)
+
+| Route | Data Source | Status |
+|-------|-------------|--------|
+| `/designers` | `designers` table (9 records) | Working - designers visible |
+| `/designer/:slug` | `designers` + `products` table | Broken - products don't appear (all draft) |
+| `/designers/:id` | `designers` + `products` table | Broken - products don't appear |
+
+---
+
+## Asset Analysis by Page
+
+### Homepage (`/`)
+
+```text
+Component                  │ Data Source            │ Assets Status
+───────────────────────────┼────────────────────────┼──────────────────
+LuxuryHero                 │ Cloudinary video URL   │ ✅ Working
+Premium3DCategorySection   │ Hardcoded images       │ ✅ Working
+CategoryShowcase           │ Unsplash URLs          │ ✅ Working
+DesignersSpotlight         │ DB: designers table    │ ✅ Working (9 designers)
+LuxuryBrands               │ Hardcoded brand logos  │ ✅ Working
+LuxuryTrustBadges          │ Icons only             │ ✅ Working
+```
+
+### Brands Page (`/brands`)
+
+```text
+STATIC BRANDS (src/data/brands.ts):
+┌──────────┬─────────────────────────────────────────────────────────┬───────────────┐
+│ Brand    │ Logo Image                                              │ Status        │
+├──────────┼─────────────────────────────────────────────────────────┼───────────────┤
+│ INDIGO   │ /indigo/product-1.jpg                                   │ ✅ Local file │
+│ OGURA    │ https://images.unsplash.com/...                         │ ✅ Unsplash   │
+│ ELEGANCE │ https://images.unsplash.com/...                         │ ✅ Unsplash   │
+│ URBAN    │ https://images.unsplash.com/...                         │ ✅ Unsplash   │
+│ CLASSIC  │ https://images.unsplash.com/...                         │ ✅ Unsplash   │
+│ LUXE     │ https://images.unsplash.com/...                         │ ✅ Unsplash   │
+│ BREEZE   │ https://images.unsplash.com/...                         │ ✅ Unsplash   │
+└──────────┴─────────────────────────────────────────────────────────┴───────────────┘
+
+Local Assets Verified:
+• public/indigo/ - 5 product images (product-1.jpg to product-5.jpg) ✅
+• public/roshi/  - 10 product images (product-1.jpg to product-10.jpg) ✅
+```
+
+### Brand Detail (`/brands/:brandId`)
+
+```text
+ISSUE: Product Count Mismatch
+
+The brand detail page filters static products by brand name:
+  brandProducts = products.filter(p => p.brand.toLowerCase() === brand.name.toLowerCase())
+
+Static products have brands: OGURA, ELEGANCE, LUXE, URBAN, CLASSIC, BREEZE, DENIM CO, etc.
+Static brands file has: INDIGO, OGURA, ELEGANCE, URBAN, CLASSIC, LUXE, BREEZE
+
+Result:
+• INDIGO brand page shows 0 products (no static products have brand="INDIGO")
+• OGURA brand page shows 45+ products (matching brand name)
+• etc.
+```
+
+### Designers Page (`/designers`)
+
+```text
+DATABASE DESIGNERS (9 records):
+┌─────────────────────┬───────────────────────────────┬────────────────────────────────────┐
+│ Designer            │ Profile Image                 │ Status                             │
+├─────────────────────┼───────────────────────────────┼────────────────────────────────────┤
+│ Rajiramniq          │ Unsplash URL                  │ ✅ Working                         │
+│ Punit Balana        │ Unsplash URL                  │ ✅ Working                         │
+│ Gauri & Nainika     │ Unsplash URL                  │ ✅ Working                         │
+│ Aseem Kapoor        │ Unsplash URL                  │ ✅ Working                         │
+│ KA-Sha              │ Unsplash URL                  │ ✅ Working                         │
+│ Anita Dongre        │ Unsplash URL                  │ ✅ Working                         │
+│ Tarun Tahiliani     │ Unsplash URL                  │ ✅ Working                         │
+│ Anamika Khanna      │ Unsplash URL                  │ ✅ Working                         │
+│ Roshi               │ /roshi/product-1.jpg          │ ✅ Local file exists               │
+└─────────────────────┴───────────────────────────────┴────────────────────────────────────┘
+```
+
+### Designer Profile (`/designer/:slug`)
+
+```text
+CRITICAL ISSUE: Products Not Visible
+
+The page fetches products from database:
+  useDesignerProducts(designer?.id, filters, page)
+
+Database products (34 total):
+• All have status = 'draft'
+• RLS policy blocks: "Anyone can view live products" requires status='live'
+• Result: 0 products shown on any designer profile page
+
+Products ARE in database but invisible due to RLS:
+• Rajiramniq: 12 products (all draft)
+• Punit Balana: 8 products (all draft)
+• etc.
+```
+
+---
+
+## Menu Navigation Assets
+
+```text
+MEGA MENU IMAGE REFERENCES:
+┌────────────────────┬─────────────────────┬───────────────┐
+│ Menu Item          │ Image Path          │ File Exists   │
+├────────────────────┼─────────────────────┼───────────────┤
+│ Bollywood Fashion  │ Pexels video URL    │ ✅ External   │
+│ Co-ord Sets        │ /roshi/product-1.jpg│ ✅ Yes        │
+│ Occasion Wear      │ /roshi/product-2.jpg│ ✅ Yes        │
+│ Street & Casual    │ /roshi/product-3.jpg│ ✅ Yes        │
+│ Limited Drops      │ /roshi/product-4.jpg│ ✅ Yes        │
+│ Made-to-Order      │ /roshi/product-5.jpg│ ✅ Yes        │
+│ Footwear Edit      │ /roshi/product-6.jpg│ ✅ Yes        │
+│ Bags & Accessories │ /roshi/product-7.jpg│ ✅ Yes        │
+│ Men Ethnic Wear    │ /indigo/product-1.jpg│ ✅ Yes       │
+│ Men Formal Wear    │ /indigo/product-2.jpg│ ✅ Yes       │
+│ Men Casual Wear    │ /indigo/product-3.jpg│ ✅ Yes       │
+│ Men Activewear     │ /indigo/product-4.jpg│ ✅ Yes       │
+│ Men Footwear       │ /indigo/product-5.jpg│ ✅ Yes       │
+│ Men Accessories    │ /roshi/product-8.jpg│ ✅ Yes        │
+└────────────────────┴─────────────────────┴───────────────┘
+```
+
+---
+
+## Root Cause Summary
+
+| Issue | Severity | Impact |
+|-------|----------|--------|
+| All DB products have `status='draft'` | Critical | Designer profile pages show 0 products |
+| RLS blocks non-live products | Critical | Public users can't see any DB products |
+| Static vs DB data not synchronized | High | Inconsistent product availability across pages |
+| Brand-product name mismatch | Medium | Some brand detail pages show 0 products |
+| Algolia may not have latest data | Medium | Search results may be incomplete |
+
+---
+
+## Recommended Fixes
+
+### Immediate (Fix Product Visibility)
+
+1. **Update product status to 'live'** for all approved products:
 ```sql
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS trigger
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path TO 'public'
-AS $function$
-BEGIN
-  INSERT INTO public.profiles (id, name, phone, email, avatar_url, is_onboarded)
-  VALUES (
-    NEW.id,
-    COALESCE(
-      NEW.raw_user_meta_data ->> 'full_name',
-      NEW.raw_user_meta_data ->> 'name',
-      'User'
-    ),
-    NEW.phone,
-    NEW.email,
-    NEW.raw_user_meta_data ->> 'avatar_url',
-    false
-  )
-  ON CONFLICT (id) DO UPDATE SET
-    name = COALESCE(EXCLUDED.name, profiles.name),
-    email = COALESCE(EXCLUDED.email, profiles.email),
-    avatar_url = COALESCE(EXCLUDED.avatar_url, profiles.avatar_url),
-    updated_at = now();
-  RETURN NEW;
-END;
-$function$;
+UPDATE products 
+SET status = 'live' 
+WHERE is_available = true;
 ```
 
----
+2. **Add seller/admin workflow** to manage product approval status
 
-## Files to Create
+### Short-term (Data Consistency)
 
-| File | Purpose |
-|------|---------|
-| `src/pages/Login.tsx` | Clean login page with Google Sign-In button only |
-| `src/pages/Dashboard.tsx` | User dashboard for authenticated users |
-| `src/pages/Onboarding.tsx` | Onboarding flow for new users |
-| `src/pages/Profile.tsx` | User profile and settings page |
-| `src/components/auth/ProtectedRoute.tsx` | Route guard component |
-| `src/components/auth/GoogleSignInButton.tsx` | Reusable Google sign-in button |
-| `src/components/auth/UserMenu.tsx` | Header dropdown for authenticated users |
+1. **Synchronize static brands with database** - Either migrate static brands to database OR ensure static product brand names match static brand definitions
 
----
+2. **Run Algolia sync** to ensure search index has latest products
 
-## Files to Modify
+### Long-term (Architecture)
 
-| File | Changes |
-|------|---------|
-| `src/contexts/AuthContext.tsx` | Simplify to Google-only auth, add `isNewUser` tracking |
-| `src/App.tsx` | Add new routes and protected route wrapper |
-| `src/components/Header.tsx` | Add UserMenu for authenticated state |
-| `src/components/LuxuryHeader.tsx` | Add UserMenu for authenticated state |
+1. **Migrate all static data to database** for single source of truth
+2. **Implement proper product lifecycle** (draft -> pending_review -> live -> archived)
+3. **Add admin dashboard** for product/status management
 
 ---
 
-## Component Details
+## Technical Implementation Notes
 
-### 1. Login Page (`src/pages/Login.tsx`)
-
-A clean, modern login page featuring:
-- Ogura branding at top
-- Single "Continue with Google" button
-- Subtle fashion imagery background
-- Loading state during OAuth redirect
-- Error handling with toast notifications
-
-```text
-┌────────────────────────────────────────┐
-│                                        │
-│              ✦ OGURA                   │
-│                                        │
-│     ┌──────────────────────────────┐   │
-│     │                              │   │
-│     │   Welcome to Ogura           │   │
-│     │                              │   │
-│     │   India's premier fashion    │   │
-│     │   marketplace                │   │
-│     │                              │   │
-│     │  ┌────────────────────────┐  │   │
-│     │  │ 🟢 Continue with Google │  │   │
-│     │  └────────────────────────┘  │   │
-│     │                              │   │
-│     │   By continuing, you agree   │   │
-│     │   to our Terms & Privacy     │   │
-│     │                              │   │
-│     └──────────────────────────────┘   │
-│                                        │
-└────────────────────────────────────────┘
-```
-
-### 2. ProtectedRoute Component
-
-Guards private routes and handles redirects:
-- Redirects unauthenticated users to `/login`
-- Shows loading spinner during auth check
-- Passes through for authenticated users
-
-### 3. Dashboard Page
-
-Main hub for authenticated users:
-- Welcome message with user name
-- Quick links to orders, wishlist, addresses
-- Recent activity section
-- Logout button
-
-### 4. Onboarding Page
-
-For new users after first Google sign-in:
-- Collect additional preferences
-- Set up notifications
-- Mark profile as onboarded
-- Redirect to dashboard on completion
-
-### 5. UserMenu Component
-
-Header dropdown for authenticated users:
-- User avatar and name
-- Links to Dashboard, Profile, Orders
-- Logout option
-
----
-
-## Authentication Context Updates
-
-Simplify `AuthContext` to:
-- Remove `signUp`, `signIn`, `sendOTP`, `signInWithOTP` methods
-- Keep only `signInWithGoogle` and `logout`
-- Add `isNewUser` state based on `is_onboarded` column
-- Add `completeOnboarding` method
-
-```typescript
-interface AuthContextType {
-  user: User | null;
-  signInWithGoogle: () => Promise<{ success: boolean; error?: string }>;
-  logout: () => void;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  isNewUser: boolean;
-  completeOnboarding: () => Promise<void>;
-}
-```
-
----
-
-## Route Structure
-
-```text
-Public Routes:
-  /                 - Home
-  /collections      - Browse products
-  /product/:id      - Product detail
-  /brands           - Brands listing
-  /designers        - Designers listing
-  /occasions        - Occasions
-  /stores           - Store locator
-  /search           - Search
-  /join             - Designer onboarding
-  /login            - Login page
-
-Protected Routes (require authentication):
-  /dashboard        - User dashboard
-  /profile          - Profile settings
-  /onboarding       - New user onboarding
-  /wishlist         - User wishlist
-  /cart             - Shopping cart
-```
-
----
-
-## Google OAuth Configuration
-
-The system will use Lovable Cloud's managed Google OAuth which requires calling the `supabase--configure-social-auth` tool to:
-1. Generate the lovable module in `src/integrations/lovable`
-2. Install the `@lovable.dev/cloud-auth-js` package
-
-The sign-in will use:
-```typescript
-import { lovable } from "@/integrations/lovable/index";
-
-const { error } = await lovable.auth.signInWithOAuth("google", {
-  redirect_uri: window.location.origin,
-});
-```
-
----
-
-## Security Considerations
-
-1. **RLS Policies**: Existing profile RLS policies remain intact - users can only access their own data
-2. **Session Management**: Supabase handles JWT tokens and refresh automatically
-3. **Secure Redirects**: All OAuth redirects use `window.location.origin` to work on any domain including ogura.in
-4. **Protected Routes**: Server-side data is still protected by RLS; client-side protection provides UX improvement
-
----
-
-## Implementation Order
-
-1. Configure Google OAuth using Lovable Cloud tool
-2. Run database migration for `is_onboarded` column
-3. Create ProtectedRoute component
-4. Create Login page
-5. Create Dashboard page
-6. Create Onboarding page
-7. Create Profile page
-8. Update AuthContext for Google-only flow
-9. Add UserMenu to headers
-10. Update App.tsx with new routes
+The fixes require:
+- Database migration to update product statuses
+- Optional: Modify RLS policies to allow viewing products in additional states
+- Synchronize brand names between static and database sources
+- Re-run Algolia sync after product status updates
 
