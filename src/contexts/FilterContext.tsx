@@ -17,7 +17,7 @@ const defaultFilters: FilterState = {
   category: 'All',
   search: '',
   sortBy: 'newest',
-  priceRange: [0, 15000],
+  priceRange: [0, 50000],
   sizes: [],
   colors: [],
   tags: []

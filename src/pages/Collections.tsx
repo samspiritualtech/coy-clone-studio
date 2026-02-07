@@ -24,9 +24,10 @@ export default function Collections() {
   const filteredProducts = useMemo(() => {
     let result = [...products];
 
-    // Category filter
-    if (filters.category !== 'All') {
-      result = result.filter(p => p.category === filters.category.toLowerCase());
+    // Category filter - compare lowercase versions
+    if (filters.category && filters.category !== 'All') {
+      const categoryLower = filters.category.toLowerCase();
+      result = result.filter(p => p.category.toLowerCase() === categoryLower);
     }
 
     // Search filter
@@ -44,10 +45,12 @@ export default function Collections() {
       result = result.filter(p => filters.tags.some(tag => p.tags.includes(tag)));
     }
 
-    // Price range filter
-    result = result.filter(p =>
-      p.price >= filters.priceRange[0] && p.price <= filters.priceRange[1]
-    );
+    // Price range filter - ensure we have valid price range
+    if (filters.priceRange && filters.priceRange[0] !== undefined && filters.priceRange[1] !== undefined) {
+      result = result.filter(p =>
+        p.price >= filters.priceRange[0] && p.price <= filters.priceRange[1]
+      );
+    }
 
     // Sort
     if (filters.sortBy === 'price-low') {
