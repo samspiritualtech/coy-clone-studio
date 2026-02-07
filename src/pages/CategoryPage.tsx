@@ -7,6 +7,7 @@ import { SubCategoryScroll } from "@/components/category/SubCategoryScroll";
 import { FeaturedCollectionGrid } from "@/components/category/FeaturedCollectionGrid";
 import { LuxeEditSection } from "@/components/category/LuxeEditSection";
 import { CategoryProductGrid } from "@/components/category/CategoryProductGrid";
+import { CelebrityIconsSection } from "@/components/category/CelebrityIconsSection";
 import { getCategoryBySlug } from "@/data/oguraCategories";
 import MadeToOrderPage from "./MadeToOrderPage";
 
@@ -47,6 +48,9 @@ const CategoryPage = () => {
           onSelectSubCategory={setActiveSubCategory}
           activeFilter={activeSubCategory}
         />
+
+        {/* Celebrity Icons Section - Only for Celebrity Fashion */}
+        {slug === "celebrity-fashion" && <CelebrityIconsSection />}
 
         {/* Featured Collections */}
         {category.featuredCollections.map((collection, idx) => (
