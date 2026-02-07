@@ -1,92 +1,67 @@
 import { Header } from "@/components/Header";
-import { FilterBar } from "@/components/FilterBar";
-import { ProductGrid } from "@/components/ProductGrid";
 import { Footer } from "@/components/Footer";
 import { products } from "@/data/products";
-import { useFilter } from "@/contexts/FilterContext";
-import { useMemo, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
-import { RecommendationCarousel } from "@/components/RecommendationCarousel";
+import { Card } from "@/components/ui/card";
+import { Heart } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useWishlist } from "@/contexts/WishlistContext";
+import { OptimizedImage } from "@/components/OptimizedImage";
 
 export default function Collections() {
-  const { filters, setCategory } = useFilter();
-  const [searchParams] = useSearchParams();
-
-  // Sync URL category parameter with filter context
-  useEffect(() => {
-    const categoryParam = searchParams.get("category");
-    if (categoryParam) {
-      const formattedCategory = categoryParam.charAt(0).toUpperCase() + categoryParam.slice(1);
-      setCategory(formattedCategory);
-    }
-  }, [searchParams, setCategory]);
-
-  const filteredProducts = useMemo(() => {
-    let result = [...products];
-
-    // Category filter - compare lowercase versions
-    if (filters.category && filters.category !== 'All') {
-      const categoryLower = filters.category.toLowerCase();
-      result = result.filter(p => p.category.toLowerCase() === categoryLower);
-    }
-
-    // Search filter
-    if (filters.search) {
-      const search = filters.search.toLowerCase();
-      result = result.filter(p =>
-        p.name.toLowerCase().includes(search) ||
-        p.brand.toLowerCase().includes(search) ||
-        p.category.toLowerCase().includes(search)
-      );
-    }
-
-    // Tags filter
-    if (filters.tags.length > 0) {
-      result = result.filter(p => filters.tags.some(tag => p.tags.includes(tag)));
-    }
-
-    // Price range filter - ensure we have valid price range
-    if (filters.priceRange && filters.priceRange[0] !== undefined && filters.priceRange[1] !== undefined) {
-      result = result.filter(p =>
-        p.price >= filters.priceRange[0] && p.price <= filters.priceRange[1]
-      );
-    }
-
-    // Sort
-    if (filters.sortBy === 'price-low') {
-      result.sort((a, b) => a.price - b.price);
-    } else if (filters.sortBy === 'price-high') {
-      result.sort((a, b) => b.price - a.price);
-    } else if (filters.sortBy === 'newest') {
-      result.sort((a, b) => (b.tags.includes('new-arrivals') ? 1 : 0) - (a.tags.includes('new-arrivals') ? 1 : 0));
-    }
-
-    return result;
-  }, [filters]);
+  const navigate = useNavigate();
+  const { toggleItem, isInWishlist } = useWishlist();
 
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <FilterBar />
-      <main className="flex-1 container mx-auto px-4">
-        {/* AI-Powered Category Recommendations */}
-        {filters.category !== 'All' && (
-          <RecommendationCarousel
-            title={`Top Picks for You in ${filters.category}`}
-            type="category"
-            category={filters.category.toLowerCase()}
-          />
-        )}
-        <ProductGrid
-          title={`Shop All (${filteredProducts.length} items)`}
-          products={filteredProducts.map(p => ({
-            name: p.name,
-            brand: p.brand,
-            price: `₹${p.price.toLocaleString()}`,
-            image: p.images[0]
-          }))}
-          showViewAll={false}
-        />
+      <main className="flex-1 container mx-auto px-4 py-8">
+        <h1 className="text-2xl md:text-3xl font-bold mb-6">
+          Shop All ({products.length} items)
+        </h1>
+        
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {products.map((product) => (
+            <Card
+              key={product.id}
+              onClick={() => navigate(`/product/${product.id}`)}
+              className="group cursor-pointer overflow-hidden border hover:shadow-lg transition-all duration-300"
+            >
+              <div className="relative">
+                <OptimizedImage
+                  src={product.images[0]}
+                  alt={product.name}
+                  aspectRatio="aspect-[3/4]"
+                  className="transition-transform duration-500 group-hover:scale-105"
+                />
+                <button
+                  className="absolute top-2 right-2 p-2 bg-white/80 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleItem(product);
+                  }}
+                >
+                  <Heart
+                    className={`h-4 w-4 ${
+                      isInWishlist(product.id) ? "fill-red-500 text-red-500" : ""
+                    }`}
+                  />
+                </button>
+              </div>
+              <div className="p-3">
+                <p className="text-xs text-muted-foreground mb-1">{product.brand}</p>
+                <h3 className="font-medium text-sm mb-1 line-clamp-2">{product.name}</h3>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold">₹{product.price.toLocaleString()}</span>
+                  {product.originalPrice && (
+                    <span className="text-xs text-muted-foreground line-through">
+                      ₹{product.originalPrice.toLocaleString()}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
       </main>
       <Footer />
     </div>
