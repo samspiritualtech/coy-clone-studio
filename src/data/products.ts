@@ -258,7 +258,7 @@ const generateDresses = (): Product[] => {
     const type = types[typeIndex];
     const tags = getRandomTags(i);
     const hasSale = tags.includes("sale");
-    const price = 1499 + Math.floor(Math.random() * 7500);
+    const price = 799 + Math.floor(Math.random() * 2200); // Price range: 799 - 2999
     const colorPalette = i % 3 === 0 ? vibrantColors : i % 3 === 1 ? pastelColors : neutralColors;
     const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
     const colorVariants = generateColorVariants("dresses", i, colorPalette, sizes);
