@@ -1,11 +1,9 @@
-import { useState } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Minus, Plus, Trash2, ShoppingBag, MapPin, ChevronRight } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
-import { useAuth } from "@/contexts/AuthContext";
 import { useLocation } from "@/contexts/LocationContext";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -15,58 +13,13 @@ import type { UserAddress } from "@/types";
 
 export default function Cart() {
   const { items, updateQuantity, removeItem, subtotal, tax, total } = useCart();
-  const { user } = useAuth();
   const { selectedAddress, setSelectedAddress, setShowAddressModal, showAddressModal } = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
 
-  const handleCheckout = async () => {
-    // If no address selected, show address modal
-    if (!selectedAddress) {
-      setShowAddressModal(true);
-      return;
-    }
-
-    setIsLoading(true);
-    
-    try {
-      await fetch('https://hook.eu2.make.com/kxoh3ezj89zte1al5amyipk2kfp75dkl', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        mode: 'no-cors',
-        body: JSON.stringify({
-          event: 'order_confirmed',
-          customer_name: selectedAddress.full_name || user?.name || 'Guest User',
-          customer_email: user?.email || 'guest@example.com',
-          customer_phone: selectedAddress.mobile,
-          shipping_address: {
-            address_line: selectedAddress.address_line,
-            city: selectedAddress.city,
-            state: selectedAddress.state,
-            pincode: selectedAddress.pincode,
-            landmark: selectedAddress.landmark,
-          },
-          order_total: total,
-          currency: 'INR'
-        }),
-      });
-
-      toast({
-        title: "Order Confirmed",
-        description: "Your order confirmation has been submitted successfully.",
-      });
-    } catch (error) {
-      console.error('Webhook error:', error);
-      toast({
-        title: "Confirmation Sent",
-        description: "Your order confirmation has been processed.",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+  const handleCheckout = () => {
+    // Navigate to checkout page
+    navigate('/checkout');
   };
 
   const handleAddressSelect = (address: UserAddress) => {
@@ -239,9 +192,8 @@ export default function Cart() {
                 className="w-full mb-3" 
                 size="lg"
                 onClick={handleCheckout}
-                disabled={isLoading}
               >
-                {isLoading ? "Processing..." : selectedAddress ? "Proceed to Checkout" : "Select Address & Checkout"}
+                Proceed to Checkout
               </Button>
               <Button
                 variant="outline"
