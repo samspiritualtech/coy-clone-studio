@@ -101,12 +101,27 @@ const unsplashImages = {
     "1611312449408-fcece27cdbb7",
     "1607013251379-e6eecfffe234",
   ],
+  bags: [
+    "/bags/woven-hobo-burgundy.webp",
+    "/bags/woven-hobo-brown.webp",
+    "/bags/buckle-shoulder-burgundy.webp",
+    "/bags/woven-tote-cream.webp",
+    "/bags/classic-crossbody-black.webp",
+    "/bags/vanity-top-handle-black.webp",
+    "/bags/fringe-hobo-brown.webp",
+    "/bags/moon-crescent-blue.webp",
+    "/bags/striped-canvas-tote.webp",
+  ],
 };
 
 const getImage = (category: string, index: number): string => {
   const categoryKey = category as keyof typeof unsplashImages;
   const images = unsplashImages[categoryKey] || unsplashImages.dresses;
   const imageId = images[index % images.length];
+  // Bags use local image paths directly
+  if (category === "bags") {
+    return imageId;
+  }
   return `https://images.unsplash.com/photo-${imageId}?w=800&q=80`;
 };
 
@@ -468,6 +483,56 @@ function generateStaticProducts(): AlgoliaProduct[] {
       gender: "unisex",
       image: getImage("accessories", i),
       url: `/product/${generateId("acce", i + 1)}`,
+      originalPrice: tags.includes("sale")
+        ? Math.floor(price * 1.4)
+        : undefined,
+      inStock: i % 11 !== 0,
+      tags,
+      rating: getRandomRating(),
+    });
+  }
+
+  // Bags (45 items)
+  const bagTypes = [
+    "Woven Hobo Bag",
+    "Buckle Shoulder Bag",
+    "Woven Tote Bag",
+    "Classic Crossbody Bag",
+    "Vanity Top Handle Bag",
+    "Fringe Hobo Bag",
+    "Moon Crescent Bag",
+    "Striped Canvas Tote",
+    "Leather Satchel Bag",
+    "Chain Strap Shoulder Bag",
+    "Quilted Crossbody Bag",
+    "Mini Bucket Bag",
+    "Structured Box Bag",
+    "Slouchy Hobo Bag",
+    "Convertible Backpack Bag",
+    "Evening Clutch Bag",
+    "Work Tote Bag",
+    "Weekend Duffle Bag",
+    "Woven Beach Tote",
+    "Metallic Evening Bag",
+  ];
+
+  for (let i = 0; i < 45; i++) {
+    const type = bagTypes[i % bagTypes.length];
+    const price = 2999 + Math.floor(Math.random() * 13000);
+    const tags: string[] = [];
+    if (i % 3 === 0) tags.push("sale");
+    if (i % 5 === 0) tags.push("new-arrivals");
+    if (i % 10 === 0) tags.push("trending");
+
+    products.push({
+      objectID: generateId("bags", i + 1),
+      name: type,
+      category: "bags",
+      price,
+      brand: getBrand(i),
+      gender: "women",
+      image: getImage("bags", i),
+      url: `/product/${generateId("bags", i + 1)}`,
       originalPrice: tags.includes("sale")
         ? Math.floor(price * 1.4)
         : undefined,

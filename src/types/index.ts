@@ -12,7 +12,7 @@ export interface Product {
   brand: string;
   price: number;
   originalPrice?: number;
-  category: 'dresses' | 'tops' | 'bottoms' | 'outerwear' | 'footwear' | 'accessories';
+  category: 'dresses' | 'tops' | 'bottoms' | 'outerwear' | 'footwear' | 'accessories' | 'bags';
   images: string[];
   sizes: string[];
   colors: Array<{ name: string; hex: string }>;

@@ -71,6 +71,16 @@ const categories = [
     backgroundImage: "https://images.unsplash.com/photo-1611652022419-a9419f74343d?w=1920&q=80",
     height: "50vh" as const,
   },
+  {
+    id: "bags",
+    label: "Carry in Style",
+    title: "Bags",
+    subtitle: "Luxury handbags & designer pieces",
+    ctaText: "Shop Bags",
+    ctaLink: "/category/bags-accessories",
+    backgroundImage: "/bags/collection-hero.jpg",
+    height: "50vh" as const,
+  },
 ];
 
 export const CategoryShowcase = () => {
