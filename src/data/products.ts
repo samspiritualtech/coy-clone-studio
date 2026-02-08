@@ -187,6 +187,17 @@ const unsplashImages = {
     "1584917865442-de89df76afd3", "1599643478518-a784e5dc4c8f", "1601924994987-69e26d50dc26",
     "1611652022419-a9419a4a0e67", "1590736969955-71cc94901144", "1585856255908-a545f7b2f18a",
     "1611312449408-fcece27cdbb7", "1607013251379-e6eecfffe234"
+  ],
+  bags: [
+    "/bags/woven-hobo-burgundy.webp",
+    "/bags/woven-hobo-brown.webp",
+    "/bags/buckle-shoulder-burgundy.webp",
+    "/bags/woven-tote-cream.webp",
+    "/bags/classic-crossbody-black.webp",
+    "/bags/vanity-top-handle-black.webp",
+    "/bags/fringe-hobo-brown.webp",
+    "/bags/moon-crescent-blue.webp",
+    "/bags/striped-canvas-tote.webp"
   ]
 };
 
@@ -194,6 +205,10 @@ const getImage = (category: string, index: number): string[] => {
   const categoryKey = category as keyof typeof unsplashImages;
   const images = unsplashImages[categoryKey] || unsplashImages.dresses;
   const imageId = images[index % images.length];
+  // Bags use local images, others use Unsplash
+  if (category === "bags") {
+    return [imageId]; // Already a full path
+  }
   return [`https://images.unsplash.com/photo-${imageId}?w=800&q=80`];
 };
 
@@ -512,6 +527,81 @@ const generateAccessories = (): Product[] => {
   return accessories;
 };
 
+// Generate Bags (45 items)
+const generateBags = (): Product[] => {
+  const bags: Product[] = [];
+  const types = [
+    "Woven Hobo Bag", "Buckle Shoulder Bag", "Woven Tote Bag", "Classic Crossbody Bag",
+    "Vanity Top Handle Bag", "Fringe Hobo Bag", "Moon Crescent Bag", "Striped Canvas Tote",
+    "Leather Satchel Bag", "Chain Strap Shoulder Bag", "Quilted Crossbody Bag", "Mini Bucket Bag",
+    "Structured Box Bag", "Slouchy Hobo Bag", "Convertible Backpack Bag", "Evening Clutch Bag",
+    "Work Tote Bag", "Weekend Duffle Bag", "Woven Beach Tote", "Metallic Evening Bag"
+  ];
+  
+  const bagColors = [
+    { name: "Burgundy", hex: "#722F37" },
+    { name: "Black", hex: "#000000" },
+    { name: "Cream", hex: "#FFFDD0" },
+    { name: "Brown", hex: "#8B4513" },
+    { name: "Navy", hex: "#000080" },
+    { name: "Tan", hex: "#D2B48C" },
+    { name: "White", hex: "#FFFFFF" },
+    { name: "Blue", hex: "#4169E1" }
+  ];
+  
+  for (let i = 0; i < 45; i++) {
+    const typeIndex = i % types.length;
+    const type = types[typeIndex];
+    const tags = getRandomTags(i);
+    const hasSale = tags.includes("sale");
+    const price = 2999 + Math.floor(Math.random() * 13000); // Premium pricing: ₹2,999 - ₹15,999
+    const sizes = ["One Size"];
+    
+    // Use the bag images directly
+    const bagImagesArr = unsplashImages.bags;
+    const imageIndex = i % bagImagesArr.length;
+    const mainImage = bagImagesArr[imageIndex];
+    
+    // Create color variants using different bag images
+    const colorVariants: ColorVariant[] = [];
+    for (let j = 0; j < Math.min(3, bagImagesArr.length); j++) {
+      const variantImageIndex = (imageIndex + j) % bagImagesArr.length;
+      colorVariants.push({
+        name: bagColors[(i + j) % bagColors.length].name,
+        hex: bagColors[(i + j) % bagColors.length].hex,
+        images: [
+          bagImagesArr[variantImageIndex],
+          bagImagesArr[(variantImageIndex + 1) % bagImagesArr.length],
+          bagImagesArr[(variantImageIndex + 2) % bagImagesArr.length],
+          bagImagesArr[(variantImageIndex + 3) % bagImagesArr.length]
+        ],
+        available_sizes: sizes
+      });
+    }
+    
+    bags.push({
+      id: generateId("bags", i + 1),
+      name: type,
+      brand: getBrand(i),
+      price,
+      originalPrice: getSalePrice(price, hasSale),
+      category: "bags",
+      images: [mainImage],
+      sizes,
+      colors: [bagColors[i % bagColors.length], bagColors[(i + 1) % bagColors.length]],
+      colorVariants,
+      description: `Premium ${type.toLowerCase()} crafted with attention to detail`,
+      material: i % 5 === 0 ? "Genuine Leather" : i % 5 === 1 ? "Woven Rattan" : i % 5 === 2 ? "Premium Canvas" : i % 5 === 3 ? "Vegan Leather" : "Italian Leather",
+      inStock: isInStock(i),
+      tags,
+      occasions: ["casual", "office", "party"],
+      rating: getRandomRating(),
+      reviews: getRandomReviews()
+    });
+  }
+  return bags;
+};
+
 // Combine all products
 export const products: Product[] = [
   ...generateDresses(),
@@ -519,5 +609,6 @@ export const products: Product[] = [
   ...generateBottoms(),
   ...generateOuterwear(),
   ...generateFootwear(),
-  ...generateAccessories()
+  ...generateAccessories(),
+  ...generateBags()
 ];
