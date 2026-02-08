@@ -1,181 +1,126 @@
 
-# Plan: Integrate Bags into the Product System
 
-## Overview
-This plan adds a new "bags" product category and creates static bag products using the uploaded images, ensuring they appear in the Bags & Accessories category, all products listings, and are searchable via Algolia.
+# Plan: Fix Collections Page Category Filtering
 
----
+## Current State Analysis
 
-## Current Architecture Analysis
+After thorough investigation, I've verified that:
 
-The platform uses a **hybrid data system**:
-- **Static catalog** (`src/data/products.ts`): 691 products across 6 categories
-- **Database products**: Designer-specific items in the Supabase `products` table
-- **Algolia search**: Synced from both sources via the `sync-algolia` edge function
+**What's Working Correctly:**
+- Product click routing uses product IDs exclusively (`/product/${product.id}`)
+- All product cards correctly navigate to their respective product detail pages
+- Bags (IDs: `bags-1` to `bags-45`) correctly route to bag product pages
+- Accessories (IDs: `acce-1` to `acce-110`) correctly route to accessory pages
+- No category-based redirects or fallbacks exist in the codebase
 
-**Problem Identified:**
-- The Product type only allows: `'dresses' | 'tops' | 'bottoms' | 'outerwear' | 'footwear' | 'accessories'`
-- The "Bags & Accessories" category config references `["accessories", "bags"]` but "bags" doesn't exist
-- Bag items currently exist under "accessories" (Tote Bag, Crossbody Bag, etc.) but aren't separated
+**Root Issue Identified:**
+The Collections page at `/collections?category=accessories&subcategory=bags-backpacks` **ignores the URL query parameters**. The page shows ALL 700+ products regardless of the `category` and `subcategory` params in the URL.
+
+This causes confusion because users navigating from category menus see URLs with filters but get unfiltered results.
 
 ---
 
 ## Implementation Steps
 
-### Step 1: Extend the Product Type
-**File:** `src/types/index.ts`
+### Step 1: Add Query Parameter Filtering to Collections Page
+**File:** `src/pages/Collections.tsx`
 
-Add "bags" to the allowed category union type:
-```typescript
-category: 'dresses' | 'tops' | 'bottoms' | 'outerwear' | 'footwear' | 'accessories' | 'bags';
-```
-
-### Step 2: Copy Uploaded Bag Images to Project
-**Copy user-uploaded images to** `public/bags/`:
-- `imgi_5_default.webp` - Woven hobo bag (burgundy)
-- `imgi_8_default.webp` - Buckle shoulder bag (burgundy)
-- `imgi_26_default.webp` - Woven tote (cream)
-- `imgi_109_w_120.webp` - Classic crossbody (black)
-- `imgi_114_w_120_1.webp` - Vanity bag (black)
-- `imgi_116_w_120.webp` - Fringe hobo (brown)
-- `imgi_126_w_120.webp` - Moon hobo (blue)
-- `imgi_130_w_1201.webp` - Striped tote
-
-### Step 3: Create Bags Generator Function
-**File:** `src/data/products.ts`
-
-Add a new `generateBags()` function that:
-- Creates ~40 bag products using the uploaded images
-- Sets `category: "bags"`
-- Uses premium pricing (Rs 2,999 - Rs 15,999)
-- Includes proper bag-specific metadata (materials, occasions)
+Add support for URL-based filtering:
+- Parse `category` and `subcategory` query parameters using `useSearchParams`
+- Filter the products array based on these parameters
+- Show filtered count in the header
 
 ```text
-Types to include:
-- Woven Hobo Bag
-- Buckle Shoulder Bag
-- Woven Tote Bag
-- Classic Crossbody Bag
-- Vanity Top Handle Bag
-- Fringe Hobo Bag
-- Moon Crescent Bag
-- Striped Canvas Tote
+Key Changes:
+1. Import useSearchParams from react-router-dom
+2. Parse category and subcategory params
+3. Filter products based on params
+4. Update page title to reflect filter
+5. Add breadcrumb showing current filter
 ```
 
-Update the products export to include bags:
+### Step 2: Add Category Filter UI
+**File:** `src/pages/Collections.tsx`
+
+Provide visual filter pills/chips for quick category switching:
+- Display active filter chips at the top
+- Allow clearing filters with "X" button
+- Link filter options to update URL params
+
+### Step 3: Ensure Consistent Product Filtering
+**File:** `src/pages/Collections.tsx`
+
+Map URL parameters to actual product categories:
+- `category=accessories` → filters for `accessories` and `bags` categories
+- `subcategory=bags-backpacks` → filters specifically for `bags` category
+
+---
+
+## Technical Implementation Details
+
+### Collections Page Updates
+
 ```typescript
-export const products: Product[] = [
-  ...generateDresses(),
-  ...generateTops(),
-  ...generateBottoms(),
-  ...generateOuterwear(),
-  ...generateFootwear(),
-  ...generateAccessories(),
-  ...generateBags(),  // Add this
-];
+// Add at the top of the component
+const [searchParams] = useSearchParams();
+const categoryParam = searchParams.get("category");
+const subcategoryParam = searchParams.get("subcategory");
+
+// Filter products based on URL params
+const filteredProducts = useMemo(() => {
+  if (!categoryParam && !subcategoryParam) {
+    return products; // Show all if no filters
+  }
+  
+  return products.filter((product) => {
+    // Map URL params to product categories
+    if (subcategoryParam === "bags-backpacks") {
+      return product.category === "bags";
+    }
+    if (categoryParam === "accessories") {
+      return ["accessories", "bags"].includes(product.category);
+    }
+    return product.category === categoryParam;
+  });
+}, [categoryParam, subcategoryParam]);
 ```
 
-### Step 4: Add Bag Images to Unsplash Collection
-**File:** `src/data/products.ts`
+### Category Mapping Table
 
-Add `bags` to the `unsplashImages` object to support color variant generation:
-```typescript
-bags: [
-  // References to the new public/bags/ images
-]
-```
-
-### Step 5: Update Algolia Sync Function
-**File:** `supabase/functions/sync-algolia/index.ts`
-
-Add bags generation logic matching the frontend:
-- Add `bags` to `unsplashImages`
-- Create bag types array
-- Add bag generation loop (similar to accessories)
-- Ensure `category: "bags"` for search filtering
-
-### Step 6: Update Category Showcase (Optional Enhancement)
-**File:** `src/components/CategoryShowcase.tsx`
-
-Add a dedicated "Bags" section for prominent homepage visibility:
-```typescript
-{
-  id: "bags",
-  label: "Carry in Style",
-  title: "Bags",
-  subtitle: "Luxury handbags & designer pieces",
-  ctaText: "Shop Bags",
-  ctaLink: "/category/bags-accessories",
-  backgroundImage: "/bags/imgi_87_screenshot.jpg",
-  height: "50vh",
-}
-```
+| URL Parameter | Product Categories Shown |
+|---------------|-------------------------|
+| `category=accessories` | accessories, bags |
+| `subcategory=bags-backpacks` | bags only |
+| `category=dresses` | dresses |
+| `category=tops` | tops |
+| (none) | all products |
 
 ---
 
-## Search Integration
+## Files to Modify
 
-Bags will automatically appear in Algolia search when:
-1. The `sync-algolia` function is updated with bag products
-2. The function is re-deployed and triggered
-
-**Searchable keywords:**
-- "bag", "bags"
-- "handbag", "handbags"
-- "tote", "crossbody", "hobo", "clutch"
-- "accessories"
-
----
-
-## Category Page Visibility
-
-The "Bags & Accessories" page (`/category/bags-accessories`) already has:
-```typescript
-productCategories: ["accessories", "bags"]
-```
-
-Once "bags" category exists, products will automatically appear via `CategoryProductGrid`.
-
----
-
-## Collections Page Visibility
-
-The Collections page (`/collections`) displays all products from the static catalog. Since bags will be added to the main `products` array, they'll automatically appear with:
-- Product image
-- Name and brand
-- Price display
-- Wishlist functionality
-
----
-
-## Technical Details
-
-| Component | Change Required |
-|-----------|-----------------|
-| `src/types/index.ts` | Add 'bags' to category union |
-| `public/bags/` | New folder with 8+ images |
-| `src/data/products.ts` | Add `generateBags()`, update export |
-| `supabase/functions/sync-algolia/index.ts` | Add bag generation for search |
-| Deploy edge function | Re-deploy after changes |
-
----
-
-## Files to Create/Modify
-
-1. **Copy** 8 user-uploaded images to `public/bags/`
-2. **Modify** `src/types/index.ts` - extend category type
-3. **Modify** `src/data/products.ts` - add bag generation
-4. **Modify** `supabase/functions/sync-algolia/index.ts` - add bags to Algolia
-5. **Deploy** `sync-algolia` edge function
+| File | Changes |
+|------|---------|
+| `src/pages/Collections.tsx` | Add query param parsing, filtering logic, filter UI |
 
 ---
 
 ## Expected Outcome
 
 After implementation:
-- 40+ new bag products in the catalog
-- Visible on `/category/bags-accessories`
-- Visible on `/collections` (All Products)
-- Searchable via "bag", "bags", "handbag", "tote", etc.
-- Premium fashion UI with proper image quality
-- No duplication or hidden products
+- `/collections` → Shows all 700+ products
+- `/collections?category=accessories` → Shows 155 products (110 accessories + 45 bags)
+- `/collections?category=accessories&subcategory=bags-backpacks` → Shows 45 bag products only
+- Clicking any product correctly routes to its product detail page
+- Filter chips show active filters with clear option
+
+---
+
+## Verification Steps
+
+1. Navigate to `/collections?category=accessories&subcategory=bags-backpacks`
+2. Verify only bag products are displayed
+3. Click a bag product
+4. Confirm URL is `/product/bags-{id}` and correct bag is shown
+5. Test with other category combinations
+
