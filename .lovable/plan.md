@@ -1,126 +1,141 @@
 
 
-# Plan: Fix Collections Page Category Filtering
+# Plan: Remove All Product Data, Search, and Algolia Integration
 
-## Current State Analysis
-
-After thorough investigation, I've verified that:
-
-**What's Working Correctly:**
-- Product click routing uses product IDs exclusively (`/product/${product.id}`)
-- All product cards correctly navigate to their respective product detail pages
-- Bags (IDs: `bags-1` to `bags-45`) correctly route to bag product pages
-- Accessories (IDs: `acce-1` to `acce-110`) correctly route to accessory pages
-- No category-based redirects or fallbacks exist in the codebase
-
-**Root Issue Identified:**
-The Collections page at `/collections?category=accessories&subcategory=bags-backpacks` **ignores the URL query parameters**. The page shows ALL 700+ products regardless of the `category` and `subcategory` params in the URL.
-
-This causes confusion because users navigating from category menus see URLs with filters but get unfiltered results.
+## Overview
+Completely remove Algolia, the static product catalog, and all search functionality. Replace all product-dependent pages with "Coming Soon" placeholders.
 
 ---
 
-## Implementation Steps
+## Phase 1: Delete Algolia Files
 
-### Step 1: Add Query Parameter Filtering to Collections Page
-**File:** `src/pages/Collections.tsx`
+### Delete these files entirely (13 files):
+- `src/lib/algoliaClient.ts`
+- `src/components/search/AlgoliaFilterSidebar.tsx`
+- `src/components/search/AlgoliaMobileFilters.tsx`
+- `src/components/search/AlgoliaMobileSearch.tsx`
+- `src/components/search/AlgoliaNoResults.tsx`
+- `src/components/search/AlgoliaPriceRange.tsx`
+- `src/components/search/AlgoliaProductHit.tsx`
+- `src/components/search/AlgoliaRefinementList.tsx`
+- `src/components/search/AlgoliaSearchBox.tsx`
+- `src/components/search/AlgoliaSearchDropdown.tsx`
+- `src/components/search/AlgoliaSearchResults.tsx`
+- `src/components/search/AlgoliaTrendingProducts.tsx`
+- `supabase/functions/sync-algolia/index.ts` (delete entire folder + remove deployed function)
 
-Add support for URL-based filtering:
-- Parse `category` and `subcategory` query parameters using `useSearchParams`
-- Filter the products array based on these parameters
-- Show filtered count in the header
+### Delete the search barrel file:
+- `src/components/search/index.ts`
 
+---
+
+## Phase 2: Delete Product Data Files
+
+### Delete:
+- `src/data/products.ts` -- the 700+ item static catalog
+
+---
+
+## Phase 3: Remove Dependencies
+
+### From `package.json`, remove:
+- `algoliasearch`
+- `react-instantsearch`
+
+---
+
+## Phase 4: Replace Product-Dependent Pages with "Coming Soon"
+
+Each page below will be simplified to show Header + a centered "Coming Soon" placeholder + Footer.
+
+### Pages to replace:
+
+| Page | File | What it currently does |
+|------|------|----------------------|
+| Collections | `src/pages/Collections.tsx` | Shows all 700+ products with filtering |
+| Product Detail | `src/pages/ProductDetail.tsx` | Shows individual product with recommendations |
+| Brand Detail | `src/pages/BrandDetail.tsx` | Shows brand info + filtered products |
+| Occasion Detail | `src/pages/OccasionDetail.tsx` | Shows occasion-themed products |
+| Search | `src/pages/Search.tsx` | Algolia-powered search results |
+| Category Page | `src/pages/CategoryPage.tsx` | Category hero + product grid |
+
+### "Coming Soon" template for each page:
 ```text
-Key Changes:
-1. Import useSearchParams from react-router-dom
-2. Parse category and subcategory params
-3. Filter products based on params
-4. Update page title to reflect filter
-5. Add breadcrumb showing current filter
+[Header]
+  Centered icon + "Coming Soon" heading
+  "We're working on something amazing. Stay tuned!"
+  [Back to Home button]
+[Footer]
 ```
 
-### Step 2: Add Category Filter UI
-**File:** `src/pages/Collections.tsx`
+---
 
-Provide visual filter pills/chips for quick category switching:
-- Display active filter chips at the top
-- Allow clearing filters with "X" button
-- Link filter options to update URL params
+## Phase 5: Remove Search from Headers
 
-### Step 3: Ensure Consistent Product Filtering
-**File:** `src/pages/Collections.tsx`
+### `src/components/Header.tsx`
+- Remove import of `AlgoliaSearchDropdown` and `AlgoliaMobileSearch`
+- Remove the desktop search div and mobile search div
+- Keep everything else (logo, nav, cart, user menu)
 
-Map URL parameters to actual product categories:
-- `category=accessories` → filters for `accessories` and `bags` categories
-- `subcategory=bags-backpacks` → filters specifically for `bags` category
+### `src/components/LuxuryHeader.tsx`
+- Remove import of `AlgoliaSearchDropdown` and `AlgoliaMobileSearch`
+- Remove desktop search block (lines 117-120)
+- Remove mobile search block (lines 168-171)
+- Keep all other navigation, location bar, and cart
 
 ---
 
-## Technical Implementation Details
+## Phase 6: Update Product-Dependent Components
 
-### Collections Page Updates
+### Components that import `products` from `@/data/products`:
 
-```typescript
-// Add at the top of the component
-const [searchParams] = useSearchParams();
-const categoryParam = searchParams.get("category");
-const subcategoryParam = searchParams.get("subcategory");
+| Component | Action |
+|-----------|--------|
+| `src/components/HeroCarousels.tsx` | Replace with empty/coming soon state |
+| `src/components/ProductGrid.tsx` | Remove `products` import, keep component for future use with passed-in data |
+| `src/components/category/CategoryProductGrid.tsx` | Replace with "Coming Soon" message |
+| `src/services/recommendationService.ts` | Return empty arrays instead of querying product catalog |
 
-// Filter products based on URL params
-const filteredProducts = useMemo(() => {
-  if (!categoryParam && !subcategoryParam) {
-    return products; // Show all if no filters
-  }
-  
-  return products.filter((product) => {
-    // Map URL params to product categories
-    if (subcategoryParam === "bags-backpacks") {
-      return product.category === "bags";
-    }
-    if (categoryParam === "accessories") {
-      return ["accessories", "bags"].includes(product.category);
-    }
-    return product.category === categoryParam;
-  });
-}, [categoryParam, subcategoryParam]);
-```
-
-### Category Mapping Table
-
-| URL Parameter | Product Categories Shown |
-|---------------|-------------------------|
-| `category=accessories` | accessories, bags |
-| `subcategory=bags-backpacks` | bags only |
-| `category=dresses` | dresses |
-| `category=tops` | tops |
-| (none) | all products |
+### Components using recommendations (keep but will show empty):
+- `src/components/RecommendationCarousel.tsx` -- already handles empty state
+- `src/components/SimilarProductsGrid.tsx` -- will receive empty array
+- `src/hooks/useRecommendations.ts` -- will get empty results from service
 
 ---
 
-## Files to Modify
+## Phase 7: Update App Router
 
-| File | Changes |
-|------|---------|
-| `src/pages/Collections.tsx` | Add query param parsing, filtering logic, filter UI |
-
----
-
-## Expected Outcome
-
-After implementation:
-- `/collections` → Shows all 700+ products
-- `/collections?category=accessories` → Shows 155 products (110 accessories + 45 bags)
-- `/collections?category=accessories&subcategory=bags-backpacks` → Shows 45 bag products only
-- Clicking any product correctly routes to its product detail page
-- Filter chips show active filters with clear option
+### `src/App.tsx`
+- Keep all routes (they'll show "Coming Soon" placeholders)
+- No route deletions needed
 
 ---
 
-## Verification Steps
+## Phase 8: Cleanup and Deploy
 
-1. Navigate to `/collections?category=accessories&subcategory=bags-backpacks`
-2. Verify only bag products are displayed
-3. Click a bag product
-4. Confirm URL is `/product/bags-{id}` and correct bag is shown
-5. Test with other category combinations
+- Delete the deployed `sync-algolia` edge function
+- Verify no imports reference deleted files
+- No Algolia API keys or network requests remain
+
+---
+
+## Files Summary
+
+| Action | Count | Files |
+|--------|-------|-------|
+| Delete | 15 | 12 Algolia components + algoliaClient + search/index.ts + products.ts |
+| Delete edge function | 1 | sync-algolia |
+| Replace with placeholder | 6 | Collections, ProductDetail, BrandDetail, OccasionDetail, Search, CategoryPage |
+| Modify (remove search) | 2 | Header.tsx, LuxuryHeader.tsx |
+| Modify (remove product imports) | 4 | HeroCarousels, ProductGrid, CategoryProductGrid, recommendationService |
+| Remove deps | 2 | algoliasearch, react-instantsearch |
+
+---
+
+## What Remains Untouched
+- Cart and Wishlist contexts (keep for future use, will just be empty)
+- Designer products from database (these are NOT from the static catalog)
+- All non-product pages (Home, Brands listing, Designers, Stores, etc.)
+- Image search dialog component (will have no products to show but kept)
+- Edge functions other than sync-algolia
 
