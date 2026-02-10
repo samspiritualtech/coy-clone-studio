@@ -6,7 +6,6 @@ import { useCart } from "@/contexts/CartContext";
 import { useLocation } from "@/contexts/LocationContext";
 import { MegaMenu } from "@/components/MegaMenu";
 import { MegaMenuMobile } from "@/components/MegaMenuMobile";
-import { AlgoliaSearchDropdown, AlgoliaMobileSearch } from "@/components/search";
 import { UserMenu } from "@/components/auth/UserMenu";
 import { cn } from "@/lib/utils";
 
@@ -114,12 +113,6 @@ export const LuxuryHeader = () => {
           </nav>
 
           <div className="flex items-center gap-3">
-            {/* Desktop Algolia Search */}
-            <div className="hidden md:block">
-              <AlgoliaSearchDropdown isScrolled={isScrolled} />
-            </div>
-
-            {/* User Menu */}
             <UserMenu isScrolled={isScrolled} />
 
             <Button
@@ -164,11 +157,6 @@ export const LuxuryHeader = () => {
               </Link>
             ))}
           </nav>
-          
-          {/* Mobile Algolia Search */}
-          <div className="mt-6 pt-6 border-t border-border">
-            <AlgoliaMobileSearch />
-          </div>
         </div>
       </div>
     </header>
