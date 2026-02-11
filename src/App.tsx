@@ -34,6 +34,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Onboarding from "./pages/Onboarding";
 import Profile from "./pages/Profile";
+import ProductShowcase from "./pages/ProductShowcase";
 
 const queryClient = new QueryClient();
 
@@ -66,6 +67,7 @@ const App = () => (
                     <Route path="/search" element={<Search />} />
                     <Route path="/category/:slug" element={<CategoryPage />} />
                     <Route path="/join" element={<JoinUs />} />
+                    <Route path="/product-showcase" element={<ProductShowcase />} />
                     
                     {/* Protected Routes */}
                     <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
