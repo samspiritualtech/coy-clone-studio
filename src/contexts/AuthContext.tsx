@@ -107,11 +107,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
 
       if (result.error) {
-        return { success: false, error: result.error.message || 'Google sign-in failed' };
+        const errorMsg = result.error.message || '';
+        console.error('OAuth error details:', { message: errorMsg, origin: window.location.origin });
+
+        if (errorMsg.includes('redirect_uri_mismatch') || errorMsg.includes('redirect')) {
+          console.error('OAuth redirect URI mismatch. Current origin:', window.location.origin);
+          return { success: false, error: 'Sign-in configuration error. Please try again or contact support.' };
+        }
+        if (errorMsg.includes('access_denied')) {
+          return { success: false, error: 'Sign-in was cancelled.' };
+        }
+        if (errorMsg.includes('popup_closed') || errorMsg.includes('closed')) {
+          return { success: false, error: 'Sign-in window was closed. Please try again.' };
+        }
+
+        return { success: false, error: 'Google sign-in failed. Please try again.' };
       }
 
       return { success: true };
     } catch (error: any) {
+      console.error('OAuth unexpected error:', error);
       return { success: false, error: error.message || 'An unexpected error occurred' };
     }
   };
