@@ -1,141 +1,120 @@
 
 
-# Plan: Remove All Product Data, Search, and Algolia Integration
+# Plan: Dual Product Gallery with Lightbox
 
 ## Overview
-Completely remove Algolia, the static product catalog, and all search functionality. Replace all product-dependent pages with "Coming Soon" placeholders.
+Create a reusable `ProductGallery` component and a `ProductShowcase` page displaying two separate product design sections using the 8 uploaded images.
 
 ---
 
-## Phase 1: Delete Algolia Files
+## Files to Create
 
-### Delete these files entirely (13 files):
-- `src/lib/algoliaClient.ts`
-- `src/components/search/AlgoliaFilterSidebar.tsx`
-- `src/components/search/AlgoliaMobileFilters.tsx`
-- `src/components/search/AlgoliaMobileSearch.tsx`
-- `src/components/search/AlgoliaNoResults.tsx`
-- `src/components/search/AlgoliaPriceRange.tsx`
-- `src/components/search/AlgoliaProductHit.tsx`
-- `src/components/search/AlgoliaRefinementList.tsx`
-- `src/components/search/AlgoliaSearchBox.tsx`
-- `src/components/search/AlgoliaSearchDropdown.tsx`
-- `src/components/search/AlgoliaSearchResults.tsx`
-- `src/components/search/AlgoliaTrendingProducts.tsx`
-- `supabase/functions/sync-algolia/index.ts` (delete entire folder + remove deployed function)
+### 1. `src/components/ProductGallery.tsx` -- Reusable Gallery Component
 
-### Delete the search barrel file:
-- `src/components/search/index.ts`
+A self-contained gallery component that accepts `title` and `images` props.
 
----
+**Props interface:**
+- `title: string` -- section heading
+- `images: string[]` -- array of image URLs
 
-## Phase 2: Delete Product Data Files
+**Internal state:**
+- `selectedIndex` -- currently active thumbnail/main image
+- `lightboxOpen` -- whether fullscreen modal is shown
+- `fadeKey` -- triggers fade transition on image change
 
-### Delete:
-- `src/data/products.ts` -- the 700+ item static catalog
+**Main image area:**
+- Displays the selected image at large size (aspect-[3/4])
+- Fade transition: `transition-opacity duration-300 ease-in-out` using a key-based re-render with opacity toggle
+- Click opens the lightbox
+- Hover: `cursor-pointer`
 
----
+**Thumbnail strip:**
+- Horizontal row below main image
+- `flex overflow-x-auto snap-x snap-mandatory gap-3` for mobile scroll
+- Each thumbnail: `w-16 h-20 object-cover rounded-lg`
+- Active thumbnail: ring-2 ring-primary
+- Hover: `hover:scale-105 transition-transform duration-200 cursor-pointer`
 
-## Phase 3: Remove Dependencies
+**Lightbox modal (Radix Dialog):**
+- Dark overlay: `bg-black/90`
+- Centered image with `max-w-[90vw] max-h-[85vh]`
+- Zoom-in entrance: `animate-scale-in` (already in tailwind config)
+- Close button (X icon) top-right, white color
+- Previous/Next arrows (ChevronLeft/ChevronRight) on left/right sides
+- Keyboard navigation: ArrowLeft, ArrowRight, Escape (via useEffect keydown listener)
+- Touch swipe: onTouchStart/onTouchEnd tracking deltaX to navigate
+- Body scroll lock: `document.body.style.overflow = 'hidden'` when open, restored on close
+- Image counter: "2 / 5" bottom center
 
-### From `package.json`, remove:
-- `algoliasearch`
-- `react-instantsearch`
+**Container styling:**
+- `bg-white rounded-2xl shadow-lg p-6`
 
----
+### 2. `src/pages/ProductShowcase.tsx` -- Page with Two Galleries
 
-## Phase 4: Replace Product-Dependent Pages with "Coming Soon"
+**Layout:**
+- Header at top, Footer at bottom
+- Page title centered
+- Two ProductGallery instances in a responsive grid:
+  - `grid grid-cols-1 lg:grid-cols-2 gap-8`
+- Container: `max-w-7xl mx-auto px-4 py-8`
 
-Each page below will be simplified to show Header + a centered "Coming Soon" placeholder + Footer.
+**Image arrays:**
+- Design A (5 images): The black and gold striped saree images
+  - `imgi_58_jbl00937_1.jpg`, `imgi_59_jbl00946_1.jpg`, `imgi_60_jbl00940_2.jpg`, `imgi_61_jbl00929_1.jpg`, `imgi_62_jbl00940_2_1.jpg`
+- Design B (3 images): The colorful print outfit images
+  - `imgi_19_HASnCL0O_0064ba7d42224827b21bb798565d4b2e.jpg`, `imgi_20_v6kcUeDj_243f3eae7fca4b8c964b4843dff9418b.jpg`, `imgi_21_z2etZUrt_ec4bbb6073784d899f9c0d004236bbe7.jpg`
 
-### Pages to replace:
+Images referenced from `/user-uploads/` paths (already uploaded to project).
 
-| Page | File | What it currently does |
-|------|------|----------------------|
-| Collections | `src/pages/Collections.tsx` | Shows all 700+ products with filtering |
-| Product Detail | `src/pages/ProductDetail.tsx` | Shows individual product with recommendations |
-| Brand Detail | `src/pages/BrandDetail.tsx` | Shows brand info + filtered products |
-| Occasion Detail | `src/pages/OccasionDetail.tsx` | Shows occasion-themed products |
-| Search | `src/pages/Search.tsx` | Algolia-powered search results |
-| Category Page | `src/pages/CategoryPage.tsx` | Category hero + product grid |
+### 3. `src/App.tsx` -- Add Route
 
-### "Coming Soon" template for each page:
-```text
-[Header]
-  Centered icon + "Coming Soon" heading
-  "We're working on something amazing. Stay tuned!"
-  [Back to Home button]
-[Footer]
+Add a public route:
+```
+<Route path="/product-showcase" element={<ProductShowcase />} />
 ```
 
 ---
 
-## Phase 5: Remove Search from Headers
+## Technical Details
 
-### `src/components/Header.tsx`
-- Remove import of `AlgoliaSearchDropdown` and `AlgoliaMobileSearch`
-- Remove the desktop search div and mobile search div
-- Keep everything else (logo, nav, cart, user menu)
+### Fade Transition Approach
+Use a state-driven opacity toggle:
+1. On thumbnail click, set `isFading = true` (opacity-0)
+2. After 150ms timeout, update `selectedIndex` and set `isFading = false` (opacity-100)
+3. CSS: `transition-opacity duration-300 ease-in-out`
 
-### `src/components/LuxuryHeader.tsx`
-- Remove import of `AlgoliaSearchDropdown` and `AlgoliaMobileSearch`
-- Remove desktop search block (lines 117-120)
-- Remove mobile search block (lines 168-171)
-- Keep all other navigation, location bar, and cart
+### Keyboard Navigation (Lightbox)
+```text
+useEffect with keydown listener when lightboxOpen is true:
+- ArrowLeft: go to previous image
+- ArrowRight: go to next image  
+- Escape: close lightbox (handled by Radix Dialog automatically)
+```
 
----
+### Mobile Swipe Support (Lightbox)
+```text
+Track touch events:
+- onTouchStart: record startX
+- onTouchEnd: calculate deltaX
+- If deltaX > 50px: next image
+- If deltaX < -50px: previous image
+```
 
-## Phase 6: Update Product-Dependent Components
-
-### Components that import `products` from `@/data/products`:
-
-| Component | Action |
-|-----------|--------|
-| `src/components/HeroCarousels.tsx` | Replace with empty/coming soon state |
-| `src/components/ProductGrid.tsx` | Remove `products` import, keep component for future use with passed-in data |
-| `src/components/category/CategoryProductGrid.tsx` | Replace with "Coming Soon" message |
-| `src/services/recommendationService.ts` | Return empty arrays instead of querying product catalog |
-
-### Components using recommendations (keep but will show empty):
-- `src/components/RecommendationCarousel.tsx` -- already handles empty state
-- `src/components/SimilarProductsGrid.tsx` -- will receive empty array
-- `src/hooks/useRecommendations.ts` -- will get empty results from service
-
----
-
-## Phase 7: Update App Router
-
-### `src/App.tsx`
-- Keep all routes (they'll show "Coming Soon" placeholders)
-- No route deletions needed
-
----
-
-## Phase 8: Cleanup and Deploy
-
-- Delete the deployed `sync-algolia` edge function
-- Verify no imports reference deleted files
-- No Algolia API keys or network requests remain
+### Body Scroll Lock
+```text
+useEffect watching lightboxOpen:
+- open: document.body.style.overflow = 'hidden'
+- close: document.body.style.overflow = ''
+- cleanup: restore overflow on unmount
+```
 
 ---
 
 ## Files Summary
 
-| Action | Count | Files |
-|--------|-------|-------|
-| Delete | 15 | 12 Algolia components + algoliaClient + search/index.ts + products.ts |
-| Delete edge function | 1 | sync-algolia |
-| Replace with placeholder | 6 | Collections, ProductDetail, BrandDetail, OccasionDetail, Search, CategoryPage |
-| Modify (remove search) | 2 | Header.tsx, LuxuryHeader.tsx |
-| Modify (remove product imports) | 4 | HeroCarousels, ProductGrid, CategoryProductGrid, recommendationService |
-| Remove deps | 2 | algoliasearch, react-instantsearch |
-
----
-
-## What Remains Untouched
-- Cart and Wishlist contexts (keep for future use, will just be empty)
-- Designer products from database (these are NOT from the static catalog)
-- All non-product pages (Home, Brands listing, Designers, Stores, etc.)
-- Image search dialog component (will have no products to show but kept)
-- Edge functions other than sync-algolia
+| Action | File |
+|--------|------|
+| Create | `src/components/ProductGallery.tsx` |
+| Create | `src/pages/ProductShowcase.tsx` |
+| Modify | `src/App.tsx` (add 1 route + 1 import) |
 
