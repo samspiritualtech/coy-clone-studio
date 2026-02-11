@@ -2,7 +2,6 @@ import { LuxuryHeader } from "@/components/LuxuryHeader";
 import { LuxuryHero } from "@/components/LuxuryHero";
 import { Premium3DCategorySection } from "@/components/Premium3DCategorySection";
 import { CategoryShowcase } from "@/components/CategoryShowcase";
-import { FeaturedProducts } from "@/components/FeaturedProducts";
 import { DesignersSpotlight } from "@/components/DesignersSpotlight";
 import { LuxuryTrustBadges } from "@/components/LuxuryTrustBadges";
 import { LuxuryBrands } from "@/components/LuxuryBrands";
@@ -18,7 +17,6 @@ const Index = () => {
         <LuxuryHero />
         <Premium3DCategorySection />
         <CategoryShowcase />
-        <FeaturedProducts />
         <DesignersSpotlight />
         <LuxuryTrustBadges />
         <LuxuryBrands />

@@ -1,97 +1,126 @@
 
 
-# Plan: Myntra-Style Product Rendering
+# Plan: Fix Collections Page Category Filtering
 
-## Overview
-Add a second product (Colorful Printed Co-ord Set) to the catalog, upgrade the product detail page to a Myntra-style two-column layout with vertical thumbnails, size selector, Add to Bag, and Wishlist buttons, and enhance the product card with image fallback support.
+## Current State Analysis
+
+After thorough investigation, I've verified that:
+
+**What's Working Correctly:**
+- Product click routing uses product IDs exclusively (`/product/${product.id}`)
+- All product cards correctly navigate to their respective product detail pages
+- Bags (IDs: `bags-1` to `bags-45`) correctly route to bag product pages
+- Accessories (IDs: `acce-1` to `acce-110`) correctly route to accessory pages
+- No category-based redirects or fallbacks exist in the codebase
+
+**Root Issue Identified:**
+The Collections page at `/collections?category=accessories&subcategory=bags-backpacks` **ignores the URL query parameters**. The page shows ALL 700+ products regardless of the `category` and `subcategory` params in the URL.
+
+This causes confusion because users navigating from category menus see URLs with filters but get unfiltered results.
 
 ---
 
-## 1. Update Product Catalog
+## Implementation Steps
 
-### Modify: `src/data/productCatalog.ts`
+### Step 1: Add Query Parameter Filtering to Collections Page
+**File:** `src/pages/Collections.tsx`
 
-Add `sizes` field to the `CatalogProduct` interface and add the second product entry:
+Add support for URL-based filtering:
+- Parse `category` and `subcategory` query parameters using `useSearchParams`
+- Filter the products array based on these parameters
+- Show filtered count in the header
 
 ```text
-Interface addition:
-  sizes: string[]   (e.g. ["S", "M", "L", "XL"])
-
-New product:
-{
-  id: "colorful-coord",
-  title: "Colorful Printed Co-ord Set",
-  price: 2499,
-  category: "co-ord-sets",
-  showInAllShop: true,
-  showInExplore: true,
-  featured: true,
-  sizes: ["S", "M", "L", "XL"],
-  images: [
-    "/user-uploads/imgi_19_HASnCL0O_0064ba7d42224827b21bb798565d4b2e.jpg",
-    "/user-uploads/imgi_20_v6kcUeDj_243f3eae7fca4b8c964b4843dff9418b.jpg",
-    "/user-uploads/imgi_21_z2etZUrt_ec4bbb6073784d899f9c0d004236bbe7.jpg",
-  ],
-  description: "A vibrant printed co-ord set with traditional motifs..."
-}
+Key Changes:
+1. Import useSearchParams from react-router-dom
+2. Parse category and subcategory params
+3. Filter products based on params
+4. Update page title to reflect filter
+5. Add breadcrumb showing current filter
 ```
 
-Also add `sizes` to the existing black-gold-coord product.
+### Step 2: Add Category Filter UI
+**File:** `src/pages/Collections.tsx`
+
+Provide visual filter pills/chips for quick category switching:
+- Display active filter chips at the top
+- Allow clearing filters with "X" button
+- Link filter options to update URL params
+
+### Step 3: Ensure Consistent Product Filtering
+**File:** `src/pages/Collections.tsx`
+
+Map URL parameters to actual product categories:
+- `category=accessories` → filters for `accessories` and `bags` categories
+- `subcategory=bags-backpacks` → filters specifically for `bags` category
 
 ---
 
-## 2. Upgrade Product Detail Page (Myntra Layout)
+## Technical Implementation Details
 
-### Modify: `src/pages/ProductDetail.tsx`
+### Collections Page Updates
 
-Replace the current simple layout with a Myntra-style two-column design:
+```typescript
+// Add at the top of the component
+const [searchParams] = useSearchParams();
+const categoryParam = searchParams.get("category");
+const subcategoryParam = searchParams.get("subcategory");
 
-**Left Column -- Image Gallery (Myntra style):**
-- Vertical thumbnail column on the left side (hidden on mobile, shown on desktop)
-- Large main image next to thumbnails
-- Clicking a thumbnail swaps the main image with a 0.3s fade
-- Clicking the main image opens the existing lightbox (reuse ProductGallery lightbox logic)
-- Hover zoom effect on main image (scale 1.05)
-- Image `onError` fallback to `/placeholder.svg`
-- On mobile: horizontal thumbnail strip below main image (same as current ProductGallery)
+// Filter products based on URL params
+const filteredProducts = useMemo(() => {
+  if (!categoryParam && !subcategoryParam) {
+    return products; // Show all if no filters
+  }
+  
+  return products.filter((product) => {
+    // Map URL params to product categories
+    if (subcategoryParam === "bags-backpacks") {
+      return product.category === "bags";
+    }
+    if (categoryParam === "accessories") {
+      return ["accessories", "bags"].includes(product.category);
+    }
+    return product.category === categoryParam;
+  });
+}, [categoryParam, subcategoryParam]);
+```
 
-**Right Column -- Product Info:**
-- Product title (text-2xl font-bold)
-- Price in INR (text-xl, with horizontal rule below)
-- Size selector: row of pill buttons (S, M, L, XL) with selected state (border-primary bg-primary/10)
-- "ADD TO BAG" button: full-width, tall, pink/primary background, uppercase
-  - Uses existing CartContext.addItem() -- converts CatalogProduct to the Product type needed by cart
-- Wishlist heart button: outline button with heart icon
-  - Uses existing WishlistContext.toggleItem()
-- Product description section
-- Delivery checker (optional, can reuse DeliveryChecker component)
+### Category Mapping Table
 
----
-
-## 3. Enhance CatalogProductCard with Fallback
-
-### Modify: `src/components/CatalogProductCard.tsx`
-
-- Add `onError` handler on the image to swap to `/placeholder.svg` if the image fails to load
-- Keep existing hover zoom and shadow effects
-
----
-
-## 4. No Changes Needed To
-
-These pages/components already work correctly with the catalog system:
-- `src/pages/Collections.tsx` -- already uses `getAllShopProducts()`, will pick up both products
-- `src/pages/CategoryPage.tsx` -- already uses `getProductsByCategory()`, will show both for "co-ord-sets"
-- `src/components/FeaturedProducts.tsx` -- already uses `getExploreProducts()`, will show both
-- `src/components/LuxuryHero.tsx` -- already scrolls to `#featured-products`
+| URL Parameter | Product Categories Shown |
+|---------------|-------------------------|
+| `category=accessories` | accessories, bags |
+| `subcategory=bags-backpacks` | bags only |
+| `category=dresses` | dresses |
+| `category=tops` | tops |
+| (none) | all products |
 
 ---
 
-## Files Summary
+## Files to Modify
 
-| Action | File | Purpose |
-|--------|------|---------|
-| Modify | `src/data/productCatalog.ts` | Add colorful-coord product + sizes field |
-| Modify | `src/pages/ProductDetail.tsx` | Myntra-style 2-column layout with size selector, add to bag, wishlist |
-| Modify | `src/components/CatalogProductCard.tsx` | Add image fallback |
+| File | Changes |
+|------|---------|
+| `src/pages/Collections.tsx` | Add query param parsing, filtering logic, filter UI |
+
+---
+
+## Expected Outcome
+
+After implementation:
+- `/collections` → Shows all 700+ products
+- `/collections?category=accessories` → Shows 155 products (110 accessories + 45 bags)
+- `/collections?category=accessories&subcategory=bags-backpacks` → Shows 45 bag products only
+- Clicking any product correctly routes to its product detail page
+- Filter chips show active filters with clear option
+
+---
+
+## Verification Steps
+
+1. Navigate to `/collections?category=accessories&subcategory=bags-backpacks`
+2. Verify only bag products are displayed
+3. Click a bag product
+4. Confirm URL is `/product/bags-{id}` and correct bag is shown
+5. Test with other category combinations
 

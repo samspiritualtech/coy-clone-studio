@@ -6,6 +6,7 @@ import { useCart } from "@/contexts/CartContext";
 import { MegaMenu } from "@/components/MegaMenu";
 import { MegaMenuMobile } from "@/components/MegaMenuMobile";
 import { HeaderLocationIndicator } from "@/components/HeaderLocationIndicator";
+import { AlgoliaSearchDropdown, AlgoliaMobileSearch } from "@/components/search";
 import { UserMenu } from "@/components/auth/UserMenu";
 
 export const Header = () => {
@@ -15,6 +16,7 @@ export const Header = () => {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      {/* Location bar for desktop */}
       <div className="hidden md:block border-b border-border/50 bg-muted/30">
         <div className="container mx-auto px-4">
           <div className="flex h-8 items-center">
@@ -29,6 +31,7 @@ export const Header = () => {
             <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
               <Menu className="h-5 w-5" />
             </Button>
+            {/* Mobile location indicator */}
             <div className="md:hidden">
               <HeaderLocationIndicator variant="compact" />
             </div>
@@ -46,6 +49,12 @@ export const Header = () => {
           </nav>
 
           <div className="flex items-center gap-2">
+            {/* Desktop Algolia Search */}
+            <div className="hidden md:block">
+              <AlgoliaSearchDropdown isScrolled={true} />
+            </div>
+
+            {/* User Menu */}
             <UserMenu isScrolled={true} />
 
             <Button variant="ghost" size="icon" className="relative" onClick={() => navigate('/cart')}>
@@ -57,6 +66,11 @@ export const Header = () => {
               )}
             </Button>
           </div>
+        </div>
+
+        {/* Mobile Algolia Search */}
+        <div className="md:hidden pb-4">
+          <AlgoliaMobileSearch />
         </div>
       </div>
 

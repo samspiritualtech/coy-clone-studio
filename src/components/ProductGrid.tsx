@@ -3,6 +3,9 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Heart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useWishlist } from "@/contexts/WishlistContext";
+import { products as allProducts } from "@/data/products";
+import { toast } from "@/hooks/use-toast";
 import { OptimizedImage } from "@/components/OptimizedImage";
 
 interface ProductGridProps {
@@ -19,14 +22,20 @@ interface ProductGridProps {
 
 const ProductCardComponent = ({ 
   product, 
+  productId, 
+  inWishlist, 
   onNavigate, 
+  onWishlistToggle 
 }: {
   product: { name: string; brand?: string; price?: string; image: string };
-  onNavigate: () => void;
+  productId?: string;
+  inWishlist: boolean;
+  onNavigate: (id: string) => void;
+  onWishlistToggle: (e: React.MouseEvent, name: string) => void;
 }) => {
   return (
     <Card
-      onClick={onNavigate}
+      onClick={() => productId && onNavigate(productId)}
       className="group cursor-pointer overflow-hidden border hover:shadow-lg transition-all duration-300"
     >
       <div className="relative">
@@ -36,6 +45,14 @@ const ProductCardComponent = ({
           aspectRatio="aspect-[3/4]"
           className="transition-transform duration-500 group-hover:scale-105"
         />
+        <Button
+          variant="secondary"
+          size="icon"
+          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+          onClick={(e) => onWishlistToggle(e, product.name)}
+        >
+          <Heart className={`h-4 w-4 ${inWishlist ? 'fill-current' : ''}`} />
+        </Button>
       </div>
       <div className="p-3">
         {product.brand && (
@@ -55,6 +72,7 @@ ProductCard.displayName = "ProductCard";
 
 export const ProductGrid = ({ title, products, columns = 4, showViewAll = true }: ProductGridProps) => {
   const navigate = useNavigate();
+  const { toggleItem, isInWishlist } = useWishlist();
 
   const gridCols = {
     3: "lg:grid-cols-3",
@@ -62,7 +80,25 @@ export const ProductGrid = ({ title, products, columns = 4, showViewAll = true }
     6: "lg:grid-cols-6",
   };
 
-  if (products.length === 0) return null;
+  const getProductId = useCallback((productName: string) => {
+    const product = allProducts.find(p => p.name === productName);
+    return product?.id;
+  }, []);
+
+  const handleWishlistToggle = useCallback((e: React.MouseEvent, productName: string) => {
+    e.stopPropagation();
+    const product = allProducts.find(p => p.name === productName);
+    if (product) {
+      toggleItem(product);
+      toast({
+        title: isInWishlist(product.id) ? "Removed from wishlist" : "Added to wishlist"
+      });
+    }
+  }, [toggleItem, isInWishlist]);
+
+  const handleNavigate = useCallback((id: string) => {
+    navigate(`/product/${id}`);
+  }, [navigate]);
 
   return (
     <section className="py-8 md:py-12">
@@ -80,13 +116,21 @@ export const ProductGrid = ({ title, products, columns = 4, showViewAll = true }
         )}
 
         <div className={`grid grid-cols-2 md:grid-cols-3 ${gridCols[columns as keyof typeof gridCols]} gap-4`}>
-          {products.map((product, index) => (
-            <ProductCard
-              key={`product-${index}`}
-              product={product}
-              onNavigate={() => {}}
-            />
-          ))}
+          {products.map((product, index) => {
+            const productId = getProductId(product.name);
+            const inWishlist = productId ? isInWishlist(productId) : false;
+
+            return (
+              <ProductCard
+                key={`product-${index}`}
+                product={product}
+                productId={productId}
+                inWishlist={inWishlist}
+                onNavigate={handleNavigate}
+                onWishlistToggle={handleWishlistToggle}
+              />
+            );
+          })}
         </div>
       </div>
     </section>
