@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 export const LuxuryHero = () => {
@@ -27,14 +26,13 @@ export const LuxuryHero = () => {
           OGURA Fashion – crafted for modern elegance.
         </p>
         
-        <Link to="/collections">
-          <Button
-            size="lg"
-            className="bg-white text-black hover:bg-white/90 transition-all duration-500 tracking-[0.1em] uppercase text-sm px-10 py-6 font-medium"
-          >
-            Explore Collection
-          </Button>
-        </Link>
+        <Button
+          size="lg"
+          className="bg-white text-black hover:bg-white/90 transition-all duration-500 tracking-[0.1em] uppercase text-sm px-10 py-6 font-medium"
+          onClick={() => document.getElementById("featured-products")?.scrollIntoView({ behavior: "smooth" })}
+        >
+          Explore Collection
+        </Button>
       </div>
       
       {/* Scroll Indicator */}
