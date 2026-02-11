@@ -257,13 +257,13 @@ export const AddressSelectionModal = ({
   if (showAddForm || editingAddress) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="w-[calc(100%-2rem)] max-w-[500px] max-h-[90vh] overflow-hidden flex flex-col p-0 rounded-xl mx-auto">
+        <DialogContent className="w-[calc(100%-2rem)] max-w-[500px] h-[90vh] overflow-hidden flex flex-col p-0 rounded-xl mx-auto">
           <DialogHeader className="px-6 pt-6 pb-4 shrink-0">
             <DialogTitle>
               {editingAddress ? 'Edit Address' : 'Add New Address'}
             </DialogTitle>
           </DialogHeader>
-          <div className="flex-1 min-h-0 overflow-hidden px-6 pb-6">
+          <div className="flex-1 min-h-0 overflow-y-auto px-6 pb-6">
             <AddressForm
               initialData={editingAddress || undefined}
               onSubmit={editingAddress ? handleUpdateAddress : handleAddAddress}
@@ -281,7 +281,7 @@ export const AddressSelectionModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[calc(100%-2rem)] max-w-[500px] max-h-[90vh] flex flex-col rounded-xl mx-auto">
+      <DialogContent className="w-[calc(100%-2rem)] max-w-[500px] h-[90vh] flex flex-col rounded-xl mx-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <MapPin className="h-5 w-5 text-primary" />
