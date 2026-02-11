@@ -1,126 +1,89 @@
 
 
-# Plan: Product Visibility System with Featured Products
+# Plan: Myntra-Style Product Rendering
 
 ## Overview
-Create a centralized product catalog data file, a Featured Products section on the homepage, update the All Shop page and Co-ord Sets category page to display products dynamically, and wire the "Explore Collection" button to scroll to the Featured Products section.
+Add a second product (Colorful Printed Co-ord Set) to the catalog, upgrade the product detail page to a Myntra-style two-column layout with vertical thumbnails, size selector, Add to Bag, and Wishlist buttons, and enhance the product card with image fallback support.
 
 ---
 
-## 1. Create Product Catalog Data File
+## 1. Update Product Catalog
 
-### New file: `src/data/productCatalog.ts`
+### Modify: `src/data/productCatalog.ts`
 
-Define a `CatalogProduct` interface and a single product array:
+Add `sizes` field to the `CatalogProduct` interface and add the second product entry:
 
 ```text
-CatalogProduct interface:
-  id: string
-  title: string
-  price: number
-  category: string
-  showInAllShop: boolean
-  showInExplore: boolean
-  featured: boolean
-  images: string[]
-  description?: string
-```
+Interface addition:
+  sizes: string[]   (e.g. ["S", "M", "L", "XL"])
 
-Initial product entry:
-```text
+New product:
 {
-  id: "black-gold-coord",
-  title: "Black & Gold Stripe Co-ord Set",
-  price: 2999,
+  id: "colorful-coord",
+  title: "Colorful Printed Co-ord Set",
+  price: 2499,
   category: "co-ord-sets",
   showInAllShop: true,
   showInExplore: true,
   featured: true,
-  images: [all 5 Design A uploaded images]
+  sizes: ["S", "M", "L", "XL"],
+  images: [
+    "/user-uploads/imgi_19_HASnCL0O_0064ba7d42224827b21bb798565d4b2e.jpg",
+    "/user-uploads/imgi_20_v6kcUeDj_243f3eae7fca4b8c964b4843dff9418b.jpg",
+    "/user-uploads/imgi_21_z2etZUrt_ec4bbb6073784d899f9c0d004236bbe7.jpg",
+  ],
+  description: "A vibrant printed co-ord set with traditional motifs..."
 }
 ```
 
-Export helper filter functions:
-- `getAllShopProducts()` -- returns products where `showInAllShop === true`
-- `getProductsByCategory(category)` -- filters by `category`
-- `getExploreProducts()` -- returns products where `showInExplore === true` OR `featured === true`
-- `getProductById(id)` -- returns a single product
+Also add `sizes` to the existing black-gold-coord product.
 
 ---
 
-## 2. Create Reusable Product Card Component
-
-### New file: `src/components/CatalogProductCard.tsx`
-
-A responsive product card that:
-- Shows the first image from the product's images array
-- Displays title, price (formatted as INR)
-- Links to `/product/{id}`
-- Has hover scale effect (1.03) and shadow transition
-- Aspect ratio 3:4 for the image area
-- Rounded corners, clean typography
-
----
-
-## 3. Create Featured Products Section on Homepage
-
-### New file: `src/components/FeaturedProducts.tsx`
-
-- Section with `id="featured-products"` (for scroll targeting)
-- Title: "Featured Products" or "Explore Our Collection"
-- Uses `getExploreProducts()` from the catalog
-- Renders a responsive grid: 2 columns mobile, 3 tablet, 4 desktop
-- Uses `CatalogProductCard` for each product
-- Proper spacing and padding
-
-### Modify: `src/pages/Index.tsx`
-
-- Import and add `FeaturedProducts` section between `CategoryShowcase` and `DesignersSpotlight` (or after the hero -- logical placement for "explore")
-
----
-
-## 4. Update "Explore Collection" Button (Hero)
-
-### Modify: `src/components/LuxuryHero.tsx`
-
-- Change the "Explore Collection" button from `Link to="/collections"` to a scroll-to-section action
-- On click: smooth scroll to `#featured-products` section on the same page
-- Remove the `Link` wrapper, use a `Button` with `onClick` that calls `document.getElementById('featured-products')?.scrollIntoView({ behavior: 'smooth' })`
-
----
-
-## 5. Update All Shop / Collections Page
-
-### Modify: `src/pages/Collections.tsx`
-
-- Replace "Coming Soon" placeholder with a real product grid
-- Import `getAllShopProducts()` from catalog
-- Display products using `CatalogProductCard` in a responsive grid
-- Add page title "All Shop" or "Shop All"
-- Keep Header and Footer
-
----
-
-## 6. Update Category Page for Co-ord Sets
-
-### Modify: `src/pages/CategoryPage.tsx`
-
-- For `slug === "co-ord-sets"` (and other slugs with products), query `getProductsByCategory(slug)`
-- If products exist, render the category hero info + product grid using `CatalogProductCard`
-- If no products, keep the existing "Coming Soon" placeholder
-- Keep existing `made-to-order` redirect logic
-
----
-
-## 7. Update Product Detail Page
+## 2. Upgrade Product Detail Page (Myntra Layout)
 
 ### Modify: `src/pages/ProductDetail.tsx`
 
-- Extract product `id` from URL params
-- Look up product via `getProductById(id)`
-- If found: show the product gallery (reuse `ProductGallery` component), title, price, and description
-- If not found: show "Product not found" with back button
-- Keep Header and Footer
+Replace the current simple layout with a Myntra-style two-column design:
+
+**Left Column -- Image Gallery (Myntra style):**
+- Vertical thumbnail column on the left side (hidden on mobile, shown on desktop)
+- Large main image next to thumbnails
+- Clicking a thumbnail swaps the main image with a 0.3s fade
+- Clicking the main image opens the existing lightbox (reuse ProductGallery lightbox logic)
+- Hover zoom effect on main image (scale 1.05)
+- Image `onError` fallback to `/placeholder.svg`
+- On mobile: horizontal thumbnail strip below main image (same as current ProductGallery)
+
+**Right Column -- Product Info:**
+- Product title (text-2xl font-bold)
+- Price in INR (text-xl, with horizontal rule below)
+- Size selector: row of pill buttons (S, M, L, XL) with selected state (border-primary bg-primary/10)
+- "ADD TO BAG" button: full-width, tall, pink/primary background, uppercase
+  - Uses existing CartContext.addItem() -- converts CatalogProduct to the Product type needed by cart
+- Wishlist heart button: outline button with heart icon
+  - Uses existing WishlistContext.toggleItem()
+- Product description section
+- Delivery checker (optional, can reuse DeliveryChecker component)
+
+---
+
+## 3. Enhance CatalogProductCard with Fallback
+
+### Modify: `src/components/CatalogProductCard.tsx`
+
+- Add `onError` handler on the image to swap to `/placeholder.svg` if the image fails to load
+- Keep existing hover zoom and shadow effects
+
+---
+
+## 4. No Changes Needed To
+
+These pages/components already work correctly with the catalog system:
+- `src/pages/Collections.tsx` -- already uses `getAllShopProducts()`, will pick up both products
+- `src/pages/CategoryPage.tsx` -- already uses `getProductsByCategory()`, will show both for "co-ord-sets"
+- `src/components/FeaturedProducts.tsx` -- already uses `getExploreProducts()`, will show both
+- `src/components/LuxuryHero.tsx` -- already scrolls to `#featured-products`
 
 ---
 
@@ -128,12 +91,7 @@ A responsive product card that:
 
 | Action | File | Purpose |
 |--------|------|---------|
-| Create | `src/data/productCatalog.ts` | Central product data + filter helpers |
-| Create | `src/components/CatalogProductCard.tsx` | Reusable product card |
-| Create | `src/components/FeaturedProducts.tsx` | Homepage featured section |
-| Modify | `src/pages/Index.tsx` | Add FeaturedProducts section |
-| Modify | `src/components/LuxuryHero.tsx` | Scroll to featured instead of /collections |
-| Modify | `src/pages/Collections.tsx` | Show all shop products |
-| Modify | `src/pages/CategoryPage.tsx` | Show category-filtered products |
-| Modify | `src/pages/ProductDetail.tsx` | Show real product detail |
+| Modify | `src/data/productCatalog.ts` | Add colorful-coord product + sizes field |
+| Modify | `src/pages/ProductDetail.tsx` | Myntra-style 2-column layout with size selector, add to bag, wishlist |
+| Modify | `src/components/CatalogProductCard.tsx` | Add image fallback |
 
