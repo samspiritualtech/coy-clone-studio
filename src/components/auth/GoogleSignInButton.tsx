@@ -13,7 +13,11 @@ export const GoogleSignInButton = () => {
     try {
       const result = await signInWithGoogle();
       if (result.error) {
-        toast.error(result.error);
+        if (result.error.includes('cancelled') || result.error.includes('closed')) {
+          toast.info(result.error);
+        } else {
+          toast.error(result.error);
+        }
       }
     } catch (error) {
       toast.error("An unexpected error occurred. Please try again.");

@@ -3,6 +3,7 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 const Login = () => {
   const { isAuthenticated, isLoading, isNewUser } = useAuth();
@@ -10,6 +11,16 @@ const Login = () => {
   const location = useLocation();
 
   const from = (location.state as any)?.from?.pathname || "/dashboard";
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const error = params.get('error');
+    const errorDescription = params.get('error_description');
+    if (error) {
+      toast.error(errorDescription || 'Sign-in failed. Please try again.');
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
