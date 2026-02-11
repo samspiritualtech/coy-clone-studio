@@ -1,120 +1,139 @@
 
 
-# Plan: Dual Product Gallery with Lightbox
+# Plan: Product Visibility System with Featured Products
 
 ## Overview
-Create a reusable `ProductGallery` component and a `ProductShowcase` page displaying two separate product design sections using the 8 uploaded images.
+Create a centralized product catalog data file, a Featured Products section on the homepage, update the All Shop page and Co-ord Sets category page to display products dynamically, and wire the "Explore Collection" button to scroll to the Featured Products section.
 
 ---
 
-## Files to Create
+## 1. Create Product Catalog Data File
 
-### 1. `src/components/ProductGallery.tsx` -- Reusable Gallery Component
+### New file: `src/data/productCatalog.ts`
 
-A self-contained gallery component that accepts `title` and `images` props.
+Define a `CatalogProduct` interface and a single product array:
 
-**Props interface:**
-- `title: string` -- section heading
-- `images: string[]` -- array of image URLs
-
-**Internal state:**
-- `selectedIndex` -- currently active thumbnail/main image
-- `lightboxOpen` -- whether fullscreen modal is shown
-- `fadeKey` -- triggers fade transition on image change
-
-**Main image area:**
-- Displays the selected image at large size (aspect-[3/4])
-- Fade transition: `transition-opacity duration-300 ease-in-out` using a key-based re-render with opacity toggle
-- Click opens the lightbox
-- Hover: `cursor-pointer`
-
-**Thumbnail strip:**
-- Horizontal row below main image
-- `flex overflow-x-auto snap-x snap-mandatory gap-3` for mobile scroll
-- Each thumbnail: `w-16 h-20 object-cover rounded-lg`
-- Active thumbnail: ring-2 ring-primary
-- Hover: `hover:scale-105 transition-transform duration-200 cursor-pointer`
-
-**Lightbox modal (Radix Dialog):**
-- Dark overlay: `bg-black/90`
-- Centered image with `max-w-[90vw] max-h-[85vh]`
-- Zoom-in entrance: `animate-scale-in` (already in tailwind config)
-- Close button (X icon) top-right, white color
-- Previous/Next arrows (ChevronLeft/ChevronRight) on left/right sides
-- Keyboard navigation: ArrowLeft, ArrowRight, Escape (via useEffect keydown listener)
-- Touch swipe: onTouchStart/onTouchEnd tracking deltaX to navigate
-- Body scroll lock: `document.body.style.overflow = 'hidden'` when open, restored on close
-- Image counter: "2 / 5" bottom center
-
-**Container styling:**
-- `bg-white rounded-2xl shadow-lg p-6`
-
-### 2. `src/pages/ProductShowcase.tsx` -- Page with Two Galleries
-
-**Layout:**
-- Header at top, Footer at bottom
-- Page title centered
-- Two ProductGallery instances in a responsive grid:
-  - `grid grid-cols-1 lg:grid-cols-2 gap-8`
-- Container: `max-w-7xl mx-auto px-4 py-8`
-
-**Image arrays:**
-- Design A (5 images): The black and gold striped saree images
-  - `imgi_58_jbl00937_1.jpg`, `imgi_59_jbl00946_1.jpg`, `imgi_60_jbl00940_2.jpg`, `imgi_61_jbl00929_1.jpg`, `imgi_62_jbl00940_2_1.jpg`
-- Design B (3 images): The colorful print outfit images
-  - `imgi_19_HASnCL0O_0064ba7d42224827b21bb798565d4b2e.jpg`, `imgi_20_v6kcUeDj_243f3eae7fca4b8c964b4843dff9418b.jpg`, `imgi_21_z2etZUrt_ec4bbb6073784d899f9c0d004236bbe7.jpg`
-
-Images referenced from `/user-uploads/` paths (already uploaded to project).
-
-### 3. `src/App.tsx` -- Add Route
-
-Add a public route:
+```text
+CatalogProduct interface:
+  id: string
+  title: string
+  price: number
+  category: string
+  showInAllShop: boolean
+  showInExplore: boolean
+  featured: boolean
+  images: string[]
+  description?: string
 ```
-<Route path="/product-showcase" element={<ProductShowcase />} />
+
+Initial product entry:
+```text
+{
+  id: "black-gold-coord",
+  title: "Black & Gold Stripe Co-ord Set",
+  price: 2999,
+  category: "co-ord-sets",
+  showInAllShop: true,
+  showInExplore: true,
+  featured: true,
+  images: [all 5 Design A uploaded images]
+}
 ```
+
+Export helper filter functions:
+- `getAllShopProducts()` -- returns products where `showInAllShop === true`
+- `getProductsByCategory(category)` -- filters by `category`
+- `getExploreProducts()` -- returns products where `showInExplore === true` OR `featured === true`
+- `getProductById(id)` -- returns a single product
 
 ---
 
-## Technical Details
+## 2. Create Reusable Product Card Component
 
-### Fade Transition Approach
-Use a state-driven opacity toggle:
-1. On thumbnail click, set `isFading = true` (opacity-0)
-2. After 150ms timeout, update `selectedIndex` and set `isFading = false` (opacity-100)
-3. CSS: `transition-opacity duration-300 ease-in-out`
+### New file: `src/components/CatalogProductCard.tsx`
 
-### Keyboard Navigation (Lightbox)
-```text
-useEffect with keydown listener when lightboxOpen is true:
-- ArrowLeft: go to previous image
-- ArrowRight: go to next image  
-- Escape: close lightbox (handled by Radix Dialog automatically)
-```
+A responsive product card that:
+- Shows the first image from the product's images array
+- Displays title, price (formatted as INR)
+- Links to `/product/{id}`
+- Has hover scale effect (1.03) and shadow transition
+- Aspect ratio 3:4 for the image area
+- Rounded corners, clean typography
 
-### Mobile Swipe Support (Lightbox)
-```text
-Track touch events:
-- onTouchStart: record startX
-- onTouchEnd: calculate deltaX
-- If deltaX > 50px: next image
-- If deltaX < -50px: previous image
-```
+---
 
-### Body Scroll Lock
-```text
-useEffect watching lightboxOpen:
-- open: document.body.style.overflow = 'hidden'
-- close: document.body.style.overflow = ''
-- cleanup: restore overflow on unmount
-```
+## 3. Create Featured Products Section on Homepage
+
+### New file: `src/components/FeaturedProducts.tsx`
+
+- Section with `id="featured-products"` (for scroll targeting)
+- Title: "Featured Products" or "Explore Our Collection"
+- Uses `getExploreProducts()` from the catalog
+- Renders a responsive grid: 2 columns mobile, 3 tablet, 4 desktop
+- Uses `CatalogProductCard` for each product
+- Proper spacing and padding
+
+### Modify: `src/pages/Index.tsx`
+
+- Import and add `FeaturedProducts` section between `CategoryShowcase` and `DesignersSpotlight` (or after the hero -- logical placement for "explore")
+
+---
+
+## 4. Update "Explore Collection" Button (Hero)
+
+### Modify: `src/components/LuxuryHero.tsx`
+
+- Change the "Explore Collection" button from `Link to="/collections"` to a scroll-to-section action
+- On click: smooth scroll to `#featured-products` section on the same page
+- Remove the `Link` wrapper, use a `Button` with `onClick` that calls `document.getElementById('featured-products')?.scrollIntoView({ behavior: 'smooth' })`
+
+---
+
+## 5. Update All Shop / Collections Page
+
+### Modify: `src/pages/Collections.tsx`
+
+- Replace "Coming Soon" placeholder with a real product grid
+- Import `getAllShopProducts()` from catalog
+- Display products using `CatalogProductCard` in a responsive grid
+- Add page title "All Shop" or "Shop All"
+- Keep Header and Footer
+
+---
+
+## 6. Update Category Page for Co-ord Sets
+
+### Modify: `src/pages/CategoryPage.tsx`
+
+- For `slug === "co-ord-sets"` (and other slugs with products), query `getProductsByCategory(slug)`
+- If products exist, render the category hero info + product grid using `CatalogProductCard`
+- If no products, keep the existing "Coming Soon" placeholder
+- Keep existing `made-to-order` redirect logic
+
+---
+
+## 7. Update Product Detail Page
+
+### Modify: `src/pages/ProductDetail.tsx`
+
+- Extract product `id` from URL params
+- Look up product via `getProductById(id)`
+- If found: show the product gallery (reuse `ProductGallery` component), title, price, and description
+- If not found: show "Product not found" with back button
+- Keep Header and Footer
 
 ---
 
 ## Files Summary
 
-| Action | File |
-|--------|------|
-| Create | `src/components/ProductGallery.tsx` |
-| Create | `src/pages/ProductShowcase.tsx` |
-| Modify | `src/App.tsx` (add 1 route + 1 import) |
+| Action | File | Purpose |
+|--------|------|---------|
+| Create | `src/data/productCatalog.ts` | Central product data + filter helpers |
+| Create | `src/components/CatalogProductCard.tsx` | Reusable product card |
+| Create | `src/components/FeaturedProducts.tsx` | Homepage featured section |
+| Modify | `src/pages/Index.tsx` | Add FeaturedProducts section |
+| Modify | `src/components/LuxuryHero.tsx` | Scroll to featured instead of /collections |
+| Modify | `src/pages/Collections.tsx` | Show all shop products |
+| Modify | `src/pages/CategoryPage.tsx` | Show category-filtered products |
+| Modify | `src/pages/ProductDetail.tsx` | Show real product detail |
 
