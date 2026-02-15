@@ -5,82 +5,28 @@ import { RoleProtectedRoute } from "@/components/auth/RoleProtectedRoute";
 import SellerLanding from "@/pages/seller/SellerLanding";
 import SellerLogin from "@/pages/seller/SellerLogin";
 import SellerDashboardHome from "@/pages/seller/SellerDashboardHome";
+import SellerProducts from "@/pages/seller/SellerProducts";
+import SellerAddProduct from "@/pages/seller/SellerAddProduct";
+import SellerOrders from "@/pages/seller/SellerOrders";
+import SellerSettings from "@/pages/seller/SellerSettings";
+
+const WrappedRoute = ({ children }: { children: React.ReactNode }) => (
+  <RoleProtectedRoute requiredRole="seller" loginPath="/seller/login" unauthorizedRedirect="/seller">
+    <SellerDashboardLayout>{children}</SellerDashboardLayout>
+  </RoleProtectedRoute>
+);
 
 const SellerApp = () => {
   return (
     <Routes>
-      {/* Public seller pages */}
-      <Route
-        path="/seller"
-        element={
-          <SellerPublicLayout>
-            <SellerLanding />
-          </SellerPublicLayout>
-        }
-      />
+      <Route path="/seller" element={<SellerPublicLayout><SellerLanding /></SellerPublicLayout>} />
       <Route path="/seller/login" element={<SellerLogin />} />
-
-      {/* Protected seller dashboard */}
-      <Route
-        path="/seller/dashboard"
-        element={
-          <RoleProtectedRoute requiredRole="seller" loginPath="/seller/login" unauthorizedRedirect="/seller">
-            <SellerDashboardLayout>
-              <SellerDashboardHome />
-            </SellerDashboardLayout>
-          </RoleProtectedRoute>
-        }
-      />
-      <Route
-        path="/seller/products"
-        element={
-          <RoleProtectedRoute requiredRole="seller" loginPath="/seller/login" unauthorizedRedirect="/seller">
-            <SellerDashboardLayout>
-              <div className="text-center py-12 text-muted-foreground">Products management — coming in Phase 2</div>
-            </SellerDashboardLayout>
-          </RoleProtectedRoute>
-        }
-      />
-      <Route
-        path="/seller/products/new"
-        element={
-          <RoleProtectedRoute requiredRole="seller" loginPath="/seller/login" unauthorizedRedirect="/seller">
-            <SellerDashboardLayout>
-              <div className="text-center py-12 text-muted-foreground">Add Product — coming in Phase 2</div>
-            </SellerDashboardLayout>
-          </RoleProtectedRoute>
-        }
-      />
-      <Route
-        path="/seller/orders"
-        element={
-          <RoleProtectedRoute requiredRole="seller" loginPath="/seller/login" unauthorizedRedirect="/seller">
-            <SellerDashboardLayout>
-              <div className="text-center py-12 text-muted-foreground">Orders management — coming in Phase 2</div>
-            </SellerDashboardLayout>
-          </RoleProtectedRoute>
-        }
-      />
-      <Route
-        path="/seller/settings"
-        element={
-          <RoleProtectedRoute requiredRole="seller" loginPath="/seller/login" unauthorizedRedirect="/seller">
-            <SellerDashboardLayout>
-              <div className="text-center py-12 text-muted-foreground">Settings — coming in Phase 2</div>
-            </SellerDashboardLayout>
-          </RoleProtectedRoute>
-        }
-      />
-
-      {/* Fallback */}
-      <Route
-        path="/seller/*"
-        element={
-          <SellerPublicLayout>
-            <SellerLanding />
-          </SellerPublicLayout>
-        }
-      />
+      <Route path="/seller/dashboard" element={<WrappedRoute><SellerDashboardHome /></WrappedRoute>} />
+      <Route path="/seller/products" element={<WrappedRoute><SellerProducts /></WrappedRoute>} />
+      <Route path="/seller/products/new" element={<WrappedRoute><SellerAddProduct /></WrappedRoute>} />
+      <Route path="/seller/orders" element={<WrappedRoute><SellerOrders /></WrappedRoute>} />
+      <Route path="/seller/settings" element={<WrappedRoute><SellerSettings /></WrappedRoute>} />
+      <Route path="/seller/*" element={<SellerPublicLayout><SellerLanding /></SellerPublicLayout>} />
     </Routes>
   );
 };
