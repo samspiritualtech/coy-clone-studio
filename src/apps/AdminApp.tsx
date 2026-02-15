@@ -3,67 +3,27 @@ import { AdminDashboardLayout } from "@/layouts/AdminDashboardLayout";
 import { RoleProtectedRoute } from "@/components/auth/RoleProtectedRoute";
 import AdminLogin from "@/pages/admin/AdminLogin";
 import AdminDashboardHome from "@/pages/admin/AdminDashboardHome";
+import AdminApprovals from "@/pages/admin/AdminApprovals";
+import AdminProducts from "@/pages/admin/AdminProducts";
+import AdminSellers from "@/pages/admin/AdminSellers";
+import AdminSettings from "@/pages/admin/AdminSettings";
+
+const WrappedRoute = ({ children }: { children: React.ReactNode }) => (
+  <RoleProtectedRoute requiredRole="admin" loginPath="/admin/login" unauthorizedRedirect="/">
+    <AdminDashboardLayout>{children}</AdminDashboardLayout>
+  </RoleProtectedRoute>
+);
 
 const AdminApp = () => {
   return (
     <Routes>
-      {/* Admin login */}
       <Route path="/admin" element={<AdminLogin />} />
       <Route path="/admin/login" element={<AdminLogin />} />
-
-      {/* Protected admin dashboard */}
-      <Route
-        path="/admin/dashboard"
-        element={
-          <RoleProtectedRoute requiredRole="admin" loginPath="/admin/login" unauthorizedRedirect="/">
-            <AdminDashboardLayout>
-              <AdminDashboardHome />
-            </AdminDashboardLayout>
-          </RoleProtectedRoute>
-        }
-      />
-      <Route
-        path="/admin/approvals"
-        element={
-          <RoleProtectedRoute requiredRole="admin" loginPath="/admin/login" unauthorizedRedirect="/">
-            <AdminDashboardLayout>
-              <div className="text-center py-12 text-muted-foreground">Approval queue — coming in Phase 3</div>
-            </AdminDashboardLayout>
-          </RoleProtectedRoute>
-        }
-      />
-      <Route
-        path="/admin/products"
-        element={
-          <RoleProtectedRoute requiredRole="admin" loginPath="/admin/login" unauthorizedRedirect="/">
-            <AdminDashboardLayout>
-              <div className="text-center py-12 text-muted-foreground">All products — coming in Phase 3</div>
-            </AdminDashboardLayout>
-          </RoleProtectedRoute>
-        }
-      />
-      <Route
-        path="/admin/sellers"
-        element={
-          <RoleProtectedRoute requiredRole="admin" loginPath="/admin/login" unauthorizedRedirect="/">
-            <AdminDashboardLayout>
-              <div className="text-center py-12 text-muted-foreground">Seller management — coming in Phase 3</div>
-            </AdminDashboardLayout>
-          </RoleProtectedRoute>
-        }
-      />
-      <Route
-        path="/admin/settings"
-        element={
-          <RoleProtectedRoute requiredRole="admin" loginPath="/admin/login" unauthorizedRedirect="/">
-            <AdminDashboardLayout>
-              <div className="text-center py-12 text-muted-foreground">Admin settings — coming in Phase 3</div>
-            </AdminDashboardLayout>
-          </RoleProtectedRoute>
-        }
-      />
-
-      {/* Fallback */}
+      <Route path="/admin/dashboard" element={<WrappedRoute><AdminDashboardHome /></WrappedRoute>} />
+      <Route path="/admin/approvals" element={<WrappedRoute><AdminApprovals /></WrappedRoute>} />
+      <Route path="/admin/products" element={<WrappedRoute><AdminProducts /></WrappedRoute>} />
+      <Route path="/admin/sellers" element={<WrappedRoute><AdminSellers /></WrappedRoute>} />
+      <Route path="/admin/settings" element={<WrappedRoute><AdminSettings /></WrappedRoute>} />
       <Route path="/admin/*" element={<AdminLogin />} />
     </Routes>
   );
