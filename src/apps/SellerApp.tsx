@@ -25,6 +25,7 @@ const SellerApp = () => {
     <Routes>
       {/* Support both /seller/* (path-based dev) and /* (subdomain prod) */}
       <Route path="/" element={<JoinUs />} />
+      <Route path="/join" element={<JoinUs />} />
       <Route path="/seller" element={<JoinUs />} />
       <Route path="/login" element={<SellerLogin />} />
       <Route path="/seller/login" element={<SellerLogin />} />
