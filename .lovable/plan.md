@@ -1,37 +1,22 @@
 
 
-## Fix: sellers.ogura.in Redirects to ogura.in/join
+## Remove Redirect, Render JoinUs Internally on sellers.ogura.in
 
 ### Problem
-When `sellers.ogura.in` is opened, it loads the main `ogura.in` homepage instead of the designer onboarding page. The internal routing approach hasn't resolved this in production, likely due to how DNS/hosting serves the subdomain.
+`src/main.tsx` contains an early browser redirect (lines 1-6) that sends `sellers.ogura.in/` to `https://ogura.in/join` before React mounts. This overrides the correct routing already present in `SellerApp.tsx`.
 
-### Solution: Early Redirect in main.tsx
+### Changes
 
-Add a redirect check that runs **before React mounts**, so it executes immediately when the page loads:
+**1. `src/main.tsx`** -- Remove the redirect block (lines 1-6)
 
-**File: `src/main.tsx`**
+Delete the `if (window.location.hostname.includes("sellers.") ...)` block entirely. The React app will now mount normally and `SellerApp` will handle routing.
 
-Add this block at the very top of the file (before any imports or React rendering):
+**2. `src/apps/SellerApp.tsx`** -- Add `/join` route
 
-```
-if (
-  window.location.hostname.includes("sellers.") &&
-  window.location.pathname === "/"
-) {
-  window.location.href = "https://ogura.in/join";
-}
-```
-
-This ensures:
-- Only affects `sellers.*` hostnames
-- Only triggers on the root path `/`
-- Does NOT affect `admin.ogura.in` or `ogura.in`
-- Does NOT modify any UI, authentication, or dashboard routing
-- Dashboard routes like `/dashboard`, `/products`, `/orders` on `sellers.ogura.in` continue to work normally (they don't match pathname `"/"`)
+Add a route for `/join` that also renders `<JoinUs />`, so both `sellers.ogura.in/` and `sellers.ogura.in/join` show the onboarding page.
 
 ### What stays the same
-- No changes to `SellerApp.tsx`, `domainDetection.ts`, or `App.tsx`
-- No changes to the `JoinUs` component
-- No changes to authentication logic
-- No changes to admin or customer routing
-
+- JoinUs component -- no changes
+- Dashboard routes and authentication -- unchanged
+- Admin and customer routing -- unchanged
+- Domain detection logic -- unchanged
