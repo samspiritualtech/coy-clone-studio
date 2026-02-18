@@ -1,30 +1,37 @@
 
 
-## Fix: sellers.ogura.in Root Shows JoinUs Page (Not Login)
+## Fix: sellers.ogura.in Redirects to ogura.in/join
 
-### Root Cause
+### Problem
+When `sellers.ogura.in` is opened, it loads the main `ogura.in` homepage instead of the designer onboarding page. The internal routing approach hasn't resolved this in production, likely due to how DNS/hosting serves the subdomain.
 
-The `SellerApp.tsx` routing already maps `/` to `<JoinUs />`, so the root route definition is correct. However, the `WrappedRoute` component uses a hardcoded `loginPath="/seller/login"`, which is the path-based dev route. On the production subdomain (`sellers.ogura.in`), the correct login path should be `/login` (without the `/seller` prefix).
+### Solution: Early Redirect in main.tsx
 
-Additionally, to make this more robust, we should make the `WrappedRoute` dynamically choose the correct login path based on whether the app is accessed via subdomain or path-based routing.
+Add a redirect check that runs **before React mounts**, so it executes immediately when the page loads:
 
-### Changes
+**File: `src/main.tsx`**
 
-**1. `src/apps/SellerApp.tsx`** -- Make WrappedRoute subdomain-aware
+Add this block at the very top of the file (before any imports or React rendering):
 
-- Import `detectDomain` to check if we're on a subdomain or using path-based routing
-- If subdomain (`sellers.*`), use `/login` as loginPath and `/` as unauthorizedRedirect
-- If path-based (dev/preview), keep `/seller/login` and `/seller` as before
-- This prevents any edge case where auth middleware redirects to a wrong path on the subdomain
+```
+if (
+  window.location.hostname.includes("sellers.") &&
+  window.location.pathname === "/"
+) {
+  window.location.href = "https://ogura.in/join";
+}
+```
 
-**2. `src/lib/domainDetection.ts`** -- Add a helper to check if we're on a subdomain
-
-- Add an `isSubdomain()` utility function that returns `true` when the hostname starts with `sellers.` or `admin.`
-- This makes it easy for any component to decide between subdomain-style paths (`/login`) and dev-style paths (`/seller/login`)
+This ensures:
+- Only affects `sellers.*` hostnames
+- Only triggers on the root path `/`
+- Does NOT affect `admin.ogura.in` or `ogura.in`
+- Does NOT modify any UI, authentication, or dashboard routing
+- Dashboard routes like `/dashboard`, `/products`, `/orders` on `sellers.ogura.in` continue to work normally (they don't match pathname `"/"`)
 
 ### What stays the same
-- `JoinUs` component -- no changes
-- Dashboard routes and their protection -- unchanged
-- Domain detection logic for choosing which app to render -- unchanged
-- Admin and Customer routing -- unchanged
+- No changes to `SellerApp.tsx`, `domainDetection.ts`, or `App.tsx`
+- No changes to the `JoinUs` component
+- No changes to authentication logic
+- No changes to admin or customer routing
 
