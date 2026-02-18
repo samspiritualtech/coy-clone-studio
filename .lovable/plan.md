@@ -1,48 +1,36 @@
 
 
-# Plan: Force Internal Scrollbar in Address Modal
+## Subdomain Routing: sellers.ogura.in loads the Designer Onboarding Page
 
-## Problem
-The modal content overflows the viewport with no visible scrollbar. The Save button gets cut off as seen in the screenshot.
+### Problem
+When `sellers.ogura.in` is opened, it currently loads the `SellerApp` which shows a generic "Seller Landing" page with a minimal header. The user wants it to load the **JoinUs page** ("Join Ogura as an Independent Fashion Designer or Fashion Studio Owner") with the same luxury header and footer as the main customer site.
 
-## Root Cause
-- `max-h-[90vh]` allows the modal to grow to content size before capping -- but flexbox children don't constrain properly without a fixed height
-- The form wrapper div has `overflow-hidden` which blocks scrolling from reaching the inner form
+### Solution
 
-## Changes
+**1. Update SellerApp to use JoinUs as the root landing page**
 
-### File: `src/components/AddressSelectionModal.tsx`
+Replace the `SellerLanding` component at the `/` route with the existing `JoinUs` component from `src/pages/JoinUs.tsx`. This page already uses `LuxuryHeader` and `LuxuryFooter`, matching the main site's look and feel -- no layout wrapper needed for the landing route.
 
-**Change 1 -- Form view DialogContent (line 260):**
-Replace `max-h-[90vh]` with `h-[90vh]` to force a fixed height so flex children properly constrain.
+**2. Keep dashboard routes intact**
 
-```
-Before: "w-[calc(100%-2rem)] max-w-[500px] max-h-[90vh] overflow-hidden flex flex-col p-0 rounded-xl mx-auto"
-After:  "w-[calc(100%-2rem)] max-w-[500px] h-[90vh] overflow-hidden flex flex-col p-0 rounded-xl mx-auto"
-```
+All authenticated seller dashboard routes (`/dashboard`, `/products`, `/orders`, etc.) remain unchanged and continue using `SellerDashboardLayout`.
 
-**Change 2 -- Form content wrapper (line 267):**
-Remove `overflow-hidden` so the inner form's `overflow-y-auto` can work.
+**3. Update the SellerPublicLayout header links**
 
-```
-Before: "flex-1 min-h-0 overflow-hidden px-6 pb-6"
-After:  "flex-1 min-h-0 overflow-y-auto px-6 pb-6"
-```
+Update the "Apply Now" button in the seller public layout to link sellers to the login page, and adjust the fallback catch-all route to also show JoinUs.
 
-**Change 3 -- List view DialogContent (line 284):**
-Same height fix for the address list view.
+### Technical Details
 
-```
-Before: "w-[calc(100%-2rem)] max-w-[500px] max-h-[90vh] flex flex-col rounded-xl mx-auto"
-After:  "w-[calc(100%-2rem)] max-w-[500px] h-[90vh] flex flex-col rounded-xl mx-auto"
-```
+**Files to modify:**
 
-## No Other Files Changed
-- `AddressForm.tsx` already has correct flex layout with `overflow-y-auto` on form fields and `shrink-0` on footer buttons
-- Form fields and logic are untouched
+- `src/apps/SellerApp.tsx` -- Replace `SellerLanding` with `JoinUs` for the root (`/`) and `/seller` routes. Remove the `SellerPublicLayout` wrapper on those routes since `JoinUs` already includes `LuxuryHeader` and `LuxuryFooter`.
 
-## Expected Result
-- Modal is fixed at 90% viewport height
-- Scrollbar appears inside the modal when content overflows
-- Save button always stays visible at the bottom
-- Works on both mobile and desktop
+- `src/layouts/SellerPublicLayout.tsx` -- Update "Apply Now" link to point to `/seller/login` or `/login` depending on context.
+
+### What stays the same
+- The `JoinUs` page component itself -- no changes needed
+- All seller dashboard routes and role protection
+- Domain detection logic
+- Admin routing
+- Customer routing
+
