@@ -1,36 +1,30 @@
 
 
-## Subdomain Routing: sellers.ogura.in loads the Designer Onboarding Page
+## Fix: sellers.ogura.in Root Shows JoinUs Page (Not Login)
 
-### Problem
-When `sellers.ogura.in` is opened, it currently loads the `SellerApp` which shows a generic "Seller Landing" page with a minimal header. The user wants it to load the **JoinUs page** ("Join Ogura as an Independent Fashion Designer or Fashion Studio Owner") with the same luxury header and footer as the main customer site.
+### Root Cause
 
-### Solution
+The `SellerApp.tsx` routing already maps `/` to `<JoinUs />`, so the root route definition is correct. However, the `WrappedRoute` component uses a hardcoded `loginPath="/seller/login"`, which is the path-based dev route. On the production subdomain (`sellers.ogura.in`), the correct login path should be `/login` (without the `/seller` prefix).
 
-**1. Update SellerApp to use JoinUs as the root landing page**
+Additionally, to make this more robust, we should make the `WrappedRoute` dynamically choose the correct login path based on whether the app is accessed via subdomain or path-based routing.
 
-Replace the `SellerLanding` component at the `/` route with the existing `JoinUs` component from `src/pages/JoinUs.tsx`. This page already uses `LuxuryHeader` and `LuxuryFooter`, matching the main site's look and feel -- no layout wrapper needed for the landing route.
+### Changes
 
-**2. Keep dashboard routes intact**
+**1. `src/apps/SellerApp.tsx`** -- Make WrappedRoute subdomain-aware
 
-All authenticated seller dashboard routes (`/dashboard`, `/products`, `/orders`, etc.) remain unchanged and continue using `SellerDashboardLayout`.
+- Import `detectDomain` to check if we're on a subdomain or using path-based routing
+- If subdomain (`sellers.*`), use `/login` as loginPath and `/` as unauthorizedRedirect
+- If path-based (dev/preview), keep `/seller/login` and `/seller` as before
+- This prevents any edge case where auth middleware redirects to a wrong path on the subdomain
 
-**3. Update the SellerPublicLayout header links**
+**2. `src/lib/domainDetection.ts`** -- Add a helper to check if we're on a subdomain
 
-Update the "Apply Now" button in the seller public layout to link sellers to the login page, and adjust the fallback catch-all route to also show JoinUs.
-
-### Technical Details
-
-**Files to modify:**
-
-- `src/apps/SellerApp.tsx` -- Replace `SellerLanding` with `JoinUs` for the root (`/`) and `/seller` routes. Remove the `SellerPublicLayout` wrapper on those routes since `JoinUs` already includes `LuxuryHeader` and `LuxuryFooter`.
-
-- `src/layouts/SellerPublicLayout.tsx` -- Update "Apply Now" link to point to `/seller/login` or `/login` depending on context.
+- Add an `isSubdomain()` utility function that returns `true` when the hostname starts with `sellers.` or `admin.`
+- This makes it easy for any component to decide between subdomain-style paths (`/login`) and dev-style paths (`/seller/login`)
 
 ### What stays the same
-- The `JoinUs` page component itself -- no changes needed
-- All seller dashboard routes and role protection
-- Domain detection logic
-- Admin routing
-- Customer routing
+- `JoinUs` component -- no changes
+- Dashboard routes and their protection -- unchanged
+- Domain detection logic for choosing which app to render -- unchanged
+- Admin and Customer routing -- unchanged
 
