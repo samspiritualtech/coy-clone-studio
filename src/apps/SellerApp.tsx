@@ -19,14 +19,22 @@ const WrappedRoute = ({ children }: { children: React.ReactNode }) => (
 const SellerApp = () => {
   return (
     <Routes>
+      {/* Support both /seller/* (path-based dev) and /* (subdomain prod) */}
+      <Route path="/" element={<SellerPublicLayout><SellerLanding /></SellerPublicLayout>} />
       <Route path="/seller" element={<SellerPublicLayout><SellerLanding /></SellerPublicLayout>} />
+      <Route path="/login" element={<SellerLogin />} />
       <Route path="/seller/login" element={<SellerLogin />} />
+      <Route path="/dashboard" element={<WrappedRoute><SellerDashboardHome /></WrappedRoute>} />
       <Route path="/seller/dashboard" element={<WrappedRoute><SellerDashboardHome /></WrappedRoute>} />
+      <Route path="/products" element={<WrappedRoute><SellerProducts /></WrappedRoute>} />
       <Route path="/seller/products" element={<WrappedRoute><SellerProducts /></WrappedRoute>} />
+      <Route path="/products/new" element={<WrappedRoute><SellerAddProduct /></WrappedRoute>} />
       <Route path="/seller/products/new" element={<WrappedRoute><SellerAddProduct /></WrappedRoute>} />
+      <Route path="/orders" element={<WrappedRoute><SellerOrders /></WrappedRoute>} />
       <Route path="/seller/orders" element={<WrappedRoute><SellerOrders /></WrappedRoute>} />
+      <Route path="/settings" element={<WrappedRoute><SellerSettings /></WrappedRoute>} />
       <Route path="/seller/settings" element={<WrappedRoute><SellerSettings /></WrappedRoute>} />
-      <Route path="/seller/*" element={<SellerPublicLayout><SellerLanding /></SellerPublicLayout>} />
+      <Route path="*" element={<SellerPublicLayout><SellerLanding /></SellerPublicLayout>} />
     </Routes>
   );
 };
