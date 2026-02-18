@@ -1,7 +1,7 @@
 import { Routes, Route } from "react-router-dom";
-import { SellerPublicLayout } from "@/layouts/SellerPublicLayout";
 import { SellerDashboardLayout } from "@/layouts/SellerDashboardLayout";
 import { RoleProtectedRoute } from "@/components/auth/RoleProtectedRoute";
+import { isSubdomain } from "@/lib/domainDetection";
 import JoinUs from "@/pages/JoinUs";
 import SellerLogin from "@/pages/seller/SellerLogin";
 import SellerDashboardHome from "@/pages/seller/SellerDashboardHome";
@@ -10,8 +10,12 @@ import SellerAddProduct from "@/pages/seller/SellerAddProduct";
 import SellerOrders from "@/pages/seller/SellerOrders";
 import SellerSettings from "@/pages/seller/SellerSettings";
 
+const sub = isSubdomain();
+const loginPath = sub ? "/login" : "/seller/login";
+const homeRedirect = sub ? "/" : "/seller";
+
 const WrappedRoute = ({ children }: { children: React.ReactNode }) => (
-  <RoleProtectedRoute requiredRole="seller" loginPath="/seller/login" unauthorizedRedirect="/seller">
+  <RoleProtectedRoute requiredRole="seller" loginPath={loginPath} unauthorizedRedirect={homeRedirect}>
     <SellerDashboardLayout>{children}</SellerDashboardLayout>
   </RoleProtectedRoute>
 );
