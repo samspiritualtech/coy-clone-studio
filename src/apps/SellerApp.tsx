@@ -20,6 +20,7 @@ const SellerApp = () => {
   return (
     <Routes>
       <Route path="/seller" element={<SellerPublicLayout><SellerLanding /></SellerPublicLayout>} />
+      <Route path="/seller/join" element={<SellerPublicLayout><SellerLanding /></SellerPublicLayout>} />
       <Route path="/seller/login" element={<SellerLogin />} />
       <Route path="/seller/dashboard" element={<WrappedRoute><SellerDashboardHome /></WrappedRoute>} />
       <Route path="/seller/products" element={<WrappedRoute><SellerProducts /></WrappedRoute>} />
