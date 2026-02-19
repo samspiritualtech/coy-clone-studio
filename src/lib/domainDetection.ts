@@ -38,12 +38,3 @@ export function getBasePath(domain: AppDomain): string {
   if (domain === 'admin') return '/admin';
   return '';
 }
-
-/**
- * Returns true when the app is accessed via a production subdomain
- * (sellers.* or admin.*) rather than path-based dev routing.
- */
-export function isSubdomain(): boolean {
-  const hostname = window.location.hostname;
-  return hostname.startsWith('sellers.') || hostname.startsWith('admin.');
-}
