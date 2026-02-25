@@ -41,12 +41,12 @@ export const SimilarProductsGrid = ({
       </h2>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {similarProducts.map((product) => (
+          <div key={product.id} className="product-tile-3d">
           <Link
-            key={product.id}
             to={`/product/${product.id}`}
-            className="group"
+            className="group block"
           >
-            <div className="aspect-[3/4] rounded-lg overflow-hidden border bg-muted">
+            <div className="aspect-[3/4] rounded-lg overflow-hidden border bg-muted product-tile-3d-shimmer">
               <img
                 src={product.images[0]}
                 alt={product.name}
@@ -73,6 +73,7 @@ export const SimilarProductsGrid = ({
               </div>
             </div>
           </Link>
+          </div>
         ))}
       </div>
     </section>

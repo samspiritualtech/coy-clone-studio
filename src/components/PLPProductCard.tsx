@@ -35,13 +35,14 @@ export const PLPProductCard = ({ product }: PLPProductCardProps) => {
   };
 
   return (
+    <div className="product-tile-3d">
     <Link
       to={`/product/${product.id}`}
       className="group block"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="relative aspect-[3/4] overflow-hidden rounded-lg bg-secondary/20">
+      <div className="relative aspect-[3/4] overflow-hidden rounded-lg bg-secondary/20 product-tile-3d-shimmer">
         {/* Product Images with hover swap */}
         <OptimizedImage
           src={isHovered ? secondaryImage : primaryImage}
@@ -127,6 +128,7 @@ export const PLPProductCard = ({ product }: PLPProductCardProps) => {
         )}
       </div>
     </Link>
+    </div>
   );
 };
 

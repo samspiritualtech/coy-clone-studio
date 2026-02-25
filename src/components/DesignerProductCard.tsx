@@ -15,12 +15,13 @@ export const DesignerProductCard = ({ product }: DesignerProductCardProps) => {
     : 0;
 
   return (
+    <div className="product-tile-3d">
     <Card
       onClick={() => navigate(`/product/${product.id}`)}
       className="group cursor-pointer overflow-hidden border-0 bg-transparent"
     >
       {/* Image Container */}
-      <div className="relative aspect-[3/4] overflow-hidden rounded-lg bg-muted">
+      <div className="relative aspect-[3/4] overflow-hidden rounded-lg bg-muted product-tile-3d-shimmer">
         <img
           src={product.images[0] || '/placeholder.svg'}
           alt={product.title}
@@ -89,5 +90,6 @@ export const DesignerProductCard = ({ product }: DesignerProductCardProps) => {
         )}
       </div>
     </Card>
+    </div>
   );
 };

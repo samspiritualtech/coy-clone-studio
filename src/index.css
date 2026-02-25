@@ -182,4 +182,52 @@ All colors MUST be HSL.
       transform: scale(1);
     }
   }
+
+  /* 3D Product Tile Effect */
+  .product-tile-3d {
+    position: relative;
+    border-radius: 12px;
+    background: linear-gradient(135deg, hsl(38 92% 60% / 0.3), hsl(340 75% 55% / 0.25), hsl(270 50% 50% / 0.2));
+    padding: 1.5px;
+    box-shadow:
+      0 4px 6px rgba(0, 0, 0, 0.07),
+      0 10px 24px rgba(0, 0, 0, 0.05),
+      0 1px 2px rgba(0, 0, 0, 0.08);
+    transform: translateY(0) perspective(1000px) rotateX(0deg);
+    transition: transform 300ms ease, box-shadow 300ms ease, background 300ms ease;
+  }
+
+  .product-tile-3d > * {
+    border-radius: 11px;
+    overflow: hidden;
+    background: hsl(var(--background));
+  }
+
+  .product-tile-3d:hover {
+    background: linear-gradient(135deg, hsl(38 92% 60% / 0.55), hsl(340 75% 55% / 0.45), hsl(270 50% 50% / 0.4));
+    box-shadow:
+      0 8px 16px rgba(0, 0, 0, 0.1),
+      0 20px 40px rgba(0, 0, 0, 0.08),
+      0 2px 4px rgba(0, 0, 0, 0.12);
+    transform: translateY(-6px) perspective(1000px) rotateX(1.5deg);
+  }
+
+  .product-tile-3d-shimmer {
+    position: relative;
+  }
+
+  .product-tile-3d-shimmer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.15) 0%,
+      rgba(255, 255, 255, 0) 50%,
+      rgba(255, 255, 255, 0.08) 100%
+    );
+    pointer-events: none;
+    border-radius: inherit;
+    z-index: 1;
+  }
 }
