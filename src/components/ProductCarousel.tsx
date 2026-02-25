@@ -104,10 +104,11 @@ export const ProductCarousel = ({
                   key={product.id}
                   className="pl-2 md:pl-4 basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
                 >
+                  <div className="product-tile-3d">
                   <div className="group relative">
                     {/* Product Image */}
                     <div
-                      className="aspect-[3/4] overflow-hidden rounded-lg cursor-pointer"
+                      className="aspect-[3/4] overflow-hidden rounded-lg cursor-pointer product-tile-3d-shimmer"
                       onClick={() => navigate(`/product/${product.id}`)}
                     >
                       <img
@@ -160,6 +161,7 @@ export const ProductCarousel = ({
                     >
                       Shop Now
                     </Button>
+                  </div>
                   </div>
                 </CarouselItem>
               ))}

@@ -34,11 +34,12 @@ const ProductCardComponent = ({
   onWishlistToggle: (e: React.MouseEvent, name: string) => void;
 }) => {
   return (
+    <div className="product-tile-3d">
     <Card
       onClick={() => productId && onNavigate(productId)}
-      className="group cursor-pointer overflow-hidden border hover:shadow-lg transition-all duration-300"
+      className="group cursor-pointer overflow-hidden border-0 hover:shadow-none transition-all duration-300"
     >
-      <div className="relative">
+      <div className="product-tile-3d-shimmer relative">
         <OptimizedImage
           src={product.image}
           alt={product.name}
@@ -64,6 +65,7 @@ const ProductCardComponent = ({
         )}
       </div>
     </Card>
+    </div>
   );
 };
 
