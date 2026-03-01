@@ -118,6 +118,10 @@ const HoliDhamakaSale = () => {
                 <Truck className="h-4 w-4 text-pink-500" />
                 <span>Free Shipping Above ₹500</span>
               </div>
+              <div className="flex items-center justify-center lg:justify-start gap-2 text-xs text-pink-600 font-semibold mt-1">
+                <Sparkles className="h-3.5 w-3.5" />
+                <span>Valid for First 10,000 Orders Only</span>
+              </div>
             </div>
 
             {/* Right: timer + CTAs */}
