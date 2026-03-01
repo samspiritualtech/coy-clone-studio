@@ -1,64 +1,51 @@
 
 
-# 3D Gradient Effect for Product Tiles
+# Holi Dhamaka Sale Section
 
-Add a premium 3D glassmorphism/gradient effect to all product card components across the site, making each tile visually pop with depth, shadows, and subtle gradient borders.
+A vibrant, self-contained Holi festival sale banner placed directly after `LuxuryHero` on the homepage. No global CSS changes, no modifications to existing components.
 
-## Visual Effect Description
+## New File: `src/components/HoliDhamakaSale.tsx`
 
-Each product tile will feature:
-- A multi-layered box shadow creating a 3D "lifted" appearance
-- A subtle gradient border (warm gold-to-rose tones matching the OGURA luxury aesthetic)
-- On hover: the card lifts further with enhanced shadow depth and a slight Y-axis tilt (perspective transform)
-- A soft gradient shimmer overlay on the image area
-- Smooth 300ms transitions for all effects
+A fully self-contained component with:
 
-## Technical Approach
+### Visual Design
+- **Background**: Inline/scoped Tailwind gradient from light pink (`pink-50`) to lavender (`purple-50`) with subtle animated floating color particles (pink, yellow, blue, purple circles using scoped CSS keyframes in a `<style>` tag within the component)
+- **Layout**: Centered content container, stacked on mobile, side-by-side on desktop (text left, timer/CTAs right)
+- **Glassmorphism card**: `backdrop-blur-xl bg-white/70 border border-white/40 rounded-2xl shadow-2xl`
 
-### 1. Add CSS utilities in `src/index.css`
+### Content
+- **Badge**: "Limited Time Holi Offer" pill at the top
+- **Headline**: "Holi Dhamaka Sale is LIVE" with rainbow gradient text
+- **Subheading**: "Buy 1 Get 1 FREE + Flat 200 OFF on First Order"
+- **Coupon section**: Dashed border box with `FIRST200` code and a copy button (uses `navigator.clipboard` + `sonner` toast for feedback)
+- **Countdown timer**: 24-hour countdown from mount using `useState` + `useEffect` with `setInterval`. Displays HH:MM:SS in individual glassmorphism boxes
+- **CTAs**: Two buttons using `react-router-dom` `Link` to `/collections`:
+  1. "Shop Now" -- solid gradient (pink to purple)
+  2. "Grab BOGO Deal" -- outline with gradient border
+  Both have hover scale + shadow effects via Tailwind
+- **Free Shipping badge**: Small pill "Free Shipping Above 999"
 
-New utility classes under `@layer utilities`:
+### Animations
+- Floating particles: 8-10 absolutely-positioned colored circles with scoped CSS `@keyframes float` animation (different delays/durations), contained within the section (using `overflow-hidden` on the section wrapper)
+- Entrance: Tailwind `animate-fade-in` on the main content card
 
-- `.product-tile-3d` -- base 3D shadow + gradient border effect using `background-image` on a wrapper with padding to simulate a gradient border, plus layered `box-shadow` for depth
-- `.product-tile-3d:hover` -- enhanced shadow, `translateY(-6px)`, subtle `rotateX(2deg)` with `perspective(1000px)`
-- `.product-tile-3d-shimmer` -- a pseudo-element shimmer gradient overlay on the image
+### Technical Details
+- All styles are scoped Tailwind classes or component-level `<style>` tags -- no changes to `index.css`
+- Uses `position: relative` only, no overlapping with hero
+- Imports: `useState`, `useEffect` from React, `Link` from `react-router-dom`, `toast` from `sonner`, `Copy`/`Check`/`Truck`/`Gift` icons from `lucide-react`
 
-### 2. Update product card components
+## Modified File: `src/pages/Index.tsx`
 
-Apply the new classes to these 5 components:
+Only two changes:
+1. Add import: `import HoliDhamakaSale from "@/components/HoliDhamakaSale"`
+2. Insert `<HoliDhamakaSale />` between `<LuxuryHero />` and `<Premium3DCategorySection />`
 
-- **`src/components/PLPProductCard.tsx`** -- Add 3D wrapper around the card, gradient border, enhanced hover shadows
-- **`src/components/ProductCarousel.tsx`** -- Apply 3D effect to each carousel item card
-- **`src/components/ProductGrid.tsx`** -- Apply to each product Card component
-- **`src/components/DesignerProductCard.tsx`** -- Apply to the Card wrapper
-- **`src/components/SimilarProductsGrid.tsx`** -- Apply to each product link card
-
-### 3. CSS Details
-
+No components removed or reordered. Structure becomes:
 ```text
-Base state:
-  - box-shadow: 0 4px 6px rgba(0,0,0,0.07), 0 10px 24px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.08)
-  - border: 1px solid transparent with gradient background (gold -> rose -> purple)
-  - border-radius: 12px
-  - transform: translateY(0) perspective(1000px) rotateX(0deg)
-
-Hover state:
-  - box-shadow: 0 8px 16px rgba(0,0,0,0.1), 0 20px 40px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.12)
-  - transform: translateY(-6px) perspective(1000px) rotateX(1.5deg)
-  - border gradient intensifies
-
-Image shimmer:
-  - A subtle diagonal gradient overlay (white/transparent) for glass effect
+LuxuryHero
+HoliDhamakaSale   <-- new
+Premium3DCategorySection
+CategoryShowcase
+... (rest unchanged)
 ```
-
-### Files Modified
-
-| File | Change |
-|------|--------|
-| `src/index.css` | Add `.product-tile-3d` utility classes with shadows, gradient border, hover transforms |
-| `src/components/PLPProductCard.tsx` | Wrap card in 3D styled container |
-| `src/components/ProductCarousel.tsx` | Apply 3D class to product card wrapper |
-| `src/components/ProductGrid.tsx` | Apply 3D class to Card component |
-| `src/components/DesignerProductCard.tsx` | Apply 3D class to Card component |
-| `src/components/SimilarProductsGrid.tsx` | Apply 3D class to product link cards |
 
