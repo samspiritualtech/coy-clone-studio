@@ -116,7 +116,7 @@ const HoliDhamakaSale = () => {
               {/* Free shipping */}
               <div className="flex items-center justify-center lg:justify-start gap-2 text-xs text-muted-foreground">
                 <Truck className="h-4 w-4 text-pink-500" />
-                <span>Free Shipping Above ₹999</span>
+                <span>Free Shipping Above ₹500</span>
               </div>
             </div>
 
