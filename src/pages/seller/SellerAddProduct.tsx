@@ -8,19 +8,47 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Loader2, ArrowLeft, Check } from "lucide-react";
 import { toast } from "sonner";
+import { ImageUploadZone } from "@/components/ImageUploadZone";
+import { cn } from "@/lib/utils";
 
 const categories = [
   "dresses", "tops", "bottoms", "outerwear", "footwear", "accessories", "bags",
   "sarees", "lehengas", "kurtas", "co-ords", "jumpsuits",
 ];
 
+const sizeOptions = ["XS", "S", "M", "L", "XL", "XXL", "Free Size"];
+
+const colorOptions = [
+  { name: "Black", hex: "#000000" },
+  { name: "White", hex: "#FFFFFF" },
+  { name: "Red", hex: "#DC2626" },
+  { name: "Blue", hex: "#2563EB" },
+  { name: "Green", hex: "#16A34A" },
+  { name: "Pink", hex: "#EC4899" },
+  { name: "Yellow", hex: "#EAB308" },
+  { name: "Beige", hex: "#D2B48C" },
+  { name: "Brown", hex: "#92400E" },
+  { name: "Navy", hex: "#1E3A5F" },
+  { name: "Maroon", hex: "#800000" },
+  { name: "Grey", hex: "#6B7280" },
+];
+
+const occasionOptions = ["Wedding", "Festive", "Party", "Casual", "Work", "Brunch", "Date Night", "Vacation"];
+const styleOptions = ["Boho", "Minimal", "Ethnic", "Western", "Indo-Western", "Streetwear", "Classic", "Contemporary"];
+
 const SellerAddProduct = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [sellerId, setSellerId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
+  const [selectedColors, setSelectedColors] = useState<{ name: string; hex: string }[]>([]);
+  const [selectedOccasions, setSelectedOccasions] = useState<string[]>([]);
+  const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
 
   const [form, setForm] = useState({
     title: "",
@@ -50,6 +78,57 @@ const SellerAddProduct = () => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
+  const toggleSize = (size: string) => {
+    setSelectedSizes((prev) =>
+      prev.includes(size) ? prev.filter((s) => s !== size) : [...prev, size]
+    );
+  };
+
+  const toggleColor = (color: { name: string; hex: string }) => {
+    setSelectedColors((prev) =>
+      prev.some((c) => c.name === color.name)
+        ? prev.filter((c) => c.name !== color.name)
+        : [...prev, color]
+    );
+  };
+
+  const toggleOccasion = (tag: string) => {
+    setSelectedOccasions((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+    );
+  };
+
+  const toggleStyle = (tag: string) => {
+    setSelectedStyles((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+    );
+  };
+
+  const uploadImages = async (): Promise<string[]> => {
+    if (!sellerId) return [];
+    const urls: string[] = [];
+
+    for (const file of imageFiles) {
+      const filePath = `${sellerId}/${Date.now()}-${file.name}`;
+      const { error } = await supabase.storage
+        .from("product-images")
+        .upload(filePath, file);
+
+      if (error) {
+        console.error("Upload error:", error);
+        continue;
+      }
+
+      const { data: publicUrl } = supabase.storage
+        .from("product-images")
+        .getPublicUrl(filePath);
+
+      urls.push(publicUrl.publicUrl);
+    }
+
+    return urls;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!sellerId) {
@@ -60,8 +139,21 @@ const SellerAddProduct = () => {
       toast.error("Please fill in all required fields");
       return;
     }
+    if (imageFiles.length === 0) {
+      toast.error("Please upload at least one product image");
+      return;
+    }
 
     setSubmitting(true);
+
+    // Upload images first
+    const imageUrls = await uploadImages();
+    if (imageUrls.length === 0) {
+      toast.error("Failed to upload images. Please try again.");
+      setSubmitting(false);
+      return;
+    }
+
     const { error } = await supabase.from("products").insert({
       seller_id: sellerId,
       title: form.title,
@@ -76,9 +168,11 @@ const SellerAddProduct = () => {
       is_made_to_order: form.is_made_to_order,
       is_returnable: form.is_returnable,
       status: "pending",
-      images: [],
-      colors: [],
-      sizes: [],
+      images: imageUrls,
+      colors: selectedColors,
+      sizes: selectedSizes,
+      occasion_tags: selectedOccasions,
+      style_tags: selectedStyles,
     });
 
     if (error) {
@@ -103,6 +197,15 @@ const SellerAddProduct = () => {
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Product Images */}
+        <Card>
+          <CardHeader><CardTitle className="text-base">Product Images *</CardTitle></CardHeader>
+          <CardContent>
+            <ImageUploadZone onFilesSelected={setImageFiles} maxFiles={9} maxSizeMB={20} />
+          </CardContent>
+        </Card>
+
+        {/* Basic Details */}
         <Card>
           <CardHeader><CardTitle className="text-base">Basic Details</CardTitle></CardHeader>
           <CardContent className="space-y-4">
@@ -134,6 +237,7 @@ const SellerAddProduct = () => {
           </CardContent>
         </Card>
 
+        {/* Pricing */}
         <Card>
           <CardHeader><CardTitle className="text-base">Pricing</CardTitle></CardHeader>
           <CardContent>
@@ -150,6 +254,110 @@ const SellerAddProduct = () => {
           </CardContent>
         </Card>
 
+        {/* Sizes */}
+        <Card>
+          <CardHeader><CardTitle className="text-base">Available Sizes</CardTitle></CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-2">
+              {sizeOptions.map((size) => {
+                const isSelected = selectedSizes.includes(size);
+                return (
+                  <button
+                    key={size}
+                    type="button"
+                    onClick={() => toggleSize(size)}
+                    className={cn(
+                      "px-4 py-2 rounded-md border text-sm font-medium transition-colors",
+                      isSelected
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-background text-foreground border-border hover:border-primary/50"
+                    )}
+                  >
+                    {size}
+                  </button>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Colors */}
+        <Card>
+          <CardHeader><CardTitle className="text-base">Available Colors</CardTitle></CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap gap-3">
+              {colorOptions.map((color) => {
+                const isSelected = selectedColors.some((c) => c.name === color.name);
+                return (
+                  <button
+                    key={color.name}
+                    type="button"
+                    onClick={() => toggleColor(color)}
+                    className="flex flex-col items-center gap-1 group"
+                  >
+                    <div
+                      className={cn(
+                        "w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all",
+                        isSelected ? "border-primary ring-2 ring-primary/30" : "border-border hover:border-primary/50"
+                      )}
+                      style={{ backgroundColor: color.hex }}
+                    >
+                      {isSelected && (
+                        <Check className={cn("w-5 h-5", color.name === "White" || color.name === "Yellow" || color.name === "Beige" ? "text-foreground" : "text-white")} />
+                      )}
+                    </div>
+                    <span className="text-xs text-muted-foreground">{color.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Tags */}
+        <Card>
+          <CardHeader><CardTitle className="text-base">Tags</CardTitle></CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label className="text-sm mb-2 block">Occasion Tags</Label>
+              <div className="flex flex-wrap gap-2">
+                {occasionOptions.map((tag) => {
+                  const isSelected = selectedOccasions.includes(tag);
+                  return (
+                    <Badge
+                      key={tag}
+                      variant={isSelected ? "default" : "outline"}
+                      className="cursor-pointer transition-colors"
+                      onClick={() => toggleOccasion(tag)}
+                    >
+                      {tag}
+                    </Badge>
+                  );
+                })}
+              </div>
+            </div>
+            <div>
+              <Label className="text-sm mb-2 block">Style Tags</Label>
+              <div className="flex flex-wrap gap-2">
+                {styleOptions.map((tag) => {
+                  const isSelected = selectedStyles.includes(tag);
+                  return (
+                    <Badge
+                      key={tag}
+                      variant={isSelected ? "default" : "outline"}
+                      className="cursor-pointer transition-colors"
+                      onClick={() => toggleStyle(tag)}
+                    >
+                      {tag}
+                    </Badge>
+                  );
+                })}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Material & Care */}
         <Card>
           <CardHeader><CardTitle className="text-base">Material & Care</CardTitle></CardHeader>
           <CardContent className="space-y-4">
