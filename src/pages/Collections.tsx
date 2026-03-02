@@ -1,13 +1,15 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { products } from "@/data/products";
+import { products as staticProducts } from "@/data/products";
 import { Card } from "@/components/ui/card";
 import { Heart, X } from "lucide-react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/integrations/supabase/client";
+import type { Product } from "@/types";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -28,13 +30,11 @@ const categoryMapping: Record<string, string[]> = {
   bags: ["bags"],
 };
 
-// Subcategory mapping for more specific filters
 const subcategoryMapping: Record<string, string[]> = {
   "bags-backpacks": ["bags"],
   "jewelry": ["accessories"],
 };
 
-// Display names for categories
 const categoryDisplayNames: Record<string, string> = {
   accessories: "Accessories",
   "bags-backpacks": "Bags & Backpacks",
@@ -50,30 +50,78 @@ export default function Collections() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { toggleItem, isInWishlist } = useWishlist();
+  const [dbProducts, setDbProducts] = useState<Product[]>([]);
 
-  // Parse URL parameters
+  // Fetch live products from database
+  useEffect(() => {
+    const fetchLiveProducts = async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("*, sellers(brand_name)")
+        .eq("status", "live")
+        .eq("is_available", true);
+
+      if (error) {
+        console.error("Error fetching live products:", error);
+        return;
+      }
+
+      if (data) {
+        const mapped: Product[] = data.map((p: any) => ({
+          id: p.id,
+          name: p.title,
+          brand: p.sellers?.brand_name || "Independent",
+          price: p.price,
+          originalPrice: p.original_price || undefined,
+          category: p.category,
+          images: Array.isArray(p.images) ? p.images : [],
+          tags: [
+            ...(Array.isArray(p.occasion_tags) ? p.occasion_tags : []),
+            ...(Array.isArray(p.style_tags) ? p.style_tags : []),
+          ],
+          sizes: Array.isArray(p.sizes) ? p.sizes : [],
+          colors: Array.isArray(p.colors) ? p.colors : [],
+          rating: 0,
+          reviews: 0,
+          inStock: p.is_available ?? true,
+          description: p.description || "",
+          material: p.material || "",
+          occasions: Array.isArray(p.occasion_tags) ? p.occasion_tags : [],
+        }));
+        setDbProducts(mapped);
+      }
+    };
+
+    fetchLiveProducts();
+  }, []);
+
   const categoryParam = searchParams.get("category");
   const subcategoryParam = searchParams.get("subcategory");
 
-  // Filter products based on URL params
+  // Merge static + DB products, then filter
+  const allProducts = useMemo(() => {
+    // Deduplicate by id (DB products take precedence)
+    const dbIds = new Set(dbProducts.map((p) => p.id));
+    const combined = [
+      ...dbProducts,
+      ...staticProducts.filter((p) => !dbIds.has(p.id)),
+    ];
+    return combined;
+  }, [dbProducts]);
+
   const filteredProducts = useMemo(() => {
-    // If subcategory is specified, use that filter first
     if (subcategoryParam && subcategoryMapping[subcategoryParam]) {
-      return products.filter((product) =>
+      return allProducts.filter((product) =>
         subcategoryMapping[subcategoryParam].includes(product.category)
       );
     }
-
-    // If category is specified, use category filter
     if (categoryParam && categoryMapping[categoryParam]) {
-      return products.filter((product) =>
+      return allProducts.filter((product) =>
         categoryMapping[categoryParam].includes(product.category)
       );
     }
-
-    // No filters - show all products
-    return products;
-  }, [categoryParam, subcategoryParam]);
+    return allProducts;
+  }, [categoryParam, subcategoryParam, allProducts]);
 
   // Get display title based on active filters
   const getPageTitle = () => {
@@ -96,7 +144,7 @@ export default function Collections() {
     const newParams = new URLSearchParams(searchParams);
     newParams.delete(type);
     if (type === "category") {
-      newParams.delete("subcategory"); // Clear subcategory too if clearing category
+      newParams.delete("subcategory");
     }
     setSearchParams(newParams);
   };
