@@ -40,20 +40,9 @@ const JoinUs = () => {
       <LuxuryHeader />
       
       <main>
-        {/* Hero Section with Background Image */}
+        {/* Hero Section */}
         <section className="relative py-20 md:py-32 overflow-hidden">
-          {/* Background Image with Overlay */}
-          <div className="absolute inset-0 z-0">
-            <video
-              autoPlay
-              muted
-              loop
-              playsInline
-              className="w-full h-full object-cover"
-              src="https://res.cloudinary.com/dow8lbkui/video/upload/v1772960567/Ogura_fashion_brand_reel_d936ed2c10_y9kikd.mp4"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-background via-background/95 to-background/80" />
-          </div>
+          <div className="absolute inset-0 z-0 bg-gradient-to-br from-background via-muted/30 to-background" />
           
           <div className="container mx-auto px-4 max-w-4xl text-center relative z-10">
             <div 
