@@ -82,6 +82,32 @@ const JoinUs = () => {
           </div>
         </section>
 
+        {/* How Ogura Works - Video Section */}
+        <section className="py-16 md:py-24 bg-muted/20">
+          <div className="container mx-auto px-4 max-w-4xl">
+            <AnimatedSection className="text-center mb-10">
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
+                How Ogura Works
+              </h2>
+              <p className="text-muted-foreground max-w-xl mx-auto">
+                See how designers and studios use Ogura to grow their custom fashion business.
+              </p>
+            </AnimatedSection>
+
+            <AnimatedSection delay={200}>
+              <div className="rounded-2xl overflow-hidden border border-border bg-card shadow-lg">
+                <video
+                  controls
+                  playsInline
+                  preload="metadata"
+                  className="w-full aspect-video"
+                  src="https://res.cloudinary.com/dow8lbkui/video/upload/v1772960567/Ogura_fashion_brand_reel_d936ed2c10_y9kikd.mp4"
+                />
+              </div>
+            </AnimatedSection>
+          </div>
+        </section>
+
         {/* How It Works - Journey Timeline */}
         <JourneyTimeline />
 
