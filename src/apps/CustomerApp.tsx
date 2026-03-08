@@ -22,6 +22,7 @@ import NotFound from "@/pages/NotFound";
 import CategoryPage from "@/pages/CategoryPage";
 import JoinUs from "@/pages/JoinUs";
 import Login from "@/pages/Login";
+import SellerApply from "@/pages/SellerApply";
 import Dashboard from "@/pages/Dashboard";
 import Onboarding from "@/pages/Onboarding";
 import Profile from "@/pages/Profile";
@@ -47,6 +48,7 @@ const CustomerApp = () => {
         <Route path="/search" element={<Search />} />
         <Route path="/category/:slug" element={<CategoryPage />} />
         <Route path="/join" element={<JoinUs />} />
+        <Route path="/join/apply" element={<SellerApply />} />
 
         {/* Protected Routes */}
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

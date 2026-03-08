@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { JourneyTimeline } from "@/components/join-us/JourneyTimeline";
+import { Link } from "react-router-dom";
 import { 
   Users, 
   CheckCircle2,
@@ -75,10 +76,12 @@ const JoinUs = () => {
             </p>
             
             <div className="animate-fade-in" style={{ animationDelay: '800ms' }}>
-              <Button size="lg" className="px-8 py-6 text-lg font-semibold group hover:scale-105 transition-transform duration-300">
-                Apply to Join Ogura
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
-              </Button>
+              <Link to="/join/apply">
+                <Button size="lg" className="px-8 py-6 text-lg font-semibold group hover:scale-105 transition-transform duration-300">
+                  Apply to Join Ogura
+                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                </Button>
+              </Link>
             </div>
             
             <p className="text-sm text-muted-foreground mt-4 animate-fade-in" style={{ animationDelay: '1000ms' }}>
@@ -301,14 +304,16 @@ const JoinUs = () => {
             <p className="text-primary-foreground/80 mb-8">
               Submit your application. We review each profile individually and respond within 5 working days.
             </p>
-            <Button 
-              size="lg" 
-              variant="secondary"
-              className="px-8 py-6 text-lg font-semibold group hover:scale-105 transition-transform duration-300"
-            >
-              Apply to Join Ogura
-              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
-            </Button>
+            <Link to="/join/apply">
+              <Button 
+                size="lg" 
+                variant="secondary"
+                className="px-8 py-6 text-lg font-semibold group hover:scale-105 transition-transform duration-300"
+              >
+                Apply to Join Ogura
+                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+              </Button>
+            </Link>
           </AnimatedSection>
         </section>
       </main>
