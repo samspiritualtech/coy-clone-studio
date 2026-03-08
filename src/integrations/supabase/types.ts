@@ -610,6 +610,48 @@ export type Database = {
         }
         Relationships: []
       }
+      seller_applications: {
+        Row: {
+          brand_name: string
+          category: string
+          city: string
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          phone: string
+          portfolio_link: string | null
+          sample_images: Json | null
+          status: string
+        }
+        Insert: {
+          brand_name: string
+          category: string
+          city: string
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          phone: string
+          portfolio_link?: string | null
+          sample_images?: Json | null
+          status?: string
+        }
+        Update: {
+          brand_name?: string
+          category?: string
+          city?: string
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          phone?: string
+          portfolio_link?: string | null
+          sample_images?: Json | null
+          status?: string
+        }
+        Relationships: []
+      }
       sellers: {
         Row: {
           application_status: string
