@@ -9,7 +9,7 @@ const categories = [
     subtitle: "Discover trending fashion labels from Instagram creators",
     ctaText: "Explore Instagram Brands",
     ctaLink: "/collections?category=instagram",
-    backgroundImage: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1920&q=80",
+    backgroundImage: "/instagram-brands-hero.png",
     height: "60vh" as const,
   },
   {
