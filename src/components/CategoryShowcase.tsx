@@ -1,14 +1,15 @@
 import { FullWidthImageSection } from "./FullWidthImageSection";
+import { Link } from "react-router-dom";
 
 const categories = [
   {
-    id: "new-arrivals",
-    label: "Just Arrived",
-    title: "New Arrivals",
-    subtitle: "Discover the latest pieces fresh from the runway",
-    ctaText: "Discover New",
-    ctaLink: "/collections?category=new",
-    backgroundImage: "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=1920&q=80",
+    id: "instagram-brands",
+    label: "OGURA SOCIAL",
+    title: "INSTAGRAM BRANDS",
+    subtitle: "Discover trending fashion labels from Instagram creators",
+    ctaText: "Explore Instagram Brands",
+    ctaLink: "/collections?category=instagram",
+    backgroundImage: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1920&q=80",
     height: "60vh" as const,
   },
   {
@@ -86,20 +87,36 @@ const categories = [
 export const CategoryShowcase = () => {
   return (
     <div className="flex flex-col">
-      {categories.map((category, index) => (
-        <FullWidthImageSection
-          key={category.id}
-          label={category.label}
-          title={category.title}
-          subtitle={category.subtitle}
-          ctaText={category.ctaText}
-          ctaLink={category.ctaLink}
-          backgroundImage={category.backgroundImage}
-          height={category.height}
-          contentAlign={index % 2 === 0 ? "center" : "left"}
-          overlayOpacity="medium"
-        />
-      ))}
+      {categories.map((category, index) => {
+        const section = (
+          <FullWidthImageSection
+            key={category.id}
+            label={category.label}
+            title={category.title}
+            subtitle={category.subtitle}
+            ctaText={category.ctaText}
+            ctaLink={category.ctaLink}
+            backgroundImage={category.backgroundImage}
+            height={category.height}
+            contentAlign={index % 2 === 0 ? "center" : "left"}
+            overlayOpacity="medium"
+          />
+        );
+
+        if (index === 0) {
+          return (
+            <Link
+              key={category.id}
+              to={category.ctaLink}
+              className="block rounded-2xl overflow-hidden mx-4 md:mx-8 my-6 shadow-lg hover:shadow-2xl transition-shadow duration-500"
+            >
+              {section}
+            </Link>
+          );
+        }
+
+        return section;
+      })}
     </div>
   );
 };
