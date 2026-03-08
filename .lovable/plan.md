@@ -1,35 +1,73 @@
 
 
-# Clean Up Instagram Brands Banner
+# Build Tagging + Consumer Visibility
 
-## Change — `src/components/CategoryShowcase.tsx`
+Two changes: enhance the seller Add Product form with tagging/image fields, and update the Collections page to also show approved database products.
 
-Replace the `FullWidthImageSection` usage for the first item (index 0) with a custom minimal banner that shows only the background image and a small "OGURA SOCIAL" label in the corner. Remove the large title, subtitle, and CTA button overlay.
+---
 
-**What the first item render will become:**
+## Part 1: Enhance Seller Add Product Form
 
-```tsx
-if (index === 0) {
-  return (
-    <Link
-      key={category.id}
-      to={category.ctaLink}
-      className="block rounded-2xl overflow-hidden mx-4 md:mx-8 my-6 shadow-lg hover:shadow-2xl transition-shadow duration-500 group"
-    >
-      <div className="relative w-full h-[60vh] overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-[8000ms] ease-out group-hover:scale-105"
-          style={{ backgroundImage: `url(${category.backgroundImage})` }}
-        />
-        {/* Small subtle label */}
-        <span className="absolute top-5 left-5 text-white/70 text-xs uppercase tracking-[0.3em] z-10">
-          OGURA SOCIAL
-        </span>
-      </div>
-    </Link>
-  );
-}
-```
+**File: `src/pages/seller/SellerAddProduct.tsx`**
 
-No gradient overlay, no large text, no CTA button — just the clean image with a subtle corner label. All existing hover effects (zoom, shadow transition) and clickable redirect preserved.
+Add four new sections to the form:
+
+### 1. Image Upload Section (new Card at top of form)
+- Reuse the existing `ImageUploadZone` component for drag-and-drop image upload
+- Store selected files in component state
+- On submit, upload images to a new `product-images` storage bucket, then save the returned URLs into the `images` JSON column
+- Require at least 1 image
+
+### 2. Sizes Picker (new Card)
+- Predefined size options: XS, S, M, L, XL, XXL, Free Size
+- Render as toggleable chips/checkboxes the seller can click to select multiple
+- Save selected sizes as JSON array to the `sizes` column
+
+### 3. Colors Picker (new Card)
+- Predefined color options with name + hex (Black, White, Red, Blue, Green, Pink, Yellow, Beige, Brown, Navy, Maroon, Grey)
+- Render as clickable color swatches with labels
+- Save selected colors as JSON array of `{name, hex}` objects to the `colors` column
+
+### 4. Tags Section (new Card)
+- **Occasion Tags**: Wedding, Festive, Party, Casual, Work, Brunch, Date Night, Vacation
+- **Style Tags**: Boho, Minimal, Ethnic, Western, Indo-Western, Streetwear, Classic, Contemporary
+- Render as toggleable badge chips grouped by type
+- Save to `occasion_tags` and `style_tags` JSON columns
+
+### Submit Logic Update
+- Upload image files to storage bucket first, collect URLs
+- Include `sizes`, `colors`, `occasion_tags`, `style_tags`, and `images` (URLs) in the insert payload
+
+---
+
+## Part 2: Show Approved DB Products on Collections Page
+
+**File: `src/pages/Collections.tsx`**
+
+- Add a `useEffect` + `useState` to fetch products from the database where `status = 'live'` and `is_available = true`
+- Map database products to the same shape as static `Product` type (map `title` to `name`, `seller brand_name` to `brand`, `original_price` to `originalPrice`, etc.)
+- Merge database products with the static catalog array
+- Apply the same category filtering logic to the combined array
+- Database products appear alongside static products in the same grid with the same card UI
+
+---
+
+## Part 3: Storage Bucket for Product Images
+
+**Database migration:**
+- Create a `product-images` public storage bucket
+- Add RLS policy: authenticated users can upload to their own folder (path prefix = seller_id)
+- Add RLS policy: anyone can read (public bucket)
+
+---
+
+## Technical Details
+
+| Area | Detail |
+|------|--------|
+| New storage bucket | `product-images` (public) |
+| Files modified | `SellerAddProduct.tsx`, `Collections.tsx` |
+| Existing component reused | `ImageUploadZone` |
+| DB columns already exist | `sizes`, `colors`, `occasion_tags`, `style_tags`, `images` -- no schema migration needed for columns |
+| New dependency | None |
 
