@@ -22,6 +22,7 @@ import NotFound from "@/pages/NotFound";
 import CategoryPage from "@/pages/CategoryPage";
 import JoinUs from "@/pages/JoinUs";
 import Login from "@/pages/Login";
+import SellerApply from "@/pages/SellerApply";
 import Dashboard from "@/pages/Dashboard";
 import Onboarding from "@/pages/Onboarding";
 import Profile from "@/pages/Profile";
