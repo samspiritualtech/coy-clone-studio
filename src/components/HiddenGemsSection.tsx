@@ -49,22 +49,27 @@ export const HiddenGemsSection = () => {
       {/* Split Layout */}
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 lg:gap-12">
         {/* Left - Large Banner */}
-        <div className="lg:w-1/2 relative rounded-2xl overflow-hidden group" style={{ aspectRatio: "3/4" }}>
-          <img
-            src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=900&q=80"
-            alt="Hidden Gems Collection"
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12">
-            <h3 className="text-white text-4xl md:text-5xl font-serif font-light tracking-wide mb-3">
-              HIDDEN GEMS
-            </h3>
-            <p className="text-white/80 text-sm md:text-base font-light max-w-sm leading-relaxed">
-              Niche, homegrown labels discovered from Instagram creators.
-            </p>
+        <Link to="/collections?category=instagram" className="lg:w-1/2 relative rounded-2xl overflow-hidden group block shadow-lg hover:shadow-2xl transition-shadow duration-500">
+          <div style={{ aspectRatio: "3/4" }} className="relative">
+            <img
+              src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=900&q=80"
+              alt="Hidden Gems Collection"
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12">
+              <h3 className="text-white text-4xl md:text-5xl font-serif font-light tracking-wide mb-3">
+                HIDDEN GEMS
+              </h3>
+              <p className="text-white/80 text-sm md:text-base font-light max-w-sm leading-relaxed mb-5">
+                Niche, homegrown labels discovered from Instagram creators.
+              </p>
+              <span className="inline-block px-6 py-2 text-xs uppercase tracking-[0.2em] text-white/90 border border-white/30 rounded-full backdrop-blur-sm bg-white/5 transition-all duration-300 group-hover:bg-white/15 group-hover:border-white/50">
+                Explore Instagram
+              </span>
+            </div>
           </div>
-        </div>
+        </Link>
 
         {/* Right - Brand Cards Grid */}
         <div className="lg:w-1/2 grid grid-cols-2 gap-4 md:gap-6 content-start">
