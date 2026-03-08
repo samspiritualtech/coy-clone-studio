@@ -76,10 +76,12 @@ const JoinUs = () => {
             </p>
             
             <div className="animate-fade-in" style={{ animationDelay: '800ms' }}>
-              <Button size="lg" className="px-8 py-6 text-lg font-semibold group hover:scale-105 transition-transform duration-300">
-                Apply to Join Ogura
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
-              </Button>
+              <Link to="/join/apply">
+                <Button size="lg" className="px-8 py-6 text-lg font-semibold group hover:scale-105 transition-transform duration-300">
+                  Apply to Join Ogura
+                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                </Button>
+              </Link>
             </div>
             
             <p className="text-sm text-muted-foreground mt-4 animate-fade-in" style={{ animationDelay: '1000ms' }}>
