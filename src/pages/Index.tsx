@@ -19,7 +19,7 @@ const Index = () => {
         <LuxuryHero />
         
         <Premium3DCategorySection />
-        <InstagramModelsBanner />
+        <HiddenGemsSection />
         <CategoryShowcase />
         <DesignersSpotlight />
         <LuxuryTrustBadges />
