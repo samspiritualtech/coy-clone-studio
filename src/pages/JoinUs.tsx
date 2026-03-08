@@ -304,14 +304,16 @@ const JoinUs = () => {
             <p className="text-primary-foreground/80 mb-8">
               Submit your application. We review each profile individually and respond within 5 working days.
             </p>
-            <Button 
-              size="lg" 
-              variant="secondary"
-              className="px-8 py-6 text-lg font-semibold group hover:scale-105 transition-transform duration-300"
-            >
-              Apply to Join Ogura
-              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
-            </Button>
+            <Link to="/join/apply">
+              <Button 
+                size="lg" 
+                variant="secondary"
+                className="px-8 py-6 text-lg font-semibold group hover:scale-105 transition-transform duration-300"
+              >
+                Apply to Join Ogura
+                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+              </Button>
+            </Link>
           </AnimatedSection>
         </section>
       </main>
