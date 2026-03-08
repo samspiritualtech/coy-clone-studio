@@ -1,14 +1,15 @@
 import { FullWidthImageSection } from "./FullWidthImageSection";
+import { Link } from "react-router-dom";
 
 const categories = [
   {
-    id: "new-arrivals",
-    label: "Just Arrived",
-    title: "New Arrivals",
-    subtitle: "Discover the latest pieces fresh from the runway",
-    ctaText: "Discover New",
-    ctaLink: "/collections?category=new",
-    backgroundImage: "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=1920&q=80",
+    id: "instagram-brands",
+    label: "OGURA SOCIAL",
+    title: "INSTAGRAM BRANDS",
+    subtitle: "Discover trending fashion labels from Instagram creators",
+    ctaText: "Explore Instagram Brands",
+    ctaLink: "/collections?category=instagram",
+    backgroundImage: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1920&q=80",
     height: "60vh" as const,
   },
   {
