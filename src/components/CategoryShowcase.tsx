@@ -108,9 +108,17 @@ export const CategoryShowcase = () => {
             <Link
               key={category.id}
               to={category.ctaLink}
-              className="block rounded-2xl overflow-hidden mx-4 md:mx-8 my-6 shadow-lg hover:shadow-2xl transition-shadow duration-500"
+              className="block rounded-2xl overflow-hidden mx-4 md:mx-8 my-6 shadow-lg hover:shadow-2xl transition-shadow duration-500 group"
             >
-              {section}
+              <div className="relative w-full h-[60vh] overflow-hidden">
+                <div
+                  className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-[8000ms] ease-out group-hover:scale-105"
+                  style={{ backgroundImage: `url(${category.backgroundImage})` }}
+                />
+                <span className="absolute top-5 left-5 text-white/70 text-xs uppercase tracking-[0.3em] z-10">
+                  OGURA SOCIAL
+                </span>
+              </div>
             </Link>
           );
         }
