@@ -82,35 +82,6 @@ const JoinUs = () => {
           </div>
         </section>
 
-        {/* How Ogura Works - Video Banner */}
-        <section className="py-16 md:py-24 bg-muted/20">
-          <div className="container mx-auto px-4 max-w-5xl">
-            <AnimatedSection delay={200}>
-              <div className="relative rounded-2xl overflow-hidden shadow-lg aspect-video">
-                <video
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  className="absolute inset-0 w-full h-full object-cover"
-                  src="https://res.cloudinary.com/dow8lbkui/video/upload/v1772962550/cch7stxes9rmr0cwsjnamwb66w_result__gzzsip.mp4"
-                />
-                <div className="absolute inset-0 bg-black/40" />
-                <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-4">
-                  <span className="text-xs md:text-sm tracking-[0.3em] uppercase text-white/80 font-medium mb-3">
-                    Ogura Designers
-                  </span>
-                  <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-4">
-                    JOIN OGURA
-                  </h2>
-                  <p className="text-base md:text-lg text-white/80 max-w-md">
-                    Where India's designers meet customers
-                  </p>
-                </div>
-              </div>
-            </AnimatedSection>
-          </div>
-        </section>
 
         {/* How It Works - Journey Timeline */}
         <JourneyTimeline />

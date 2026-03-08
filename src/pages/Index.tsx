@@ -1,6 +1,6 @@
 import { LuxuryHeader } from "@/components/LuxuryHeader";
 import { LuxuryHero } from "@/components/LuxuryHero";
-import HoliDhamakaSale from "@/components/HoliDhamakaSale";
+
 import { Premium3DCategorySection } from "@/components/Premium3DCategorySection";
 import InstagramModelsBanner from "@/components/InstagramModelsBanner";
 import { CategoryShowcase } from "@/components/CategoryShowcase";
@@ -17,7 +17,7 @@ const Index = () => {
       <LuxuryHeader />
       <main>
         <LuxuryHero />
-        <HoliDhamakaSale />
+        
         <Premium3DCategorySection />
         <InstagramModelsBanner />
         <CategoryShowcase />
