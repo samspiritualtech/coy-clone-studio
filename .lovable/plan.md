@@ -1,33 +1,73 @@
 
 
-# Fix Seller Application Image Upload
+# Build Tagging + Consumer Visibility
 
-## Problem
-The `seller_applications` table INSERT works fine (confirmed by the 201 response in network logs). The failure is in **storage uploads** -- when uploading sample design images to the `product-images` bucket, the RLS policy only allows `authenticated` users, but the application form is used by unauthenticated (anonymous) visitors.
+Two changes: enhance the seller Add Product form with tagging/image fields, and update the Collections page to also show approved database products.
 
-Error: `"new row violates row-level security policy"` on `storage.objects` INSERT.
+---
 
-## Solution
+## Part 1: Enhance Seller Add Product Form
 
-### 1. Database Migration -- Allow anonymous storage uploads for applications
-Add a new storage RLS policy that permits anonymous uploads specifically to the `applications/` folder in the `product-images` bucket:
+**File: `src/pages/seller/SellerAddProduct.tsx`**
 
-```sql
-CREATE POLICY "Anyone can upload application images"
-ON storage.objects FOR INSERT TO anon
-WITH CHECK (
-  bucket_id = 'product-images' 
-  AND (storage.foldername(name))[1] = 'applications'
-);
-```
+Add four new sections to the form:
 
-This is scoped narrowly -- only the `applications/` prefix is open to anonymous uploads, keeping all other folders restricted to authenticated users.
+### 1. Image Upload Section (new Card at top of form)
+- Reuse the existing `ImageUploadZone` component for drag-and-drop image upload
+- Store selected files in component state
+- On submit, upload images to a new `product-images` storage bucket, then save the returned URLs into the `images` JSON column
+- Require at least 1 image
 
-### 2. No code changes needed
-- The `SellerApply.tsx` form already handles validation, image upload, DB insert, success state, and error handling correctly.
-- The table schema already stores all the relevant fields (`full_name`, `brand_name`, `email`, `phone`, `city`, `category`, `portfolio_link`, `sample_images`, `status`, `created_at`).
-- The INSERT policy on `seller_applications` already allows anonymous inserts and works (confirmed 201 response).
+### 2. Sizes Picker (new Card)
+- Predefined size options: XS, S, M, L, XL, XXL, Free Size
+- Render as toggleable chips/checkboxes the seller can click to select multiple
+- Save selected sizes as JSON array to the `sizes` column
 
-### Files changed
-- 1 new database migration (storage RLS policy for anon uploads to `applications/` prefix)
+### 3. Colors Picker (new Card)
+- Predefined color options with name + hex (Black, White, Red, Blue, Green, Pink, Yellow, Beige, Brown, Navy, Maroon, Grey)
+- Render as clickable color swatches with labels
+- Save selected colors as JSON array of `{name, hex}` objects to the `colors` column
+
+### 4. Tags Section (new Card)
+- **Occasion Tags**: Wedding, Festive, Party, Casual, Work, Brunch, Date Night, Vacation
+- **Style Tags**: Boho, Minimal, Ethnic, Western, Indo-Western, Streetwear, Classic, Contemporary
+- Render as toggleable badge chips grouped by type
+- Save to `occasion_tags` and `style_tags` JSON columns
+
+### Submit Logic Update
+- Upload image files to storage bucket first, collect URLs
+- Include `sizes`, `colors`, `occasion_tags`, `style_tags`, and `images` (URLs) in the insert payload
+
+---
+
+## Part 2: Show Approved DB Products on Collections Page
+
+**File: `src/pages/Collections.tsx`**
+
+- Add a `useEffect` + `useState` to fetch products from the database where `status = 'live'` and `is_available = true`
+- Map database products to the same shape as static `Product` type (map `title` to `name`, `seller brand_name` to `brand`, `original_price` to `originalPrice`, etc.)
+- Merge database products with the static catalog array
+- Apply the same category filtering logic to the combined array
+- Database products appear alongside static products in the same grid with the same card UI
+
+---
+
+## Part 3: Storage Bucket for Product Images
+
+**Database migration:**
+- Create a `product-images` public storage bucket
+- Add RLS policy: authenticated users can upload to their own folder (path prefix = seller_id)
+- Add RLS policy: anyone can read (public bucket)
+
+---
+
+## Technical Details
+
+| Area | Detail |
+|------|--------|
+| New storage bucket | `product-images` (public) |
+| Files modified | `SellerAddProduct.tsx`, `Collections.tsx` |
+| Existing component reused | `ImageUploadZone` |
+| DB columns already exist | `sizes`, `colors`, `occasion_tags`, `style_tags`, `images` -- no schema migration needed for columns |
+| New dependency | None |
 
