@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { JourneyTimeline } from "@/components/join-us/JourneyTimeline";
+import { Link } from "react-router-dom";
 import { 
   Users, 
   CheckCircle2,
