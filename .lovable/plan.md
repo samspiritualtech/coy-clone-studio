@@ -1,34 +1,73 @@
 
 
-# Functional Settings Page + Dev Mode Fallback
+# Build Tagging + Consumer Visibility
 
-## Changes
+Two changes: enhance the seller Add Product form with tagging/image fields, and update the Collections page to also show approved database products.
 
-### 1. Rewrite `DashboardSettings.tsx` — Make it functional
-Convert from static markup to a stateful component that:
-- Resolves seller ID from `useAuth()` with `DEV_SELLER_ID` fallback
-- Fetches seller data from `sellers` table on mount
-- Binds form fields to state (`brand_name`, description, city, instagram_handle`)
-- On Save: calls `supabase.from("sellers").update(...)`, shows success/error toast, reloads data
-- Shows loading spinner while fetching
+---
 
-The `sellers` table doesn't have `email` or `state` columns, so the form will use: brand_name, description, city, instagram_handle (matching existing schema).
+## Part 1: Enhance Seller Add Product Form
 
-### 2. No additional dev-mode changes needed
-`DashboardProducts`, `DashboardAddProduct`, and `DashboardDiscounts` already use the `DEV_SELLER_ID` fallback pattern. The `DashboardSettings` rewrite will follow the same pattern. The dev-mode RLS policies are already in place for the `sellers` table (`dev_allow_anon_select_sellers`).
+**File: `src/pages/seller/SellerAddProduct.tsx`**
 
-However, the `sellers` table is missing a dev-mode UPDATE policy for anon users — saving settings in dev mode will fail. Need a migration to add `dev_allow_anon_update_sellers`.
+Add four new sections to the form:
 
-### 3. Database migration — Add dev-mode update policy for sellers
-```sql
-CREATE POLICY "dev_allow_anon_update_sellers"
-ON public.sellers FOR UPDATE TO anon
-USING (true) WITH CHECK (true);
-```
+### 1. Image Upload Section (new Card at top of form)
+- Reuse the existing `ImageUploadZone` component for drag-and-drop image upload
+- Store selected files in component state
+- On submit, upload images to a new `product-images` storage bucket, then save the returned URLs into the `images` JSON column
+- Require at least 1 image
 
-### Files to modify
-- `src/components/seller-dashboard/pages/DashboardSettings.tsx` — full rewrite
+### 2. Sizes Picker (new Card)
+- Predefined size options: XS, S, M, L, XL, XXL, Free Size
+- Render as toggleable chips/checkboxes the seller can click to select multiple
+- Save selected sizes as JSON array to the `sizes` column
 
-### Files unchanged
-- No other files need changes
+### 3. Colors Picker (new Card)
+- Predefined color options with name + hex (Black, White, Red, Blue, Green, Pink, Yellow, Beige, Brown, Navy, Maroon, Grey)
+- Render as clickable color swatches with labels
+- Save selected colors as JSON array of `{name, hex}` objects to the `colors` column
+
+### 4. Tags Section (new Card)
+- **Occasion Tags**: Wedding, Festive, Party, Casual, Work, Brunch, Date Night, Vacation
+- **Style Tags**: Boho, Minimal, Ethnic, Western, Indo-Western, Streetwear, Classic, Contemporary
+- Render as toggleable badge chips grouped by type
+- Save to `occasion_tags` and `style_tags` JSON columns
+
+### Submit Logic Update
+- Upload image files to storage bucket first, collect URLs
+- Include `sizes`, `colors`, `occasion_tags`, `style_tags`, and `images` (URLs) in the insert payload
+
+---
+
+## Part 2: Show Approved DB Products on Collections Page
+
+**File: `src/pages/Collections.tsx`**
+
+- Add a `useEffect` + `useState` to fetch products from the database where `status = 'live'` and `is_available = true`
+- Map database products to the same shape as static `Product` type (map `title` to `name`, `seller brand_name` to `brand`, `original_price` to `originalPrice`, etc.)
+- Merge database products with the static catalog array
+- Apply the same category filtering logic to the combined array
+- Database products appear alongside static products in the same grid with the same card UI
+
+---
+
+## Part 3: Storage Bucket for Product Images
+
+**Database migration:**
+- Create a `product-images` public storage bucket
+- Add RLS policy: authenticated users can upload to their own folder (path prefix = seller_id)
+- Add RLS policy: anyone can read (public bucket)
+
+---
+
+## Technical Details
+
+| Area | Detail |
+|------|--------|
+| New storage bucket | `product-images` (public) |
+| Files modified | `SellerAddProduct.tsx`, `Collections.tsx` |
+| Existing component reused | `ImageUploadZone` |
+| DB columns already exist | `sizes`, `colors`, `occasion_tags`, `style_tags`, `images` -- no schema migration needed for columns |
+| New dependency | None |
 
