@@ -379,6 +379,22 @@ export default function Checkout() {
             <Card className="p-5 sticky top-24">
               <h2 className="font-semibold mb-4">Payment Summary</h2>
 
+              {/* Discount Code */}
+              {!appliedDiscount && (
+                <div className="flex gap-2 mb-4">
+                  <Input
+                    placeholder="Discount code"
+                    value={discountCode}
+                    onChange={e => setDiscountCode(e.target.value)}
+                    className="uppercase text-sm"
+                    onKeyDown={e => e.key === "Enter" && handleApplyDiscount()}
+                  />
+                  <Button variant="outline" size="sm" onClick={handleApplyDiscount} disabled={applyingDiscount}>
+                    {applyingDiscount ? <Loader2 className="h-3 w-3 animate-spin" /> : "Apply"}
+                  </Button>
+                </div>
+              )}
+
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Subtotal</span>
