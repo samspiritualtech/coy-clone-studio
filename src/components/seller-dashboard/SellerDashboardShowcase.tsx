@@ -20,14 +20,20 @@ import { DashboardSettings } from "./pages/DashboardSettings";
 export const SellerDashboardShowcase = () => {
   const [activeTab, setActiveTab] = useState("home");
   const [showAddProduct, setShowAddProduct] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const handleProductSaved = () => {
+    setShowAddProduct(false);
+    setRefreshKey(k => k + 1);
+  };
 
   const renderContent = () => {
-    if (showAddProduct) return <DashboardAddProduct onBack={() => setShowAddProduct(false)} />;
+    if (showAddProduct) return <DashboardAddProduct onBack={handleProductSaved} />;
 
     switch (activeTab) {
       case "home": return <DashboardHome />;
       case "orders": return <DashboardOrders />;
-      case "products": return <DashboardProducts onAddProduct={() => setShowAddProduct(true)} />;
+      case "products": return <DashboardProducts onAddProduct={() => setShowAddProduct(true)} refreshKey={refreshKey} />;
       case "collections": return <DashboardCollections />;
       case "inventory": return <DashboardInventory />;
       case "transfers": return <DashboardTransfers />;

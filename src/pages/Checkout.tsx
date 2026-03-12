@@ -39,6 +39,10 @@ export default function Checkout() {
   
   const [isProcessing, setIsProcessing] = useState(false);
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
+  const [discountCode, setDiscountCode] = useState("");
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [appliedDiscount, setAppliedDiscount] = useState<{ id: string; code: string; type: string; value: number } | null>(null);
+  const [applyingDiscount, setApplyingDiscount] = useState(false);
 
   // Load Razorpay script
   useEffect(() => {
