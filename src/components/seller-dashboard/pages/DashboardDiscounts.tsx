@@ -56,7 +56,7 @@ export const DashboardDiscounts = () => {
   const fetchDiscounts = async () => {
     if (!sellerId) { setLoading(false); return; }
     setLoading(true);
-    const { data } = await supabase
+    const { data } = await (supabase as any)
       .from("discounts")
       .select("*")
       .eq("seller_id", sellerId)
