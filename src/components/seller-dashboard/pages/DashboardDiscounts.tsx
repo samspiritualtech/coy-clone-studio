@@ -84,7 +84,7 @@ export const DashboardDiscounts = () => {
 
     setSaving(true);
     try {
-      const { error } = await supabase.from("discounts").insert({
+      const { error } = await (supabase as any).from("discounts").insert({
         seller_id: sellerId,
         code: code.trim().toUpperCase(),
         type: formType,
