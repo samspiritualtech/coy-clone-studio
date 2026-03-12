@@ -394,6 +394,15 @@ export default function Checkout() {
                   <span className="text-muted-foreground">Tax (18% GST)</span>
                   <span>₹{tax.toLocaleString()}</span>
                 </div>
+                {appliedDiscount && (
+                  <div className="flex justify-between text-green-600">
+                    <span className="flex items-center gap-1">
+                      Discount ({appliedDiscount.code})
+                      <button onClick={removeDiscount} className="text-xs underline text-muted-foreground hover:text-destructive">Remove</button>
+                    </span>
+                    <span>-₹{discountAmount.toLocaleString()}</span>
+                  </div>
+                )}
                 <Separator />
                 <div className="flex justify-between font-bold text-base">
                   <span>Total</span>
