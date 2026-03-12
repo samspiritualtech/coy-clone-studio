@@ -109,7 +109,7 @@ export const DashboardDiscounts = () => {
 
   const toggleStatus = async (d: Discount) => {
     const newStatus = d.status === "active" ? "expired" : "active";
-    await supabase.from("discounts").update({ status: newStatus }).eq("id", d.id);
+    await (supabase as any).from("discounts").update({ status: newStatus }).eq("id", d.id);
     fetchDiscounts();
   };
 
