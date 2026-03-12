@@ -65,7 +65,7 @@ export const DashboardDiscounts = () => {
     setLoading(false);
   };
 
-  useEffect(() => { fetchDiscounts(); }, [sellerId]);
+  useEffect(() => { if (sellerId) fetchDiscounts(); else setLoading(false); }, [sellerId]);
 
   const resetForm = () => {
     setCode(""); setValue(""); setMinPurchase(""); setUsageLimit(""); setStartDate(""); setEndDate("");
