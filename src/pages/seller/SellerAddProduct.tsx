@@ -167,7 +167,7 @@ const SellerAddProduct = () => {
       dispatch_days: parseInt(form.dispatch_days) || 7,
       is_made_to_order: form.is_made_to_order,
       is_returnable: form.is_returnable,
-      status: "pending",
+      status: "submitted",
       images: imageUrls,
       colors: selectedColors,
       sizes: selectedSizes,
