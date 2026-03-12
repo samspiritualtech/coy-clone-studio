@@ -78,9 +78,12 @@ export const DashboardDiscounts = () => {
   };
 
   const handleSave = async () => {
-    if (!sellerId) return;
-    if (!code.trim()) { toast({ title: "Code required", variant: "destructive" }); return; }
-    if (formType !== "free_shipping" && !value) { toast({ title: "Value required", variant: "destructive" }); return; }
+    if (!sellerId) {
+      toast({ title: "Not authenticated", description: "Please sign in as an approved seller to create discounts.", variant: "destructive" });
+      return;
+    }
+    if (!code.trim()) { toast({ title: "Code required", description: "Please enter a discount code.", variant: "destructive" }); return; }
+    if (formType !== "free_shipping" && !value) { toast({ title: "Value required", description: "Please enter a discount value.", variant: "destructive" }); return; }
 
     setSaving(true);
     try {
