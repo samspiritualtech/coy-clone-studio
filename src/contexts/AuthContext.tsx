@@ -7,6 +7,8 @@ import { Session } from '@supabase/supabase-js';
 interface AuthContextType {
   user: User | null;
   signInWithGoogle: () => Promise<{ success: boolean; error?: string }>;
+  signInWithEmail: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signUpWithEmail: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   isAuthenticated: boolean;
   isLoading: boolean;
