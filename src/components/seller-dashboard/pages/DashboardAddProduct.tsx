@@ -274,13 +274,6 @@ export const DashboardAddProduct = ({ onBack }: Props) => {
             </CardContent>
           </Card>
 
-          {!sellerId && user && (
-            <Card className="shadow-sm border-destructive">
-              <CardContent className="p-4 text-sm text-destructive">
-                You are not registered as an approved seller. Apply first.
-              </CardContent>
-            </Card>
-          )}
         </div>
       </div>
 
