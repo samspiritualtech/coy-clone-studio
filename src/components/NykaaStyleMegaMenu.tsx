@@ -12,7 +12,7 @@ type MenuType = "women" | "men" | "brands" | null;
 export const NykaaStyleMegaMenu = ({ isScrolled = true }: NykaaStyleMegaMenuProps) => {
   const [activeMenu, setActiveMenu] = useState<MenuType>(null);
   const [hoveredCategory, setHoveredCategory] = useState<Category | null>(null);
-  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleMouseEnter = (menuType: MenuType) => {
     if (closeTimeoutRef.current) {

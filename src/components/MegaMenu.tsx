@@ -67,7 +67,7 @@ const generateCategoryUrl = (category: string, item: string) => {
 
 export const MegaMenu = ({ isScrolled = true }: MegaMenuProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Cleanup timeout on unmount
   useEffect(() => {
