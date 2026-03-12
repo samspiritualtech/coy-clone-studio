@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -39,6 +40,10 @@ export default function Checkout() {
   
   const [isProcessing, setIsProcessing] = useState(false);
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
+  const [discountCode, setDiscountCode] = useState("");
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [appliedDiscount, setAppliedDiscount] = useState<{ id: string; code: string; type: string; value: number } | null>(null);
+  const [applyingDiscount, setApplyingDiscount] = useState(false);
 
   // Load Razorpay script
   useEffect(() => {
@@ -68,8 +73,62 @@ export default function Checkout() {
     });
   };
 
+  const handleApplyDiscount = async () => {
+    if (!discountCode.trim()) return;
+    setApplyingDiscount(true);
+    try {
+      const { data, error } = await (supabase as any)
+        .from("discounts")
+        .select("*")
+        .eq("code", discountCode.trim().toUpperCase())
+        .eq("status", "active")
+        .maybeSingle();
+
+      if (error || !data) {
+        toast({ title: "Invalid code", description: "This discount code is not valid.", variant: "destructive" });
+        setApplyingDiscount(false);
+        return;
+      }
+
+      if (data.usage_limit && data.usage_count >= data.usage_limit) {
+        toast({ title: "Code expired", description: "This discount has reached its usage limit.", variant: "destructive" });
+        setApplyingDiscount(false);
+        return;
+      }
+
+      if (data.min_purchase && subtotal < data.min_purchase) {
+        toast({ title: "Minimum not met", description: `Minimum purchase of ₹${data.min_purchase} required.`, variant: "destructive" });
+        setApplyingDiscount(false);
+        return;
+      }
+
+      let amount = 0;
+      if (data.type === "free_shipping") {
+        amount = deliveryFee;
+      } else if (data.type.includes("percentage")) {
+        amount = Math.round(subtotal * (data.value / 100));
+      } else {
+        amount = Math.min(data.value, subtotal);
+      }
+
+      setDiscountAmount(amount);
+      setAppliedDiscount({ id: data.id, code: data.code, type: data.type, value: data.value });
+      toast({ title: "Discount applied!", description: `You saved ₹${amount}` });
+    } catch {
+      toast({ title: "Error", description: "Could not apply discount.", variant: "destructive" });
+    } finally {
+      setApplyingDiscount(false);
+    }
+  };
+
+  const removeDiscount = () => {
+    setAppliedDiscount(null);
+    setDiscountAmount(0);
+    setDiscountCode("");
+  };
+
   const deliveryFee = subtotal >= 999 ? 0 : 99;
-  const finalTotal = total + deliveryFee;
+  const finalTotal = total + deliveryFee - discountAmount;
 
   const handlePayment = async () => {
     if (!selectedAddress) {
@@ -114,7 +173,7 @@ export default function Checkout() {
         customer_id: user?.id,
         subtotal: Math.round(subtotal),
         shipping_fee: deliveryFee,
-        discount: 0,
+        discount: Math.round(discountAmount),
         total: Math.round(finalTotal),
         shipping_address: {
           full_name: selectedAddress.full_name,
@@ -321,6 +380,22 @@ export default function Checkout() {
             <Card className="p-5 sticky top-24">
               <h2 className="font-semibold mb-4">Payment Summary</h2>
 
+              {/* Discount Code */}
+              {!appliedDiscount && (
+                <div className="flex gap-2 mb-4">
+                  <Input
+                    placeholder="Discount code"
+                    value={discountCode}
+                    onChange={e => setDiscountCode(e.target.value)}
+                    className="uppercase text-sm"
+                    onKeyDown={e => e.key === "Enter" && handleApplyDiscount()}
+                  />
+                  <Button variant="outline" size="sm" onClick={handleApplyDiscount} disabled={applyingDiscount}>
+                    {applyingDiscount ? <Loader2 className="h-3 w-3 animate-spin" /> : "Apply"}
+                  </Button>
+                </div>
+              )}
+
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Subtotal</span>
@@ -336,6 +411,15 @@ export default function Checkout() {
                   <span className="text-muted-foreground">Tax (18% GST)</span>
                   <span>₹{tax.toLocaleString()}</span>
                 </div>
+                {appliedDiscount && (
+                  <div className="flex justify-between text-green-600">
+                    <span className="flex items-center gap-1">
+                      Discount ({appliedDiscount.code})
+                      <button onClick={removeDiscount} className="text-xs underline text-muted-foreground hover:text-destructive">Remove</button>
+                    </span>
+                    <span>-₹{discountAmount.toLocaleString()}</span>
+                  </div>
+                )}
                 <Separator />
                 <div className="flex justify-between font-bold text-base">
                   <span>Total</span>

@@ -3,34 +3,130 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Upload, X } from "lucide-react";
-import { useState } from "react";
+import { ArrowLeft, X, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
+import { ImageUploadZone } from "@/components/ImageUploadZone";
 
 interface Props {
   onBack: () => void;
 }
 
-const sizeOptions = ["XS", "S", "M", "L", "XL", "XXL"];
-const colorOptions = ["Black", "White", "Red", "Blue", "Green", "Pink", "Beige", "Brown"];
+const categories = ["Sarees", "Lehengas", "Suits", "Kurtas", "Dresses", "Tops", "Bottoms", "Accessories"];
+const sizeOptions = ["XS", "S", "M", "L", "XL", "XXL", "Free Size"];
+const colorOptions = [
+  { name: "Black", hex: "#000000" }, { name: "White", hex: "#FFFFFF" },
+  { name: "Red", hex: "#EF4444" }, { name: "Blue", hex: "#3B82F6" },
+  { name: "Green", hex: "#22C55E" }, { name: "Pink", hex: "#EC4899" },
+  { name: "Beige", hex: "#D4A574" }, { name: "Brown", hex: "#92400E" },
+  { name: "Navy", hex: "#1E3A5F" }, { name: "Maroon", hex: "#800000" },
+];
+const occasionOptions = ["Wedding", "Festive", "Party", "Casual", "Work", "Brunch", "Date Night", "Vacation"];
+const styleOptions = ["Boho", "Minimal", "Ethnic", "Western", "Indo-Western", "Streetwear", "Classic", "Contemporary"];
 
 export const DashboardAddProduct = ({ onBack }: Props) => {
+  const { user } = useAuth();
+  const [sellerId, setSellerId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
+
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [price, setPrice] = useState("");
+  const [originalPrice, setOriginalPrice] = useState("");
+  const [category, setCategory] = useState("");
+  const [material, setMaterial] = useState("");
   const [sizes, setSizes] = useState<string[]>([]);
-  const [colors, setColors] = useState<string[]>([]);
+  const [colors, setColors] = useState<{ name: string; hex: string }[]>([]);
+  const [occasionTags, setOccasionTags] = useState<string[]>([]);
+  const [styleTags, setStyleTags] = useState<string[]>([]);
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
-  const [trackInventory, setTrackInventory] = useState(true);
-  const [physicalProduct, setPhysicalProduct] = useState(true);
 
-  const toggleSize = (s: string) => setSizes((prev) => prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]);
-  const toggleColor = (c: string) => setColors((prev) => prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]);
+  useEffect(() => {
+    if (!user?.id) return;
+    supabase.from("sellers").select("id").eq("user_id", user.id).maybeSingle()
+      .then(({ data }) => { if (data) setSellerId(data.id); });
+  }, [user?.id]);
+
+  const toggleSize = (s: string) => setSizes(p => p.includes(s) ? p.filter(x => x !== s) : [...p, s]);
+  const toggleColor = (c: { name: string; hex: string }) =>
+    setColors(p => p.find(x => x.name === c.name) ? p.filter(x => x.name !== c.name) : [...p, c]);
+  const toggleOccasion = (t: string) => setOccasionTags(p => p.includes(t) ? p.filter(x => x !== t) : [...p, t]);
+  const toggleStyle = (t: string) => setStyleTags(p => p.includes(t) ? p.filter(x => x !== t) : [...p, t]);
   const addTag = () => {
     if (tagInput.trim() && !tags.includes(tagInput.trim())) {
       setTags([...tags, tagInput.trim()]);
       setTagInput("");
     }
   };
+
+  const uploadImages = async (): Promise<string[]> => {
+    const urls: string[] = [];
+    for (const file of imageFiles) {
+      const path = `${sellerId}/${Date.now()}-${file.name}`;
+      const { error } = await supabase.storage.from("product-images").upload(path, file);
+      if (error) throw error;
+      const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(path);
+      urls.push(urlData.publicUrl);
+    }
+    return urls;
+  };
+
+  const handleSubmit = async () => {
+    if (!sellerId) {
+      toast({ title: "Not authorized", description: "You must be an approved seller.", variant: "destructive" });
+      return;
+    }
+    if (!title.trim() || !price || !category) {
+      toast({ title: "Missing fields", description: "Title, price, and category are required.", variant: "destructive" });
+      return;
+    }
+    if (imageFiles.length === 0) {
+      toast({ title: "No images", description: "Please upload at least one product image.", variant: "destructive" });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const imageUrls = await uploadImages();
+      const { error } = await supabase.from("products").insert({
+        seller_id: sellerId,
+        title: title.trim(),
+        description: description.trim() || null,
+        price: Math.round(Number(price)),
+        original_price: originalPrice ? Math.round(Number(originalPrice)) : null,
+        category,
+        material: material.trim() || null,
+        images: imageUrls,
+        sizes,
+        colors,
+        occasion_tags: occasionTags,
+        style_tags: styleTags,
+        status: "pending",
+        is_available: true,
+      });
+      if (error) throw error;
+      toast({ title: "Product saved!", description: "Your product has been submitted for review." });
+      onBack();
+    } catch (err: any) {
+      toast({ title: "Error saving product", description: err.message, variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 text-center">
+        <p className="text-lg font-medium mb-2">Sign in to manage products</p>
+        <p className="text-sm text-muted-foreground">You need to be logged in as an approved seller.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-4xl">
@@ -45,25 +141,21 @@ export const DashboardAddProduct = ({ onBack }: Props) => {
           <Card className="shadow-sm">
             <CardContent className="p-4 space-y-4">
               <div>
-                <Label className="text-xs font-medium">Title</Label>
-                <Input placeholder="Short sleeve t-shirt" className="mt-1" />
+                <Label className="text-xs font-medium">Title *</Label>
+                <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="Short sleeve t-shirt" className="mt-1" />
               </div>
               <div>
                 <Label className="text-xs font-medium">Description</Label>
-                <Textarea placeholder="Write a description..." className="mt-1 min-h-[120px]" />
+                <Textarea value={description} onChange={e => setDescription(e.target.value)} placeholder="Write a description..." className="mt-1 min-h-[120px]" />
               </div>
             </CardContent>
           </Card>
 
           {/* Media */}
           <Card className="shadow-sm">
-            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Media</CardTitle></CardHeader>
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Media *</CardTitle></CardHeader>
             <CardContent>
-              <div className="border-2 border-dashed rounded-lg p-8 text-center hover:border-primary/50 transition-colors cursor-pointer">
-                <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                <p className="text-sm text-muted-foreground">Add images, videos or 3D models</p>
-                <p className="text-xs text-muted-foreground mt-1">Accepts images, videos. Max 20MB.</p>
-              </div>
+              <ImageUploadZone onFilesSelected={setImageFiles} maxFiles={9} maxSizeMB={20} />
             </CardContent>
           </Card>
 
@@ -73,122 +165,81 @@ export const DashboardAddProduct = ({ onBack }: Props) => {
             <CardContent className="space-y-3">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-xs font-medium">Price</Label>
-                  <Input placeholder="₹ 0.00" className="mt-1" />
+                  <Label className="text-xs font-medium">Price *</Label>
+                  <Input type="number" value={price} onChange={e => setPrice(e.target.value)} placeholder="₹ 0" className="mt-1" />
                 </div>
                 <div>
                   <Label className="text-xs font-medium">Compare-at price</Label>
-                  <Input placeholder="₹ 0.00" className="mt-1" />
+                  <Input type="number" value={originalPrice} onChange={e => setOriginalPrice(e.target.value)} placeholder="₹ 0" className="mt-1" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Inventory */}
+          {/* Sizes */}
           <Card className="shadow-sm">
-            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Inventory</CardTitle></CardHeader>
-            <CardContent className="space-y-3">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-xs font-medium">SKU</Label>
-                  <Input placeholder="SKU-001" className="mt-1" />
-                </div>
-                <div>
-                  <Label className="text-xs font-medium">Barcode</Label>
-                  <Input placeholder="ISBN, UPC, etc." className="mt-1" />
-                </div>
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Sizes</CardTitle></CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-2">
+                {sizeOptions.map(s => (
+                  <button key={s} onClick={() => toggleSize(s)}
+                    className={`px-3 py-1.5 text-xs rounded-md border transition-colors ${sizes.includes(s) ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border hover:border-primary/50"}`}>
+                    {s}
+                  </button>
+                ))}
               </div>
-              <div className="flex items-center justify-between">
-                <Label className="text-sm">Track quantity</Label>
-                <Switch checked={trackInventory} onCheckedChange={setTrackInventory} />
-              </div>
-              {trackInventory && (
-                <div>
-                  <Label className="text-xs font-medium">Quantity</Label>
-                  <Input type="number" placeholder="0" className="mt-1 w-32" />
-                </div>
-              )}
             </CardContent>
           </Card>
 
-          {/* Shipping */}
+          {/* Colors */}
           <Card className="shadow-sm">
-            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Shipping</CardTitle></CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label className="text-sm">Physical product</Label>
-                <Switch checked={physicalProduct} onCheckedChange={setPhysicalProduct} />
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Colors</CardTitle></CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap gap-2">
+                {colorOptions.map(c => {
+                  const selected = colors.find(x => x.name === c.name);
+                  return (
+                    <button key={c.name} onClick={() => toggleColor(c)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-md border transition-colors ${selected ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border hover:border-primary/50"}`}>
+                      <span className="w-3 h-3 rounded-full border" style={{ backgroundColor: c.hex }} />
+                      {c.name}
+                    </button>
+                  );
+                })}
               </div>
-              {physicalProduct && (
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-xs font-medium">Weight (kg)</Label>
-                    <Input placeholder="0.0" className="mt-1" />
-                  </div>
-                  <div>
-                    <Label className="text-xs font-medium">Country of origin</Label>
-                    <Input placeholder="India" className="mt-1" />
-                  </div>
-                </div>
-              )}
             </CardContent>
           </Card>
 
-          {/* Variants */}
+          {/* Tags */}
           <Card className="shadow-sm">
-            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Variants</CardTitle></CardHeader>
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Tags</CardTitle></CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label className="text-xs font-medium mb-2 block">Sizes</Label>
+                <Label className="text-xs font-medium mb-2 block">Occasion</Label>
                 <div className="flex flex-wrap gap-2">
-                  {sizeOptions.map((s) => (
-                    <button
-                      key={s}
-                      onClick={() => toggleSize(s)}
-                      className={`px-3 py-1.5 text-xs rounded-md border transition-colors ${
-                        sizes.includes(s) ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border hover:border-primary/50"
-                      }`}
-                    >
-                      {s}
-                    </button>
+                  {occasionOptions.map(t => (
+                    <Badge key={t} variant={occasionTags.includes(t) ? "default" : "outline"}
+                      className="cursor-pointer" onClick={() => toggleOccasion(t)}>{t}</Badge>
                   ))}
                 </div>
               </div>
               <div>
-                <Label className="text-xs font-medium mb-2 block">Colors</Label>
+                <Label className="text-xs font-medium mb-2 block">Style</Label>
                 <div className="flex flex-wrap gap-2">
-                  {colorOptions.map((c) => (
-                    <button
-                      key={c}
-                      onClick={() => toggleColor(c)}
-                      className={`px-3 py-1.5 text-xs rounded-md border transition-colors ${
-                        colors.includes(c) ? "bg-primary text-primary-foreground border-primary" : "bg-background border-border hover:border-primary/50"
-                      }`}
-                    >
-                      {c}
-                    </button>
+                  {styleOptions.map(t => (
+                    <Badge key={t} variant={styleTags.includes(t) ? "default" : "outline"}
+                      className="cursor-pointer" onClick={() => toggleStyle(t)}>{t}</Badge>
                   ))}
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* SEO */}
+          {/* Material */}
           <Card className="shadow-sm">
-            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Search engine listing</CardTitle></CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <Label className="text-xs font-medium">SEO title</Label>
-                <Input placeholder="Product title" className="mt-1" />
-              </div>
-              <div>
-                <Label className="text-xs font-medium">Meta description</Label>
-                <Textarea placeholder="Brief description for search engines" className="mt-1" />
-              </div>
-              <div>
-                <Label className="text-xs font-medium">URL handle</Label>
-                <Input placeholder="product-title" className="mt-1" />
-              </div>
+            <CardContent className="p-4">
+              <Label className="text-xs font-medium">Material / Fabric</Label>
+              <Input value={material} onChange={e => setMaterial(e.target.value)} placeholder="e.g. Silk, Cotton" className="mt-1" />
             </CardContent>
           </Card>
         </div>
@@ -196,59 +247,51 @@ export const DashboardAddProduct = ({ onBack }: Props) => {
         {/* Right column */}
         <div className="space-y-4">
           <Card className="shadow-sm">
-            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Status</CardTitle></CardHeader>
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Category *</CardTitle></CardHeader>
             <CardContent>
-              <select className="w-full border rounded-md px-3 py-2 text-sm bg-background">
-                <option>Draft</option>
-                <option>Active</option>
+              <select value={category} onChange={e => setCategory(e.target.value)}
+                className="w-full border rounded-md px-3 py-2 text-sm bg-background">
+                <option value="">Select category</option>
+                {categories.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </CardContent>
           </Card>
 
           <Card className="shadow-sm">
-            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Product organization</CardTitle></CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <Label className="text-xs font-medium">Category</Label>
-                <Input placeholder="e.g. Sarees" className="mt-1" />
+            <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Custom Tags</CardTitle></CardHeader>
+            <CardContent>
+              <div className="flex gap-2">
+                <Input placeholder="Add tag" value={tagInput}
+                  onChange={e => setTagInput(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addTag())} />
               </div>
-              <div>
-                <Label className="text-xs font-medium">Vendor</Label>
-                <Input placeholder="Vendor name" className="mt-1" />
-              </div>
-              <div>
-                <Label className="text-xs font-medium">Collection</Label>
-                <Input placeholder="Collection name" className="mt-1" />
-              </div>
-              <div>
-                <Label className="text-xs font-medium">Tags</Label>
-                <div className="flex gap-2 mt-1">
-                  <Input
-                    placeholder="Add tag"
-                    value={tagInput}
-                    onChange={(e) => setTagInput(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
-                  />
+              {tags.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {tags.map(t => (
+                    <Badge key={t} variant="secondary" className="gap-1">
+                      {t}<X className="h-3 w-3 cursor-pointer" onClick={() => setTags(tags.filter(x => x !== t))} />
+                    </Badge>
+                  ))}
                 </div>
-                {tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 mt-2">
-                    {tags.map((t) => (
-                      <Badge key={t} variant="secondary" className="gap-1">
-                        {t}
-                        <X className="h-3 w-3 cursor-pointer" onClick={() => setTags(tags.filter((x) => x !== t))} />
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-              </div>
+              )}
             </CardContent>
           </Card>
+
+          {!sellerId && user && (
+            <Card className="shadow-sm border-destructive">
+              <CardContent className="p-4 text-sm text-destructive">
+                You are not registered as an approved seller. Apply first.
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
 
       <div className="flex justify-end gap-3 pb-4">
         <Button variant="outline" onClick={onBack}>Discard</Button>
-        <Button>Save product</Button>
+        <Button onClick={handleSubmit} disabled={loading || !sellerId}>
+          {loading ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />Saving...</> : "Save product"}
+        </Button>
       </div>
     </div>
   );
