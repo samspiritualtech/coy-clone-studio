@@ -197,6 +197,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     <AuthContext.Provider value={{
       user,
       signInWithGoogle,
+      signInWithEmail,
+      signUpWithEmail,
       logout,
       isAuthenticated: !!session,
       isLoading,

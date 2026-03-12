@@ -9,22 +9,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, Store } from "lucide-react";
 import { toast } from "sonner";
 
-const SellerLogin = () => {
-  const { isAuthenticated, isLoading, signInWithEmail } = useAuth();
+const SellerSignup = () => {
+  const { isAuthenticated, isLoading, signUpWithEmail } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const error = params.get("error");
-    const errorDescription = params.get("error_description");
-    if (error) {
-      toast.error(errorDescription || "Sign-in failed. Please try again.");
-      window.history.replaceState({}, "", window.location.pathname);
-    }
-  }, []);
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
@@ -35,15 +25,17 @@ const SellerLogin = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) return toast.error("Please fill in all fields");
+    if (password.length < 6) return toast.error("Password must be at least 6 characters");
 
     setSubmitting(true);
-    const { success, error } = await signInWithEmail(email, password);
+    const { success, error } = await signUpWithEmail(email, password);
     setSubmitting(false);
 
     if (success) {
+      toast.success("Account created! Redirecting...");
       navigate("/seller/dashboard", { replace: true });
     } else {
-      toast.error(error || "Login failed");
+      toast.error(error || "Signup failed");
     }
   };
 
@@ -70,7 +62,7 @@ const SellerLogin = () => {
             <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
               <Store className="h-6 w-6 text-primary" />
             </div>
-            <p className="text-sm text-muted-foreground">Sign in to your seller dashboard</p>
+            <p className="text-sm text-muted-foreground">Create your seller account</p>
           </div>
 
           {/* Google */}
@@ -109,14 +101,14 @@ const SellerLogin = () => {
             </div>
             <Button type="submit" className="w-full" disabled={submitting}>
               {submitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-              Log In
+              Create Account
             </Button>
           </form>
 
           <p className="text-center text-sm text-muted-foreground mt-6">
-            Don't have an account?{" "}
-            <Link to="/seller-signup" className="text-primary hover:underline font-medium">
-              Create account
+            Already have an account?{" "}
+            <Link to="/seller-login" className="text-primary hover:underline font-medium">
+              Log in
             </Link>
           </p>
         </CardContent>
@@ -125,4 +117,4 @@ const SellerLogin = () => {
   );
 };
 
-export default SellerLogin;
+export default SellerSignup;
