@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import { DashboardHeader } from "@/components/seller-dashboard/DashboardHeader";
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -123,38 +124,19 @@ export const SellerDashboardLayout = ({ children }: SellerDashboardLayoutProps) 
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top bar */}
-        <header className="sticky top-0 z-40 h-16 border-b bg-background flex items-center px-4 lg:px-6">
+        <div className="sticky top-0 z-40 bg-background flex items-center lg:block">
           <Button
             variant="ghost"
             size="icon"
-            className="lg:hidden mr-2"
+            className="lg:hidden ml-2"
             onClick={() => setSidebarOpen(true)}
           >
             <Menu className="h-5 w-5" />
           </Button>
-          <div className="flex-1" />
-          {/* Auth UI */}
-          {user ? (
-            <div className="flex items-center gap-3">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={user.avatarUrl} />
-                <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-                  {initials}
-                </AvatarFallback>
-              </Avatar>
-              <span className="hidden sm:inline text-sm font-medium truncate max-w-[120px]">{user.name}</span>
-              <Button variant="ghost" size="sm" onClick={logout} className="text-muted-foreground hover:text-destructive">
-                <LogOut className="h-4 w-4" />
-              </Button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 text-sm">
-              <a href="/seller-login" className="text-muted-foreground hover:text-foreground transition-colors">Login</a>
-              <span className="text-muted-foreground">|</span>
-              <a href="/seller-signup" className="text-primary hover:underline font-medium">Signup</a>
-            </div>
-          )}
-        </header>
+          <div className="flex-1 lg:flex-none">
+            <DashboardHeader />
+          </div>
+        </div>
 
         <main className="flex-1 p-4 lg:p-6">{children}</main>
       </div>
