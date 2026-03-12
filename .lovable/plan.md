@@ -1,56 +1,73 @@
 
 
-# Fix Save Discount Button
+# Build Tagging + Consumer Visibility
 
-## Problem
-The `handleSave` function in `DashboardDiscounts.tsx` silently returns when `sellerId` is null (line 81: `if (!sellerId) return;`), giving no feedback to the user. This happens when the user isn't authenticated as an approved seller.
+Two changes: enhance the seller Add Product form with tagging/image fields, and update the Collections page to also show approved database products.
 
-## Root Cause
-The code logic is actually already fully implemented — database insert, loading states, error handling, list refresh all exist. The only gap is the silent early return when `sellerId` is null.
+---
 
-## Changes
+## Part 1: Enhance Seller Add Product Form
 
-### File: `src/components/seller-dashboard/pages/DashboardDiscounts.tsx`
+**File: `src/pages/seller/SellerAddProduct.tsx`**
 
-**1. Add user feedback when sellerId is missing (line 81)**
+Add four new sections to the form:
 
-Replace:
-```typescript
-if (!sellerId) return;
-```
-With:
-```typescript
-if (!sellerId) {
-  toast({ title: "Not authenticated", description: "Please sign in as an approved seller to create discounts.", variant: "destructive" });
-  return;
-}
-```
+### 1. Image Upload Section (new Card at top of form)
+- Reuse the existing `ImageUploadZone` component for drag-and-drop image upload
+- Store selected files in component state
+- On submit, upload images to a new `product-images` storage bucket, then save the returned URLs into the `images` JSON column
+- Require at least 1 image
 
-**2. Add validation feedback with descriptions (lines 82-83)**
+### 2. Sizes Picker (new Card)
+- Predefined size options: XS, S, M, L, XL, XXL, Free Size
+- Render as toggleable chips/checkboxes the seller can click to select multiple
+- Save selected sizes as JSON array to the `sizes` column
 
-Replace:
-```typescript
-if (!code.trim()) { toast({ title: "Code required", variant: "destructive" }); return; }
-if (formType !== "free_shipping" && !value) { toast({ title: "Value required", variant: "destructive" }); return; }
-```
-With:
-```typescript
-if (!code.trim()) { toast({ title: "Code required", description: "Please enter a discount code.", variant: "destructive" }); return; }
-if (formType !== "free_shipping" && !value) { toast({ title: "Value required", description: "Please enter a discount value.", variant: "destructive" }); return; }
-```
+### 3. Colors Picker (new Card)
+- Predefined color options with name + hex (Black, White, Red, Blue, Green, Pink, Yellow, Beige, Brown, Navy, Maroon, Grey)
+- Render as clickable color swatches with labels
+- Save selected colors as JSON array of `{name, hex}` objects to the `colors` column
 
-**3. Fix fetchDiscounts dependency (line 68)**
+### 4. Tags Section (new Card)
+- **Occasion Tags**: Wedding, Festive, Party, Casual, Work, Brunch, Date Night, Vacation
+- **Style Tags**: Boho, Minimal, Ethnic, Western, Indo-Western, Streetwear, Classic, Contemporary
+- Render as toggleable badge chips grouped by type
+- Save to `occasion_tags` and `style_tags` JSON columns
 
-The `useEffect` for fetching discounts uses `sellerId` but isn't properly declared as a dependency in the ESLint sense (it works but is fragile). Convert `fetchDiscounts` to be called explicitly:
+### Submit Logic Update
+- Upload image files to storage bucket first, collect URLs
+- Include `sizes`, `colors`, `occasion_tags`, `style_tags`, and `images` (URLs) in the insert payload
 
-Replace:
-```typescript
-useEffect(() => { fetchDiscounts(); }, [sellerId]);
-```
-With:
-```typescript
-useEffect(() => { if (sellerId) fetchDiscounts(); else setLoading(false); }, [sellerId]);
-```
+---
 
-These are minor fixes — the core save, insert, list fetch, and toggle logic is already correctly implemented.
+## Part 2: Show Approved DB Products on Collections Page
+
+**File: `src/pages/Collections.tsx`**
+
+- Add a `useEffect` + `useState` to fetch products from the database where `status = 'live'` and `is_available = true`
+- Map database products to the same shape as static `Product` type (map `title` to `name`, `seller brand_name` to `brand`, `original_price` to `originalPrice`, etc.)
+- Merge database products with the static catalog array
+- Apply the same category filtering logic to the combined array
+- Database products appear alongside static products in the same grid with the same card UI
+
+---
+
+## Part 3: Storage Bucket for Product Images
+
+**Database migration:**
+- Create a `product-images` public storage bucket
+- Add RLS policy: authenticated users can upload to their own folder (path prefix = seller_id)
+- Add RLS policy: anyone can read (public bucket)
+
+---
+
+## Technical Details
+
+| Area | Detail |
+|------|--------|
+| New storage bucket | `product-images` (public) |
+| Files modified | `SellerAddProduct.tsx`, `Collections.tsx` |
+| Existing component reused | `ImageUploadZone` |
+| DB columns already exist | `sizes`, `colors`, `occasion_tags`, `style_tags`, `images` -- no schema migration needed for columns |
+| New dependency | None |
 
