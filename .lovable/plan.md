@@ -1,73 +1,82 @@
 
 
-# Build Tagging + Consumer Visibility
+# Make Seller Dashboard Fully Functional
 
-Two changes: enhance the seller Add Product form with tagging/image fields, and update the Collections page to also show approved database products.
+## Overview
+Convert the static showcase dashboard into a working system: functional image upload, product save to database, live product listing, and a working discount system with a new `discounts` table.
 
----
+## Database Changes
 
-## Part 1: Enhance Seller Add Product Form
+### New `discounts` table (migration)
+```sql
+CREATE TABLE public.discounts (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  seller_id uuid NOT NULL REFERENCES public.sellers(id) ON DELETE CASCADE,
+  code text NOT NULL,
+  type text NOT NULL, -- 'percentage_product', 'fixed_product', 'buy_x_get_y', 'percentage_order', 'fixed_order', 'free_shipping'
+  value numeric NOT NULL DEFAULT 0,
+  applies_to text DEFAULT 'all', -- 'all', 'specific_products', 'specific_collections'
+  min_quantity integer DEFAULT 0,
+  min_purchase integer DEFAULT 0,
+  start_date timestamptz DEFAULT now(),
+  end_date timestamptz,
+  usage_limit integer,
+  usage_count integer DEFAULT 0,
+  status text NOT NULL DEFAULT 'active',
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now()
+);
 
-**File: `src/pages/seller/SellerAddProduct.tsx`**
+ALTER TABLE public.discounts ENABLE ROW LEVEL SECURITY;
 
-Add four new sections to the form:
+CREATE POLICY "Sellers can manage own discounts" ON public.discounts FOR ALL
+  USING (seller_id IN (SELECT id FROM sellers WHERE user_id = auth.uid()));
 
-### 1. Image Upload Section (new Card at top of form)
-- Reuse the existing `ImageUploadZone` component for drag-and-drop image upload
-- Store selected files in component state
-- On submit, upload images to a new `product-images` storage bucket, then save the returned URLs into the `images` JSON column
-- Require at least 1 image
+CREATE POLICY "Anyone can view active discounts" ON public.discounts FOR SELECT
+  USING (status = 'active' AND (end_date IS NULL OR end_date > now()));
+```
 
-### 2. Sizes Picker (new Card)
-- Predefined size options: XS, S, M, L, XL, XXL, Free Size
-- Render as toggleable chips/checkboxes the seller can click to select multiple
-- Save selected sizes as JSON array to the `sizes` column
+## File Changes
 
-### 3. Colors Picker (new Card)
-- Predefined color options with name + hex (Black, White, Red, Blue, Green, Pink, Yellow, Beige, Brown, Navy, Maroon, Grey)
-- Render as clickable color swatches with labels
-- Save selected colors as JSON array of `{name, hex}` objects to the `colors` column
+### 1. `src/components/seller-dashboard/pages/DashboardAddProduct.tsx` — Full rewrite
+- Add `useAuth` to get current user, fetch `seller_id` from `sellers` table
+- Add form state for all fields: title, description, price, original_price, category, vendor, tags, sizes, colors
+- Integrate `ImageUploadZone` component for drag-drop image upload
+- On "Save product":
+  1. Upload images to `product-images` storage bucket under `seller_id/` prefix
+  2. Get public URLs
+  3. Insert into `products` table with `status: 'pending'`, `seller_id`, all form fields
+  4. Show success toast, call `onBack()` to return to products list
+- Validate required fields (title, price, category, at least 1 image)
 
-### 4. Tags Section (new Card)
-- **Occasion Tags**: Wedding, Festive, Party, Casual, Work, Brunch, Date Night, Vacation
-- **Style Tags**: Boho, Minimal, Ethnic, Western, Indo-Western, Streetwear, Classic, Contemporary
-- Render as toggleable badge chips grouped by type
-- Save to `occasion_tags` and `style_tags` JSON columns
+### 2. `src/components/seller-dashboard/pages/DashboardProducts.tsx` — Fetch real data
+- Replace static `products` array with live database query
+- Fetch from `supabase.from('products').select('*').eq('seller_id', sellerId)` 
+- Use `useAuth` + seller lookup pattern (same as SellerAddProduct page)
+- Show loading state, empty state with CTA
+- Display real product images, status, category
 
-### Submit Logic Update
-- Upload image files to storage bucket first, collect URLs
-- Include `sizes`, `colors`, `occasion_tags`, `style_tags`, and `images` (URLs) in the insert payload
+### 3. `src/components/seller-dashboard/pages/DashboardDiscounts.tsx` — Full rewrite
+- Add state management for creating discounts with a form dialog/view
+- Discount creation form with: code, type selector, value, applies_to, min_quantity, min_purchase, dates, usage_limit
+- Fetch existing discounts from database for the seller
+- Save new discounts to `discounts` table
+- Toggle discount status (active/expired)
+- Four discount type cards open the creation form pre-configured for that type
 
----
+### 4. `src/components/seller-dashboard/SellerDashboardShowcase.tsx` — Minor update
+- Pass `onProductSaved` callback so products list refreshes after save
 
-## Part 2: Show Approved DB Products on Collections Page
+### 5. `src/pages/Checkout.tsx` — Discount application
+- Add discount code input field
+- On apply: query `discounts` table for matching active code
+- Calculate discount based on type (percentage/fixed/free-shipping)
+- Deduct from total, increment `usage_count`
 
-**File: `src/pages/Collections.tsx`**
+## Key Implementation Details
 
-- Add a `useEffect` + `useState` to fetch products from the database where `status = 'live'` and `is_available = true`
-- Map database products to the same shape as static `Product` type (map `title` to `name`, `seller brand_name` to `brand`, `original_price` to `originalPrice`, etc.)
-- Merge database products with the static catalog array
-- Apply the same category filtering logic to the combined array
-- Database products appear alongside static products in the same grid with the same card UI
-
----
-
-## Part 3: Storage Bucket for Product Images
-
-**Database migration:**
-- Create a `product-images` public storage bucket
-- Add RLS policy: authenticated users can upload to their own folder (path prefix = seller_id)
-- Add RLS policy: anyone can read (public bucket)
-
----
-
-## Technical Details
-
-| Area | Detail |
-|------|--------|
-| New storage bucket | `product-images` (public) |
-| Files modified | `SellerAddProduct.tsx`, `Collections.tsx` |
-| Existing component reused | `ImageUploadZone` |
-| DB columns already exist | `sizes`, `colors`, `occasion_tags`, `style_tags`, `images` -- no schema migration needed for columns |
-| New dependency | None |
+- **Auth gate**: The dashboard already lives on `/join`. All DB operations require the user to be authenticated with a seller role. If not authenticated, form shows a "Sign in to manage products" prompt instead of the save button.
+- **Image upload**: Reuses existing `ImageUploadZone` component. Upload path: `product-images/{seller_id}/{timestamp}-{filename}`.
+- **Product visibility**: Products insert with `status: 'pending'`. They already appear on the storefront once admin approves them to `status: 'live'` (existing RLS policy handles this). The seller sees all their own products regardless of status.
+- **No schema changes to `products` table** — all needed columns already exist.
 
