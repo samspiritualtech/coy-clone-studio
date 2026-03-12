@@ -172,7 +172,7 @@ export default function Checkout() {
         customer_id: user?.id,
         subtotal: Math.round(subtotal),
         shipping_fee: deliveryFee,
-        discount: 0,
+        discount: Math.round(discountAmount),
         total: Math.round(finalTotal),
         shipping_address: {
           full_name: selectedAddress.full_name,
