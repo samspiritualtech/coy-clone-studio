@@ -1,73 +1,73 @@
 
 
-# Seller Auth System with Email + Google Login
+# Build Tagging + Consumer Visibility
 
-## Overview
-Create a complete seller authentication system with email/password signup+login and Google OAuth. Add `/seller-login` and `/seller-signup` routes. Auto-create a seller record on signup. Remove the role-based protection from dashboard routes and replace with simple auth check. Update the dashboard header to show login/signup links or avatar+logout.
+Two changes: enhance the seller Add Product form with tagging/image fields, and update the Collections page to also show approved database products.
 
-## Changes
+---
 
-### 1. Add `signInWithEmail` and `signUpWithEmail` to AuthContext
-Add two new methods to `AuthContextType` and implement them:
-- `signInWithEmail(email, password)` — calls `supabase.auth.signInWithPassword`
-- `signUpWithEmail(email, password)` — calls `supabase.auth.signUp`, then auto-creates a seller record
+## Part 1: Enhance Seller Add Product Form
 
-### 2. Create `/pages/seller/SellerSignup.tsx`
-Clean, centered card with:
-- OGURA logo + "Seller" badge
-- Email + Password fields
-- "Create Account" button
-- Google sign-up button (reuse `GoogleSignInButton`)
-- Link to `/seller-login`
-- On successful signup: insert into `sellers` table with `application_status: 'approved'`, assign `seller` role in `user_roles`, redirect to `/seller/dashboard`
+**File: `src/pages/seller/SellerAddProduct.tsx`**
 
-### 3. Rewrite `/pages/seller/SellerLogin.tsx`
-Clean, centered card (Shopify-style) with:
-- OGURA logo + "Seller" badge
-- Email + Password fields
-- "Login" button
-- Google login button
-- Link to `/seller-signup`
-- On successful login: redirect to `/seller/dashboard`
+Add four new sections to the form:
 
-### 4. Update `SellerApp.tsx` routes
-- Add `/seller-login` and `/seller-signup` routes
-- Replace `RoleProtectedRoute` with a simple `SellerAuthRoute` that only checks `isAuthenticated` (no role check), redirecting to `/seller-login` if not logged in
+### 1. Image Upload Section (new Card at top of form)
+- Reuse the existing `ImageUploadZone` component for drag-and-drop image upload
+- Store selected files in component state
+- On submit, upload images to a new `product-images` storage bucket, then save the returned URLs into the `images` JSON column
+- Require at least 1 image
 
-### 5. Create `SellerAuthRoute` component
-Simple wrapper: if authenticated → render children, else → redirect to `/seller-login`. No role check.
+### 2. Sizes Picker (new Card)
+- Predefined size options: XS, S, M, L, XL, XXL, Free Size
+- Render as toggleable chips/checkboxes the seller can click to select multiple
+- Save selected sizes as JSON array to the `sizes` column
 
-### 6. Update `SellerDashboardLayout` header
-Add to the top-right header area:
-- If not logged in: "Login | Signup" links
-- If logged in: Avatar + Logout button
+### 3. Colors Picker (new Card)
+- Predefined color options with name + hex (Black, White, Red, Blue, Green, Pink, Yellow, Beige, Brown, Navy, Maroon, Grey)
+- Render as clickable color swatches with labels
+- Save selected colors as JSON array of `{name, hex}` objects to the `colors` column
 
-### 7. Auto-create seller record
-In `SellerSignup.tsx`, after successful `signUp`:
-```typescript
-await supabase.from("sellers").insert({
-  user_id: user.id,
-  brand_name: email.split("@")[0],
-  city: "Unknown",
-  seller_type: "individual",
-  application_status: "approved"
-});
-await supabase.from("user_roles").insert({
-  user_id: user.id,
-  role: "seller"
-});
-```
+### 4. Tags Section (new Card)
+- **Occasion Tags**: Wedding, Festive, Party, Casual, Work, Brunch, Date Night, Vacation
+- **Style Tags**: Boho, Minimal, Ethnic, Western, Indo-Western, Streetwear, Classic, Contemporary
+- Render as toggleable badge chips grouped by type
+- Save to `occasion_tags` and `style_tags` JSON columns
 
-### 8. Database: Enable email auth
-Use `configure_auth` tool to enable email signups with auto-confirm (for dev convenience).
+### Submit Logic Update
+- Upload image files to storage bucket first, collect URLs
+- Include `sizes`, `colors`, `occasion_tags`, `style_tags`, and `images` (URLs) in the insert payload
 
-### Files to create
-- `src/pages/seller/SellerSignup.tsx`
-- `src/components/auth/SellerAuthRoute.tsx`
+---
 
-### Files to modify
-- `src/contexts/AuthContext.tsx` — add `signInWithEmail`, `signUpWithEmail`
-- `src/pages/seller/SellerLogin.tsx` — rewrite with email+password form
-- `src/apps/SellerApp.tsx` — add routes, swap `RoleProtectedRoute` for `SellerAuthRoute`
-- `src/layouts/SellerDashboardLayout.tsx` — add auth UI to header
+## Part 2: Show Approved DB Products on Collections Page
+
+**File: `src/pages/Collections.tsx`**
+
+- Add a `useEffect` + `useState` to fetch products from the database where `status = 'live'` and `is_available = true`
+- Map database products to the same shape as static `Product` type (map `title` to `name`, `seller brand_name` to `brand`, `original_price` to `originalPrice`, etc.)
+- Merge database products with the static catalog array
+- Apply the same category filtering logic to the combined array
+- Database products appear alongside static products in the same grid with the same card UI
+
+---
+
+## Part 3: Storage Bucket for Product Images
+
+**Database migration:**
+- Create a `product-images` public storage bucket
+- Add RLS policy: authenticated users can upload to their own folder (path prefix = seller_id)
+- Add RLS policy: anyone can read (public bucket)
+
+---
+
+## Technical Details
+
+| Area | Detail |
+|------|--------|
+| New storage bucket | `product-images` (public) |
+| Files modified | `SellerAddProduct.tsx`, `Collections.tsx` |
+| Existing component reused | `ImageUploadZone` |
+| DB columns already exist | `sizes`, `colors`, `occasion_tags`, `style_tags`, `images` -- no schema migration needed for columns |
+| New dependency | None |
 

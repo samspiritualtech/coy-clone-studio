@@ -133,6 +133,27 @@ export const SellerDashboardLayout = ({ children }: SellerDashboardLayoutProps) 
             <Menu className="h-5 w-5" />
           </Button>
           <div className="flex-1" />
+          {/* Auth UI */}
+          {user ? (
+            <div className="flex items-center gap-3">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={user.avatarUrl} />
+                <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+              <span className="hidden sm:inline text-sm font-medium truncate max-w-[120px]">{user.name}</span>
+              <Button variant="ghost" size="sm" onClick={logout} className="text-muted-foreground hover:text-destructive">
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 text-sm">
+              <a href="/seller-login" className="text-muted-foreground hover:text-foreground transition-colors">Login</a>
+              <span className="text-muted-foreground">|</span>
+              <a href="/seller-signup" className="text-primary hover:underline font-medium">Signup</a>
+            </div>
+          )}
         </header>
 
         <main className="flex-1 p-4 lg:p-6">{children}</main>
