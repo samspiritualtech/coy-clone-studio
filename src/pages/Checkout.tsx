@@ -72,8 +72,62 @@ export default function Checkout() {
     });
   };
 
+  const handleApplyDiscount = async () => {
+    if (!discountCode.trim()) return;
+    setApplyingDiscount(true);
+    try {
+      const { data, error } = await (supabase as any)
+        .from("discounts")
+        .select("*")
+        .eq("code", discountCode.trim().toUpperCase())
+        .eq("status", "active")
+        .maybeSingle();
+
+      if (error || !data) {
+        toast({ title: "Invalid code", description: "This discount code is not valid.", variant: "destructive" });
+        setApplyingDiscount(false);
+        return;
+      }
+
+      if (data.usage_limit && data.usage_count >= data.usage_limit) {
+        toast({ title: "Code expired", description: "This discount has reached its usage limit.", variant: "destructive" });
+        setApplyingDiscount(false);
+        return;
+      }
+
+      if (data.min_purchase && subtotal < data.min_purchase) {
+        toast({ title: "Minimum not met", description: `Minimum purchase of ₹${data.min_purchase} required.`, variant: "destructive" });
+        setApplyingDiscount(false);
+        return;
+      }
+
+      let amount = 0;
+      if (data.type === "free_shipping") {
+        amount = deliveryFee;
+      } else if (data.type.includes("percentage")) {
+        amount = Math.round(subtotal * (data.value / 100));
+      } else {
+        amount = Math.min(data.value, subtotal);
+      }
+
+      setDiscountAmount(amount);
+      setAppliedDiscount({ id: data.id, code: data.code, type: data.type, value: data.value });
+      toast({ title: "Discount applied!", description: `You saved ₹${amount}` });
+    } catch {
+      toast({ title: "Error", description: "Could not apply discount.", variant: "destructive" });
+    } finally {
+      setApplyingDiscount(false);
+    }
+  };
+
+  const removeDiscount = () => {
+    setAppliedDiscount(null);
+    setDiscountAmount(0);
+    setDiscountCode("");
+  };
+
   const deliveryFee = subtotal >= 999 ? 0 : 99;
-  const finalTotal = total + deliveryFee;
+  const finalTotal = total + deliveryFee - discountAmount;
 
   const handlePayment = async () => {
     if (!selectedAddress) {
