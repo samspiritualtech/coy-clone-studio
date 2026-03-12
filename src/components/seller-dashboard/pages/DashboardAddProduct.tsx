@@ -124,14 +124,6 @@ export const DashboardAddProduct = ({ onBack }: Props) => {
     }
   };
 
-  if (!user) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 text-center">
-        <p className="text-lg font-medium mb-2">Sign in to manage products</p>
-        <p className="text-sm text-muted-foreground">You need to be logged in as an approved seller.</p>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6 max-w-4xl">
