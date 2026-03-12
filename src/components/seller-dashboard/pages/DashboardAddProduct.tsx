@@ -111,7 +111,7 @@ export const DashboardAddProduct = ({ onBack }: Props) => {
         colors,
         occasion_tags: occasionTags,
         style_tags: styleTags,
-        status: "pending",
+        status: "submitted",
         is_available: true,
       });
       if (error) throw error;
