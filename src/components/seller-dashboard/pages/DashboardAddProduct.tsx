@@ -279,7 +279,7 @@ export const DashboardAddProduct = ({ onBack }: Props) => {
 
       <div className="flex justify-end gap-3 pb-4">
         <Button variant="outline" onClick={onBack}>Discard</Button>
-        <Button onClick={handleSubmit} disabled={loading || !sellerId}>
+        <Button onClick={handleSubmit} disabled={loading}>
           {loading ? <><Loader2 className="h-4 w-4 animate-spin mr-2" />Saving...</> : "Save product"}
         </Button>
       </div>
