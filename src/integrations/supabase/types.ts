@@ -148,6 +148,68 @@ export type Database = {
         }
         Relationships: []
       }
+      discounts: {
+        Row: {
+          applies_to: string | null
+          code: string
+          created_at: string | null
+          end_date: string | null
+          id: string
+          min_purchase: number | null
+          min_quantity: number | null
+          seller_id: string
+          start_date: string | null
+          status: string
+          type: string
+          updated_at: string | null
+          usage_count: number | null
+          usage_limit: number | null
+          value: number
+        }
+        Insert: {
+          applies_to?: string | null
+          code: string
+          created_at?: string | null
+          end_date?: string | null
+          id?: string
+          min_purchase?: number | null
+          min_quantity?: number | null
+          seller_id: string
+          start_date?: string | null
+          status?: string
+          type: string
+          updated_at?: string | null
+          usage_count?: number | null
+          usage_limit?: number | null
+          value?: number
+        }
+        Update: {
+          applies_to?: string | null
+          code?: string
+          created_at?: string | null
+          end_date?: string | null
+          id?: string
+          min_purchase?: number | null
+          min_quantity?: number | null
+          seller_id?: string
+          start_date?: string | null
+          status?: string
+          type?: string
+          updated_at?: string | null
+          usage_count?: number | null
+          usage_limit?: number | null
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "discounts_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "sellers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       influencer_videos: {
         Row: {
           caption: string
