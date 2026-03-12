@@ -133,6 +133,43 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const signInWithEmail = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) return { success: false, error: error.message };
+      return { success: true };
+    } catch (error: any) {
+      return { success: false, error: error.message || 'Sign-in failed' };
+    }
+  };
+
+  const signUpWithEmail = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      const { data, error } = await supabase.auth.signUp({ email, password });
+      if (error) return { success: false, error: error.message };
+      if (!data.user) return { success: false, error: 'Signup failed' };
+
+      // Auto-create seller record
+      await supabase.from('sellers').insert({
+        user_id: data.user.id,
+        brand_name: email.split('@')[0],
+        city: 'Unknown',
+        seller_type: 'individual',
+        application_status: 'approved',
+      });
+
+      // Assign seller role
+      await supabase.from('user_roles').insert({
+        user_id: data.user.id,
+        role: 'seller',
+      });
+
+      return { success: true };
+    } catch (error: any) {
+      return { success: false, error: error.message || 'Signup failed' };
+    }
+  };
+
   const logout = async () => {
     await supabase.auth.signOut();
     setUser(null);
