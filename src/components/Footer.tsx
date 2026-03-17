@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Facebook, Instagram, Twitter, Youtube } from "lucide-react";
 
 export const Footer = () => {
@@ -45,11 +46,11 @@ export const Footer = () => {
           <div>
             <h4 className="font-semibold mb-4">Help</h4>
             <ul className="space-y-2 text-sm">
-              <li><a href="/contact" className="text-muted-foreground hover:text-accent transition-colors">Contact Us</a></li>
-              <li><a href="/shipping" className="text-muted-foreground hover:text-accent transition-colors">Shipping Info</a></li>
-              <li><a href="/returns" className="text-muted-foreground hover:text-accent transition-colors">Returns</a></li>
-              <li><a href="/size-guide" className="text-muted-foreground hover:text-accent transition-colors">Size Guide</a></li>
-              <li><a href="/stores" className="text-muted-foreground hover:text-accent transition-colors">Store Locator</a></li>
+              <li><Link to="/contact" className="text-muted-foreground hover:text-accent transition-colors">Contact Us</Link></li>
+              <li><Link to="/shipping" className="text-muted-foreground hover:text-accent transition-colors">Shipping Info</Link></li>
+              <li><Link to="/returns" className="text-muted-foreground hover:text-accent transition-colors">Returns</Link></li>
+              <li><Link to="/size-guide" className="text-muted-foreground hover:text-accent transition-colors">Size Guide</Link></li>
+              <li><Link to="/stores" className="text-muted-foreground hover:text-accent transition-colors">Store Locator</Link></li>
             </ul>
           </div>
 
@@ -57,10 +58,10 @@ export const Footer = () => {
           <div>
             <h4 className="font-semibold mb-4">Legal</h4>
             <ul className="space-y-2 text-sm">
-              <li><a href="/privacy" className="text-muted-foreground hover:text-accent transition-colors">Privacy Policy</a></li>
-              <li><a href="/terms" className="text-muted-foreground hover:text-accent transition-colors">Terms of Service</a></li>
-              <li><a href="/cookies" className="text-muted-foreground hover:text-accent transition-colors">Cookie Policy</a></li>
-              <li><a href="/join" className="text-muted-foreground hover:text-accent transition-colors">Join as Fashion Designer</a></li>
+              <li><Link to="/privacy" className="text-muted-foreground hover:text-accent transition-colors">Privacy Policy</Link></li>
+              <li><Link to="/terms" className="text-muted-foreground hover:text-accent transition-colors">Terms of Use</Link></li>
+              <li><Link to="/cookies" className="text-muted-foreground hover:text-accent transition-colors">Cookie Policy</Link></li>
+              <li><Link to="/join" className="text-muted-foreground hover:text-accent transition-colors">Join as Fashion Designer</Link></li>
             </ul>
           </div>
         </div>

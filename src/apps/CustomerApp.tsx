@@ -26,6 +26,8 @@ import SellerApply from "@/pages/SellerApply";
 import Dashboard from "@/pages/Dashboard";
 import Onboarding from "@/pages/Onboarding";
 import Profile from "@/pages/Profile";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import TermsOfUse from "@/pages/TermsOfUse";
 
 const CustomerApp = () => {
   return (
@@ -49,6 +51,8 @@ const CustomerApp = () => {
         <Route path="/category/:slug" element={<CategoryPage />} />
         <Route path="/join" element={<JoinUs />} />
         <Route path="/join/apply" element={<SellerApply />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsOfUse />} />
 
         {/* Protected Routes */}
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
