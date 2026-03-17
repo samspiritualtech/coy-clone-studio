@@ -134,11 +134,11 @@ export const LuxuryFooter = () => {
             © 2024 OGURA. All rights reserved.
           </p>
           <div className="flex gap-6">
-            <Link to="/" className="text-xs text-background/60 hover:text-background transition-colors">
+            <Link to="/privacy" className="text-xs text-background/60 hover:text-background transition-colors">
               Privacy Policy
             </Link>
-            <Link to="/" className="text-xs text-background/60 hover:text-background transition-colors">
-              Terms of Service
+            <Link to="/terms" className="text-xs text-background/60 hover:text-background transition-colors">
+              Terms of Use
             </Link>
           </div>
         </div>

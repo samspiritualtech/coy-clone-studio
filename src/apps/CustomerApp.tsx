@@ -51,6 +51,8 @@ const CustomerApp = () => {
         <Route path="/category/:slug" element={<CategoryPage />} />
         <Route path="/join" element={<JoinUs />} />
         <Route path="/join/apply" element={<SellerApply />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsOfUse />} />
 
         {/* Protected Routes */}
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
