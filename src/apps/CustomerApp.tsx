@@ -26,6 +26,8 @@ import SellerApply from "@/pages/SellerApply";
 import Dashboard from "@/pages/Dashboard";
 import Onboarding from "@/pages/Onboarding";
 import Profile from "@/pages/Profile";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import TermsOfUse from "@/pages/TermsOfUse";
 
 const CustomerApp = () => {
   return (
