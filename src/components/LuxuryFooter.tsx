@@ -77,13 +77,21 @@ export const LuxuryFooter = () => {
           <div>
             <h4 className="text-xs uppercase tracking-[0.2em] mb-6">Help</h4>
             <ul className="space-y-3">
-              {["Contact Us", "Shipping", "Returns", "Size Guide", "FAQs"].map((item) => (
-                <li key={item}>
+              {[
+                { label: "Contact Us", to: "/" },
+                { label: "Shipping", to: "/" },
+                { label: "Returns", to: "/" },
+                { label: "Size Guide", to: "/" },
+                { label: "Store Locator", to: "/stores" },
+                { label: "Privacy Policy", to: "/privacy" },
+                { label: "Terms of Use", to: "/terms" },
+              ].map((item) => (
+                <li key={item.label}>
                   <Link
-                    to="/"
+                    to={item.to}
                     className="text-sm text-background/60 hover:text-background transition-colors"
                   >
-                    {item}
+                    {item.label}
                   </Link>
                 </li>
               ))}
