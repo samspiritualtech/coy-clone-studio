@@ -1,27 +1,27 @@
 
 
-# Fix Pinterest OAuth Token Exchange
+# Fix Pinterest Connect Button OAuth URL
 
-## Root Cause
-The edge function logs show: `InvalidCharacterError: Cannot encode string: string contains characters outside of the Latin1 range` at the `btoa()` call. The `PINTEREST_CLIENT_SECRET` contains characters that `btoa()` cannot handle in Deno. Additionally, the frontend is still using a mock token (`Bearer mock_access_token_xyz`) for API calls.
+## Problem
+The button uses `window.location.origin` for the redirect URI (which resolves to the preview URL, not the published URL) and reads the client ID from an env variable that may be empty. Pinterest rejects the request because the redirect URI doesn't match what's registered.
 
-## Fix
+## Fix — `src/components/ConnectPinterestButton.tsx`
 
-### 1. Fix `supabase/functions/pinterest-token-exchange/index.ts`
-Replace `btoa(clientId + ":" + clientSecret)` with a Deno-compatible base64 encoding using `TextEncoder` + Deno's `encodeBase64` from std library, which handles all byte values correctly:
+Hardcode the client ID and redirect URI to match the registered Pinterest app:
 
+**Lines 6-8**: Replace the env variable with a hardcoded client ID:
 ```typescript
-import { encode as encodeBase64 } from "https://deno.land/std@0.168.0/encoding/base64.ts";
-
-const basicAuth = encodeBase64(new TextEncoder().encode(`${clientId}:${clientSecret}`));
+const PINTEREST_CLIENT_ID = "1556665";
 ```
 
-Also add debug logging for the Pinterest API response status and body.
+**Lines 18-26**: Update `handleConnect` to use the exact published redirect URI:
+```typescript
+const handleConnect = () => {
+  const redirectUri = "https://coy-clone-studio.lovable.app/auth/pinterest/callback";
+  const oauthUrl = `https://www.pinterest.com/oauth/?response_type=code&client_id=${PINTEREST_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=boards:read,pins:read`;
+  window.location.href = oauthUrl;
+};
+```
 
-### 2. Fix `src/components/UserPinterestBoards.tsx`
-The network requests show it's calling Pinterest API with `Bearer mock_access_token_xyz`. Ensure it reads the real token from `localStorage("pinterest_token")` and handles the case where the token is a mock/invalid value by clearing connection state.
-
-### Files to modify
-- `supabase/functions/pinterest-token-exchange/index.ts` — fix base64 encoding
-- `src/components/UserPinterestBoards.tsx` — clear stale mock token
+This ensures the redirect URI always matches the one registered in the Pinterest developer app, regardless of whether the user is on the preview or published URL.
 
