@@ -28,7 +28,12 @@ export const UserPinterestBoards = () => {
 
     const fetchBoards = async () => {
       const token = localStorage.getItem("pinterest_token");
-      if (!token) return;
+      if (!token || token === "mock_access_token_xyz") {
+        localStorage.removeItem("pinterest_connected");
+        localStorage.removeItem("pinterest_token");
+        window.dispatchEvent(new Event("pinterest_connection_change"));
+        return;
+      }
 
       setLoading(true);
       setError("");
