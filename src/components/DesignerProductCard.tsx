@@ -2,6 +2,7 @@ import { DesignerProduct } from "@/types";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
+import { SaveToPinterestButton } from "./SaveToPinterestButton";
 
 interface DesignerProductCardProps {
   product: DesignerProduct;
@@ -46,10 +47,20 @@ export const DesignerProductCard = ({ product }: DesignerProductCardProps) => {
         )}
 
         {/* Quick View Overlay */}
-        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-2">
           <span className="text-white text-sm font-medium uppercase tracking-wide">
             Quick View
           </span>
+        </div>
+
+        {/* Pinterest Save */}
+        <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <SaveToPinterestButton
+            productUrl={`${window.location.origin}/product/${product.id}`}
+            imageUrl={product.images[0] || '/placeholder.svg'}
+            description={`${product.title} — Shop now on Ogura`}
+            size="sm"
+          />
         </div>
       </div>
 
