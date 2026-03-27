@@ -28,6 +28,7 @@ import Onboarding from "@/pages/Onboarding";
 import Profile from "@/pages/Profile";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import TermsOfUse from "@/pages/TermsOfUse";
+import PinterestCallback from "@/pages/PinterestCallback";
 
 const CustomerApp = () => {
   return (
@@ -53,6 +54,7 @@ const CustomerApp = () => {
         <Route path="/join/apply" element={<SellerApply />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfUse />} />
+        <Route path="/auth/pinterest/callback" element={<PinterestCallback />} />
 
         {/* Protected Routes */}
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
