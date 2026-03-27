@@ -1,50 +1,53 @@
 
 
-# Pinterest Integration — "Inspired by Pinterest" Section
+# Connect Pinterest & View Your Boards
 
 ## Overview
-Add a Pinterest-inspired section to the homepage that displays curated fashion pins in a masonry grid, with "Shop This Look" overlays, "Save to Pinterest" buttons on product cards, and an optional "Connect Pinterest" feature. Since Pinterest doesn't have a Lovable connector, we'll use the Pinterest Widget Builder (pinit.js) for embeds and the Pinterest Web Intent URL for save buttons.
+Add a "Connect Pinterest" button and "Your Pinterest Boards" section below the existing "Inspired by Pinterest" section. Uses mock data now, structured for real Pinterest API v5 later.
 
-## Approach
-Pinterest's API requires OAuth app approval and API keys. For a clean, production-ready approach:
-- **Board display**: Use a custom curated grid (not the raw Pinterest embed widget, which has limited styling control). Map pins to existing products.
-- **Save to Pinterest**: Use Pinterest's web intent URL (`https://www.pinterest.com/pin/create/button/`) — no API key needed.
-- **Connect Pinterest**: This requires a Pinterest developer app with OAuth credentials. We'll build the UI shell and note that a Pinterest API key would need to be added later for full functionality.
+## Components to Create
 
-## Technical Design
+### 1. `src/components/ConnectPinterestButton.tsx`
+- Shows only when user is authenticated (`useAuth()`)
+- Checks `localStorage` for `pinterest_connected` state
+- Not connected: red "Connect Pinterest" button → sets mock token in localStorage, updates state
+- Connected: green "Pinterest Connected" badge with disconnect option
+- Comments marking where real OAuth redirect would go
 
-### 1. Create `src/components/PinterestInspiredSection.tsx`
-A homepage section with:
-- Header: "Inspired by Pinterest" with Pinterest icon
-- Masonry-style grid (3 cols desktop, 2 cols tablet, 1 col mobile) using CSS columns
-- Each card shows a product image with hover overlay ("Shop This Look" → links to `/product/:id`)
-- Small Pinterest "Save" button on each card using web intent URL
-- Data sourced from existing `products` array (first 8–10 items)
+### 2. `src/components/UserPinterestBoards.tsx`
+- Shows only when authenticated AND Pinterest connected
+- Displays mock boards in a responsive grid (4 cols desktop, 2 tablet, 1 mobile)
+- Each board card: cover image, board name, pin count
+- Click a board → opens `PinterestBoardModal`
+- Mock data: 6 boards with fashion themes using Unsplash images
+- Comments for `fetchBoards()` API integration point
 
-### 2. Create `src/components/SaveToPinterestButton.tsx`
-Reusable button component that opens Pinterest's create pin URL in a popup:
+### 3. `src/components/PinterestBoardModal.tsx`
+- Dialog modal showing pins from a selected board
+- Masonry layout of mock pins
+- Each pin: image + "Shop Similar" button → navigates to `/search?q={keyword}`
+- Comments for `fetchPins(boardId)` API integration point
+
+### 4. `src/data/pinterestMockData.ts`
+- Mock boards array: `{ id, name, coverImage, pinCount, pins[] }`
+- Mock pins: `{ id, image, description, link }`
+- 6 boards, 4-6 pins each
+
+## Files to Modify
+
+### 5. `src/components/PinterestInspiredSection.tsx`
+- Add `ConnectPinterestButton` in the header area (right-aligned)
+- Add `UserPinterestBoards` section below the existing masonry grid
+
+## Data Flow
+```text
+localStorage("pinterest_connected") → ConnectPinterestButton state
+                                    → UserPinterestBoards visibility
+Board click → PinterestBoardModal(boardId) → show mock pins
+Pin "Shop Similar" → /search?q=keyword
 ```
-https://www.pinterest.com/pin/create/button/?url={productUrl}&media={imageUrl}&description={text}
-```
-Props: `productUrl`, `imageUrl`, `description`
 
-### 3. Update `src/pages/Index.tsx`
-Add `<PinterestInspiredSection />` between DesignersSpotlight and LuxuryTrustBadges.
-
-### 4. Update product cards (`PLPProductCard.tsx`, `DesignerProductCard.tsx`)
-Add the `SaveToPinterestButton` to each product card (small icon in bottom-right on hover).
-
-### Files to create
-- `src/components/PinterestInspiredSection.tsx`
-- `src/components/SaveToPinterestButton.tsx`
-
-### Files to modify
-- `src/pages/Index.tsx` — add section
-- `src/components/PLPProductCard.tsx` — add save button
-- `src/components/DesignerProductCard.tsx` — add save button
-
-### Not included (would need Pinterest API credentials)
-- Full Pinterest OAuth connect flow
-- Fetching user's saved boards/pins
-- These can be added later with a Pinterest developer app key
+## Files Summary
+- **Create**: `src/data/pinterestMockData.ts`, `src/components/ConnectPinterestButton.tsx`, `src/components/UserPinterestBoards.tsx`, `src/components/PinterestBoardModal.tsx`
+- **Modify**: `src/components/PinterestInspiredSection.tsx`
 
