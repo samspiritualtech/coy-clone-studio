@@ -1,73 +1,50 @@
 
 
-# Build Tagging + Consumer Visibility
+# Pinterest Integration — "Inspired by Pinterest" Section
 
-Two changes: enhance the seller Add Product form with tagging/image fields, and update the Collections page to also show approved database products.
+## Overview
+Add a Pinterest-inspired section to the homepage that displays curated fashion pins in a masonry grid, with "Shop This Look" overlays, "Save to Pinterest" buttons on product cards, and an optional "Connect Pinterest" feature. Since Pinterest doesn't have a Lovable connector, we'll use the Pinterest Widget Builder (pinit.js) for embeds and the Pinterest Web Intent URL for save buttons.
 
----
+## Approach
+Pinterest's API requires OAuth app approval and API keys. For a clean, production-ready approach:
+- **Board display**: Use a custom curated grid (not the raw Pinterest embed widget, which has limited styling control). Map pins to existing products.
+- **Save to Pinterest**: Use Pinterest's web intent URL (`https://www.pinterest.com/pin/create/button/`) — no API key needed.
+- **Connect Pinterest**: This requires a Pinterest developer app with OAuth credentials. We'll build the UI shell and note that a Pinterest API key would need to be added later for full functionality.
 
-## Part 1: Enhance Seller Add Product Form
+## Technical Design
 
-**File: `src/pages/seller/SellerAddProduct.tsx`**
+### 1. Create `src/components/PinterestInspiredSection.tsx`
+A homepage section with:
+- Header: "Inspired by Pinterest" with Pinterest icon
+- Masonry-style grid (3 cols desktop, 2 cols tablet, 1 col mobile) using CSS columns
+- Each card shows a product image with hover overlay ("Shop This Look" → links to `/product/:id`)
+- Small Pinterest "Save" button on each card using web intent URL
+- Data sourced from existing `products` array (first 8–10 items)
 
-Add four new sections to the form:
+### 2. Create `src/components/SaveToPinterestButton.tsx`
+Reusable button component that opens Pinterest's create pin URL in a popup:
+```
+https://www.pinterest.com/pin/create/button/?url={productUrl}&media={imageUrl}&description={text}
+```
+Props: `productUrl`, `imageUrl`, `description`
 
-### 1. Image Upload Section (new Card at top of form)
-- Reuse the existing `ImageUploadZone` component for drag-and-drop image upload
-- Store selected files in component state
-- On submit, upload images to a new `product-images` storage bucket, then save the returned URLs into the `images` JSON column
-- Require at least 1 image
+### 3. Update `src/pages/Index.tsx`
+Add `<PinterestInspiredSection />` between DesignersSpotlight and LuxuryTrustBadges.
 
-### 2. Sizes Picker (new Card)
-- Predefined size options: XS, S, M, L, XL, XXL, Free Size
-- Render as toggleable chips/checkboxes the seller can click to select multiple
-- Save selected sizes as JSON array to the `sizes` column
+### 4. Update product cards (`PLPProductCard.tsx`, `DesignerProductCard.tsx`)
+Add the `SaveToPinterestButton` to each product card (small icon in bottom-right on hover).
 
-### 3. Colors Picker (new Card)
-- Predefined color options with name + hex (Black, White, Red, Blue, Green, Pink, Yellow, Beige, Brown, Navy, Maroon, Grey)
-- Render as clickable color swatches with labels
-- Save selected colors as JSON array of `{name, hex}` objects to the `colors` column
+### Files to create
+- `src/components/PinterestInspiredSection.tsx`
+- `src/components/SaveToPinterestButton.tsx`
 
-### 4. Tags Section (new Card)
-- **Occasion Tags**: Wedding, Festive, Party, Casual, Work, Brunch, Date Night, Vacation
-- **Style Tags**: Boho, Minimal, Ethnic, Western, Indo-Western, Streetwear, Classic, Contemporary
-- Render as toggleable badge chips grouped by type
-- Save to `occasion_tags` and `style_tags` JSON columns
+### Files to modify
+- `src/pages/Index.tsx` — add section
+- `src/components/PLPProductCard.tsx` — add save button
+- `src/components/DesignerProductCard.tsx` — add save button
 
-### Submit Logic Update
-- Upload image files to storage bucket first, collect URLs
-- Include `sizes`, `colors`, `occasion_tags`, `style_tags`, and `images` (URLs) in the insert payload
-
----
-
-## Part 2: Show Approved DB Products on Collections Page
-
-**File: `src/pages/Collections.tsx`**
-
-- Add a `useEffect` + `useState` to fetch products from the database where `status = 'live'` and `is_available = true`
-- Map database products to the same shape as static `Product` type (map `title` to `name`, `seller brand_name` to `brand`, `original_price` to `originalPrice`, etc.)
-- Merge database products with the static catalog array
-- Apply the same category filtering logic to the combined array
-- Database products appear alongside static products in the same grid with the same card UI
-
----
-
-## Part 3: Storage Bucket for Product Images
-
-**Database migration:**
-- Create a `product-images` public storage bucket
-- Add RLS policy: authenticated users can upload to their own folder (path prefix = seller_id)
-- Add RLS policy: anyone can read (public bucket)
-
----
-
-## Technical Details
-
-| Area | Detail |
-|------|--------|
-| New storage bucket | `product-images` (public) |
-| Files modified | `SellerAddProduct.tsx`, `Collections.tsx` |
-| Existing component reused | `ImageUploadZone` |
-| DB columns already exist | `sizes`, `colors`, `occasion_tags`, `style_tags`, `images` -- no schema migration needed for columns |
-| New dependency | None |
+### Not included (would need Pinterest API credentials)
+- Full Pinterest OAuth connect flow
+- Fetching user's saved boards/pins
+- These can be added later with a Pinterest developer app key
 
