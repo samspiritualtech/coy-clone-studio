@@ -14,9 +14,7 @@ export const ConnectPinterestButton = () => {
   if (!isAuthenticated) return null;
 
   const handleConnect = () => {
-    const clientId = PINTEREST_CLIENT_ID || Deno?.env?.get?.("PINTEREST_CLIENT_ID");
-    if (!clientId) {
-      // Fallback: prompt or use stored ID
+    if (!PINTEREST_CLIENT_ID) {
       console.warn("Pinterest Client ID not configured");
     }
     const redirectUri = `${window.location.origin}/auth/pinterest/callback`;
