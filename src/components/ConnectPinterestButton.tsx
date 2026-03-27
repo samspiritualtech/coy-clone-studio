@@ -5,7 +5,7 @@ import { Check, LinkIcon, Unlink } from "lucide-react";
 
 // Pinterest Client ID is a public/publishable key, safe to use client-side.
 // The secret is fetched from the edge function environment at runtime.
-const PINTEREST_CLIENT_ID = import.meta.env.VITE_PINTEREST_CLIENT_ID || "";
+const PINTEREST_CLIENT_ID = "1556665";
 
 export const ConnectPinterestButton = () => {
   const { isAuthenticated } = useAuth();
@@ -16,12 +16,8 @@ export const ConnectPinterestButton = () => {
   if (!isAuthenticated) return null;
 
   const handleConnect = () => {
-    if (!PINTEREST_CLIENT_ID) {
-      console.warn("Pinterest Client ID not configured");
-    }
-    const redirectUri = `${window.location.origin}/auth/pinterest/callback`;
-    const scope = "boards:read,pins:read";
-    const oauthUrl = `https://www.pinterest.com/oauth/?response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&client_id=${PINTEREST_CLIENT_ID}&scope=${scope}`;
+    const redirectUri = "https://coy-clone-studio.lovable.app/auth/pinterest/callback";
+    const oauthUrl = `https://www.pinterest.com/oauth/?response_type=code&client_id=${PINTEREST_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=boards:read,pins:read`;
     window.location.href = oauthUrl;
   };
 
