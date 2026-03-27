@@ -2,6 +2,8 @@ import { useNavigate } from "react-router-dom";
 import { products } from "@/data/products";
 import { SaveToPinterestButton } from "./SaveToPinterestButton";
 import { OptimizedImage } from "./OptimizedImage";
+import { ConnectPinterestButton } from "./ConnectPinterestButton";
+import { UserPinterestBoards } from "./UserPinterestBoards";
 
 const curatedProducts = products
   .filter((p) => p.images?.[0]?.startsWith("http"))
