@@ -4,6 +4,7 @@ import { Heart } from "lucide-react";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { Product } from "@/types";
 import { OptimizedImage } from "./OptimizedImage";
+import { SaveToPinterestButton } from "./SaveToPinterestButton";
 
 interface PLPProductCardProps {
   product: Product;
@@ -80,10 +81,16 @@ export const PLPProductCard = ({ product }: PLPProductCardProps) => {
         </button>
 
         {/* Quick View Overlay - appears on hover */}
-        <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-between">
           <span className="text-white text-xs font-medium uppercase tracking-wider">
             Quick View
           </span>
+          <SaveToPinterestButton
+            productUrl={`${window.location.origin}/product/${product.id}`}
+            imageUrl={primaryImage}
+            description={`${product.name} — Shop now on Ogura`}
+            size="sm"
+          />
         </div>
       </div>
 
