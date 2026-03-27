@@ -50,6 +50,7 @@ serve(async (req) => {
     });
 
     const tokenData = await tokenResponse.json();
+    console.log("Pinterest response status:", tokenResponse.status, "body:", JSON.stringify(tokenData));
 
     if (!tokenResponse.ok) {
       console.error("Pinterest token exchange failed:", tokenData);
