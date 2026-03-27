@@ -1,27 +1,32 @@
 
 
-# Fix Pinterest Connect Button OAuth URL
+# Fix Pinterest Token Exchange — Redirect URI Mismatch
 
-## Problem
-The button uses `window.location.origin` for the redirect URI (which resolves to the preview URL, not the published URL) and reads the client ID from an env variable that may be empty. Pinterest rejects the request because the redirect URI doesn't match what's registered.
+## Root Cause
 
-## Fix — `src/components/ConnectPinterestButton.tsx`
+The edge function code is already correct (uses `URLSearchParams`, proper headers, correct endpoint). The Pinterest error `{ code: 2, message: "Authentication failed." }` is caused by a **redirect URI mismatch**.
 
-Hardcode the client ID and redirect URI to match the registered Pinterest app:
-
-**Lines 6-8**: Replace the env variable with a hardcoded client ID:
+The callback page on line 22 sends:
 ```typescript
-const PINTEREST_CLIENT_ID = "1556665";
+const redirectUri = `${window.location.origin}/auth/pinterest/callback`;
 ```
 
-**Lines 18-26**: Update `handleConnect` to use the exact published redirect URI:
-```typescript
-const handleConnect = () => {
-  const redirectUri = "https://coy-clone-studio.lovable.app/auth/pinterest/callback";
-  const oauthUrl = `https://www.pinterest.com/oauth/?response_type=code&client_id=${PINTEREST_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=boards:read,pins:read`;
-  window.location.href = oauthUrl;
-};
-```
+When accessed via the **published URL** (`https://coy-clone-studio.lovable.app`), this works. But when accessed via the **preview URL** (`https://id-preview--d4269340-...lovable.app`), the origin doesn't match what's registered with Pinterest, causing authentication failure.
 
-This ensures the redirect URI always matches the one registered in the Pinterest developer app, regardless of whether the user is on the preview or published URL.
+Additionally, Pinterest authorization codes are single-use — if the page re-renders or `useEffect` fires twice (React StrictMode), the second attempt will fail.
+
+## Changes
+
+### 1. Fix `src/pages/PinterestCallback.tsx`
+- **Hardcode the redirect URI** to `https://coy-clone-studio.lovable.app/auth/pinterest/callback` (same as `ConnectPinterestButton`), instead of using `window.location.origin`
+- Add a `useRef` guard to prevent the token exchange from firing twice (React StrictMode double-mount)
+- Add debug logging for the response
+
+### 2. Add logging to `supabase/functions/pinterest-token-exchange/index.ts`
+- Log the received `redirect_uri` and `code` length before making the Pinterest API call
+- Log the full Pinterest response status and body for debugging
+
+## Files
+- **Modify**: `src/pages/PinterestCallback.tsx` — hardcode redirect URI, add double-call guard
+- **Modify**: `supabase/functions/pinterest-token-exchange/index.ts` — add request/response logging
 
