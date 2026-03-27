@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,17 +9,20 @@ const PinterestCallback = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const code = searchParams.get("code");
+  const hasCalled = useRef(false);
   const [status, setStatus] = useState<"loading" | "success" | "error">(
     code ? "loading" : "error"
   );
   const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
-    if (!code) return;
+    if (!code || hasCalled.current) return;
+    hasCalled.current = true;
 
     const exchangeToken = async () => {
       try {
-        const redirectUri = `${window.location.origin}/auth/pinterest/callback`;
+        const redirectUri = "https://coy-clone-studio.lovable.app/auth/pinterest/callback";
+        console.log("Exchanging Pinterest code, redirect_uri:", redirectUri);
         const { data, error } = await supabase.functions.invoke(
           "pinterest-token-exchange",
           { body: { code, redirect_uri: redirectUri } }

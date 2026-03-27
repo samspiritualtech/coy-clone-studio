@@ -34,6 +34,8 @@ serve(async (req) => {
 
     const basicAuth = encodeBase64(new TextEncoder().encode(`${clientId}:${clientSecret}`));
 
+    console.log("Pinterest token exchange - redirect_uri:", redirect_uri, "code length:", code.length);
+
     const tokenResponse = await fetch("https://api.pinterest.com/v5/oauth/token", {
       method: "POST",
       headers: {
