@@ -3,6 +3,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Check, LinkIcon, Unlink } from "lucide-react";
 
+const PINTEREST_CLIENT_ID = import.meta.env.VITE_PINTEREST_CLIENT_ID || localStorage.getItem("pinterest_client_id") || "";
+
 export const ConnectPinterestButton = () => {
   const { isAuthenticated } = useAuth();
   const [isConnected, setIsConnected] = useState(
@@ -12,17 +14,21 @@ export const ConnectPinterestButton = () => {
   if (!isAuthenticated) return null;
 
   const handleConnect = () => {
-    // TODO: Replace with real Pinterest OAuth redirect:
-    // window.location.href = `https://api.pinterest.com/oauth/?response_type=code&redirect_uri=${redirectUri}&client_id=${clientId}&scope=boards:read,pins:read`;
-    localStorage.setItem("pinterest_connected", "true");
-    localStorage.setItem("pinterest_token", "mock_access_token_xyz");
-    setIsConnected(true);
-    window.dispatchEvent(new Event("pinterest_connection_change"));
+    const clientId = PINTEREST_CLIENT_ID || Deno?.env?.get?.("PINTEREST_CLIENT_ID");
+    if (!clientId) {
+      // Fallback: prompt or use stored ID
+      console.warn("Pinterest Client ID not configured");
+    }
+    const redirectUri = `${window.location.origin}/auth/pinterest/callback`;
+    const scope = "boards:read,pins:read";
+    const oauthUrl = `https://www.pinterest.com/oauth/?response_type=code&redirect_uri=${encodeURIComponent(redirectUri)}&client_id=${PINTEREST_CLIENT_ID}&scope=${scope}`;
+    window.location.href = oauthUrl;
   };
 
   const handleDisconnect = () => {
     localStorage.removeItem("pinterest_connected");
     localStorage.removeItem("pinterest_token");
+    localStorage.removeItem("pinterest_code");
     setIsConnected(false);
     window.dispatchEvent(new Event("pinterest_connection_change"));
   };
