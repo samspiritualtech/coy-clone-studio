@@ -54,6 +54,7 @@ const CustomerApp = () => {
         <Route path="/join/apply" element={<SellerApply />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfUse />} />
+        <Route path="/auth/pinterest/callback" element={<PinterestCallback />} />
 
         {/* Protected Routes */}
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
