@@ -27,3 +27,6 @@ verify_jwt = false
 [functions.razorpay-verify-payment]
 verify_jwt = false
 
+[functions.pinterest-token-exchange]
+verify_jwt = false
+
