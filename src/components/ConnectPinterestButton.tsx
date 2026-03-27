@@ -3,7 +3,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Check, LinkIcon, Unlink } from "lucide-react";
 
-const PINTEREST_CLIENT_ID = import.meta.env.VITE_PINTEREST_CLIENT_ID || localStorage.getItem("pinterest_client_id") || "";
+// Pinterest Client ID is a public/publishable key, safe to use client-side.
+// The secret is fetched from the edge function environment at runtime.
+const PINTEREST_CLIENT_ID = import.meta.env.VITE_PINTEREST_CLIENT_ID || "";
 
 export const ConnectPinterestButton = () => {
   const { isAuthenticated } = useAuth();
