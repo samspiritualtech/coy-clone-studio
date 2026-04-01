@@ -55,12 +55,12 @@ export const SellerDashboardShowcase = () => {
   };
 
   return (
-    <div className="border rounded-xl overflow-hidden shadow-2xl bg-background" style={{ height: "85vh", minHeight: "600px" }}>
-      <div className="flex h-full">
+    <div className="min-h-screen bg-background overflow-hidden">
+      <div className="flex h-screen">
         <DashboardSidebar activeTab={activeTab} setActiveTab={handleTabChange} />
         <div className="flex-1 flex flex-col min-w-0">
           <DashboardHeader />
-          <main className="flex-1 overflow-y-auto bg-[#F1F1F1] p-6">
+          <main className="flex-1 overflow-y-auto bg-muted/40 p-6 lg:p-8">
             {renderContent()}
           </main>
         </div>

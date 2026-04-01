@@ -58,10 +58,10 @@ export const SellerDashboardLayout = ({ children }: SellerDashboardLayoutProps) 
               key={item.href}
               to={item.href}
               onClick={() => setSidebarOpen(false)}
-              className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+               className={cn(
+                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
                 isActive
-                  ? "bg-primary text-primary-foreground"
+                  ? "bg-primary text-primary-foreground border-l-2 border-[#D4AF37]"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted"
               )}
             >
@@ -102,7 +102,7 @@ export const SellerDashboardLayout = ({ children }: SellerDashboardLayoutProps) 
   return (
     <div className="min-h-screen flex bg-muted/30">
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex w-64 border-r bg-background flex-col shrink-0">
+      <aside className="hidden lg:flex w-64 border-r bg-gradient-to-b from-[#1A1A1A] to-[#141414] flex-col shrink-0">
         <Sidebar />
       </aside>
 
@@ -124,7 +124,7 @@ export const SellerDashboardLayout = ({ children }: SellerDashboardLayoutProps) 
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top bar */}
-        <div className="sticky top-0 z-40 bg-background flex items-center lg:block">
+        <div className="sticky top-0 z-40 bg-background/95 backdrop-blur-sm shadow-sm flex items-center lg:block">
           <Button
             variant="ghost"
             size="icon"
@@ -138,7 +138,7 @@ export const SellerDashboardLayout = ({ children }: SellerDashboardLayoutProps) 
           </div>
         </div>
 
-        <main className="flex-1 p-4 lg:p-6">{children}</main>
+        <main className="flex-1 p-4 lg:p-8 bg-muted/40">{children}</main>
       </div>
     </div>
   );
