@@ -1,43 +1,27 @@
 
 
-# Separate Customer and Seller Authentication
+# Remove Dashboard from Join Page, Ensure Separate Dashboard Route
 
-## Approach
+## Problem
+The `/join` page currently embeds `SellerDashboardShowcase` inline when `sellerUser` exists. The user wants it on a dedicated `/seller/dashboard` page only.
 
-Create a dedicated `SellerAuthContext` that wraps the same Supabase session but adds a seller-specific gate: it only considers a user "seller-authenticated" if they have a record in the `sellers` table with `application_status = 'approved'`. This keeps customer auth untouched while giving the seller portal its own independent state (`sellerUser`, `isSellerAuthenticated`).
-
-Both contexts share the underlying Supabase session (one session per browser), but they expose different state and different login/signup methods.
+## Current State
+- `/seller/dashboard` already exists in `SellerApp.tsx` with full auth protection (WrappedRoute → SellerAuthRoute → SellerDashboardLayout)
+- `SellerLogin` and `SellerSignup` already `navigate("/seller/dashboard")` after success
+- `SellerAuthRoute` already redirects to `/join` when unauthenticated
 
 ## Changes
 
-### 1. Create `src/contexts/SellerAuthContext.tsx`
-- Own state: `sellerUser`, `isSellerAuthenticated`, `isSellerLoading`
-- On auth state change, check if user has an approved seller record; only then set `sellerUser`
-- Provide `sellerSignInWithEmail`, `sellerSignUpWithEmail`, `sellerSignInWithGoogle`, `sellerLogout`
-- `sellerSignUpWithEmail` creates seller record + role (moved from `AuthContext.signUpWithEmail`)
-- Export `useSellerAuth()` hook
+### 1. `src/pages/JoinUs.tsx` — Remove dashboard section
+- Remove the `sellerUser` import and conditional `<SellerDashboardShowcase />` block (lines 4-5, 8, 44-51)
+- Remove unused imports (`SellerDashboardShowcase`, `useSellerAuth`)
+- Keep the rest of the page exactly as-is
 
-### 2. Remove seller-specific logic from `src/contexts/AuthContext.tsx`
-- Remove seller record creation and role assignment from `signUpWithEmail` — that method becomes a generic customer signup
-- No other changes to customer auth
-
-### 3. Update `src/App.tsx`
-- Wrap app with `SellerAuthProvider` alongside existing `AuthProvider`
-
-### 4. Update seller components to use `useSellerAuth()` instead of `useAuth()`
-- `src/components/auth/SellerAuthRoute.tsx` — use `useSellerAuth`, redirect to `/join` instead of `/seller-login`
-- `src/pages/seller/SellerLogin.tsx` — use `useSellerAuth`
-- `src/pages/seller/SellerSignup.tsx` — use `useSellerAuth`
-- `src/layouts/SellerDashboardLayout.tsx` — use `useSellerAuth`
-- `src/components/seller-dashboard/DashboardHeader.tsx` — use `useSellerAuth`
-- `src/pages/JoinUs.tsx` — use `useSellerAuth` (`sellerUser`) for conditional dashboard rendering
-
-### 5. Update seller dashboard pages that reference `useAuth()`
-- `src/pages/seller/SellerDashboardHome.tsx`
-- `src/pages/seller/SellerSettings.tsx`
-- Any dashboard page using `useAuth()` switches to `useSellerAuth()`
+### 2. No other changes needed
+- Routing in `SellerApp.tsx` is already correct (`/seller/dashboard` → protected WrappedRoute)
+- Login/Signup pages already redirect to `/seller/dashboard` on success
+- `SellerAuthRoute` already redirects unauthenticated users to `/join`
 
 ## Files
-- **Create**: `src/contexts/SellerAuthContext.tsx`
-- **Modify**: `src/contexts/AuthContext.tsx`, `src/App.tsx`, `src/components/auth/SellerAuthRoute.tsx`, `src/pages/seller/SellerLogin.tsx`, `src/pages/seller/SellerSignup.tsx`, `src/layouts/SellerDashboardLayout.tsx`, `src/components/seller-dashboard/DashboardHeader.tsx`, `src/pages/JoinUs.tsx`, `src/pages/seller/SellerDashboardHome.tsx`, `src/pages/seller/SellerSettings.tsx`
+- **Modify**: `src/pages/JoinUs.tsx` (remove 2 imports + conditional dashboard block)
 
