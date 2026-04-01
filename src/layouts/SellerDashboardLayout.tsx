@@ -102,7 +102,7 @@ export const SellerDashboardLayout = ({ children }: SellerDashboardLayoutProps) 
   return (
     <div className="min-h-screen flex bg-muted/30">
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex w-64 border-r bg-background flex-col shrink-0">
+      <aside className="hidden lg:flex w-64 border-r bg-gradient-to-b from-[#1A1A1A] to-[#141414] flex-col shrink-0">
         <Sidebar />
       </aside>
 
