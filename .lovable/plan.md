@@ -1,34 +1,44 @@
 
 
-# Enhance Join Page Auth Modal — Email OTP + Google Fix
+# Refine Ogura Seller Dashboard UI (Visual Only)
+
+## Scope
+Pure CSS/className changes across 4 files. No logic, data, or structural changes.
 
 ## Changes
 
-### 1. Modify `src/pages/JoinUs.tsx`
-Replace password-based auth with email OTP flow using Supabase's built-in `signInWithOtp` and `verifyOtp`:
+### 1. `SellerDashboardShowcase.tsx` — Full-width layout + background
+- Remove the boxed container (`border rounded-xl`, fixed `85vh` height)
+- Make it `min-h-screen` full-width
+- Add a subtle fashion-themed background image with dark overlay on the main content area for a premium feel
 
-- **Remove** password state and field
-- **Add** `otpSent` boolean state and `otp` string state
-- **Step 1**: User enters email, clicks "Send OTP" → calls `supabase.auth.signInWithOtp({ email })` (works for both new and existing users)
-- **Step 2**: Show 6-digit OTP input field + "Verify OTP" button → calls `supabase.auth.verifyOtp({ email, token: otp, type: 'email' })`
-- On success: toast, close modal, redirect to `/seller/dashboard`
-- Add "Back" / "Change email" link to go back to email entry step
-- Remove the login/signup mode toggle (OTP handles both cases seamlessly — single "Continue with Email" flow)
+### 2. `DashboardSidebar.tsx` — Gradient sidebar + refined hover/active states
+- Add a subtle vertical gradient (`from-[#1A1A1A] via-[#1F1F1F] to-[#141414]`)
+- Increase active item contrast with a left accent border and slightly brighter background
+- Add `transition-all duration-200` for smoother hover animations
+- Improve store name section with more padding and a subtle gold/warm accent on the brand name
 
-### 2. Google Sign-In already works
-The `GoogleSignInButton` uses `lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin })` which is correct for Lovable Cloud managed OAuth. No changes needed.
+### 3. `DashboardHeader.tsx` — Shadow + spacing
+- Add `shadow-sm` and increase height slightly (`h-16`)
+- Add `backdrop-blur-sm bg-background/95` for a frosted glass effect
+- Improve search input styling with a subtle border on focus
 
-### 3. No other files change
-- `AuthContext` `onAuthStateChange` listener will pick up the new session from OTP verification automatically
-- `SellerAuthRoute` protection remains intact
+### 4. `DashboardHome.tsx` — Enhanced cards + table
+- KPI cards: add `hover:shadow-md hover:-translate-y-0.5 transition-all duration-200`, increase `rounded-xl`, add icon background circles with soft color tints
+- Chart cards: add `rounded-xl` and `hover:shadow-md transition-all duration-200`
+- Recent Orders card: same rounded + shadow treatment
+- Add `backdrop-blur-sm` to cards for depth against the new background
 
-## UI (kept identical)
-- Same Dialog, same styling, same spacing
-- Email input stays the same
-- Password field replaced with: "Send OTP" button → then OTP input + "Verify" button
-- Google sign-in button stays below the divider
-- Modal title changes to just "Sign in to Ogura" (no login/signup distinction needed)
+### 5. `SellerDashboardLayout.tsx` — Match sidebar + content styling
+- Add gradient background on the sidebar (`bg-gradient-to-b from-[#1A1A1A] to-[#141414]`)
+- Active nav items: add left border accent + brighter bg
+- Main content area: add subtle background pattern/overlay
+- Sticky header: add `shadow-sm backdrop-blur-sm`
 
-## File
-- **Modify**: `src/pages/JoinUs.tsx`
+## Files to Modify
+- `src/components/seller-dashboard/SellerDashboardShowcase.tsx`
+- `src/components/seller-dashboard/DashboardSidebar.tsx`
+- `src/components/seller-dashboard/DashboardHeader.tsx`
+- `src/components/seller-dashboard/pages/DashboardHome.tsx`
+- `src/layouts/SellerDashboardLayout.tsx`
 
