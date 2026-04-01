@@ -58,8 +58,8 @@ export const DashboardHome = () => (
       ))}
     </div>
 
-    <div className="grid lg:grid-cols-2 gap-4">
-      <Card className="shadow-sm">
+    <div className="grid lg:grid-cols-2 gap-5">
+      <Card className="rounded-xl shadow-sm hover:shadow-md transition-all duration-200 backdrop-blur-sm">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm font-medium">Sales Overview</CardTitle>
         </CardHeader>
