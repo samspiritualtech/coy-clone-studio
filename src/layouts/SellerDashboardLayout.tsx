@@ -138,7 +138,7 @@ export const SellerDashboardLayout = ({ children }: SellerDashboardLayoutProps) 
           </div>
         </div>
 
-        <main className="flex-1 p-4 lg:p-6">{children}</main>
+        <main className="flex-1 p-4 lg:p-8 bg-muted/40">{children}</main>
       </div>
     </div>
   );

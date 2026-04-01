@@ -117,10 +117,10 @@ export const DashboardSidebar = ({ activeTab, setActiveTab }: DashboardSidebarPr
                       key={child.id}
                       onClick={() => setActiveTab(child.id)}
                       className={cn(
-                        "w-full text-left px-2.5 py-1.5 rounded-md text-[13px] transition-colors",
+                        "w-full text-left px-2.5 py-1.5 rounded-md text-[13px] transition-all duration-200",
                         isActive(child.id)
-                          ? "bg-white/10 text-white font-medium"
-                          : "text-[#B5B5B5] hover:bg-white/5 hover:text-white"
+                          ? "bg-white/15 text-white font-medium border-l-2 border-[#D4AF37] pl-2"
+                          : "text-[#B5B5B5] hover:bg-white/8 hover:text-white"
                       )}
                     >
                       {child.label}

@@ -98,7 +98,7 @@ export const DashboardHome = () => (
       </Card>
     </div>
 
-    <Card className="shadow-sm">
+    <Card className="rounded-xl shadow-sm hover:shadow-md transition-all duration-200 backdrop-blur-sm">
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-medium">Recent Orders</CardTitle>
       </CardHeader>

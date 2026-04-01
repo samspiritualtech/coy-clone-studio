@@ -56,12 +56,12 @@ export const DashboardHeader = () => {
   };
 
   return (
-    <header className="h-14 bg-background border-b flex items-center px-4 gap-4 shrink-0">
+    <header className="h-16 bg-background/95 backdrop-blur-sm border-b shadow-sm flex items-center px-6 gap-4 shrink-0">
       {/* Search */}
       <div className="flex-1 max-w-md">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search products, orders, customers..." className="pl-9 h-9 bg-muted/50 border-0 text-sm" />
+          <Input placeholder="Search products, orders, customers..." className="pl-9 h-9 bg-muted/50 border border-border/50 focus:border-primary/30 text-sm transition-colors duration-200" />
         </div>
       </div>
 
