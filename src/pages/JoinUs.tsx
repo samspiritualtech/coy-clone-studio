@@ -2,8 +2,10 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { ArrowRight, ShieldCheck } from "lucide-react";
 import { SellerDashboardShowcase } from "@/components/seller-dashboard/SellerDashboardShowcase";
+import { useAuth } from "@/contexts/AuthContext";
 
 const JoinUs = () => {
+  const { user } = useAuth();
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
@@ -40,11 +42,13 @@ const JoinUs = () => {
       </section>
 
       {/* Seller Dashboard */}
-      <section className="pb-8 px-4 md:px-6">
-        <div className="container mx-auto max-w-[1400px]">
-          <SellerDashboardShowcase />
-        </div>
-      </section>
+      {user && (
+        <section className="pb-8 px-4 md:px-6">
+          <div className="container mx-auto max-w-[1400px]">
+            <SellerDashboardShowcase />
+          </div>
+        </section>
+      )}
     </div>
   );
 };
