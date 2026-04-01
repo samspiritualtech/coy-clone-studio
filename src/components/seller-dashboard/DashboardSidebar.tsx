@@ -94,10 +94,10 @@ export const DashboardSidebar = ({ activeTab, setActiveTab }: DashboardSidebarPr
                   }
                 }}
                 className={cn(
-                  "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-[13px] font-medium transition-colors",
+                  "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-[13px] font-medium transition-all duration-200",
                   active
-                    ? "bg-white/10 text-white"
-                    : "text-[#B5B5B5] hover:bg-white/5 hover:text-white"
+                    ? "bg-white/15 text-white border-l-2 border-[#D4AF37] pl-2"
+                    : "text-[#B5B5B5] hover:bg-white/8 hover:text-white"
                 )}
               >
                 <item.icon className="h-4 w-4 shrink-0" />
