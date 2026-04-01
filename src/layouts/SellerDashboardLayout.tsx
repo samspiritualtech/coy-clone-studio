@@ -124,7 +124,7 @@ export const SellerDashboardLayout = ({ children }: SellerDashboardLayoutProps) 
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top bar */}
-        <div className="sticky top-0 z-40 bg-background flex items-center lg:block">
+        <div className="sticky top-0 z-40 bg-background/95 backdrop-blur-sm shadow-sm flex items-center lg:block">
           <Button
             variant="ghost"
             size="icon"
