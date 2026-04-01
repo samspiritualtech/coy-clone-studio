@@ -70,10 +70,10 @@ export const DashboardSidebar = ({ activeTab, setActiveTab }: DashboardSidebarPr
     item.children?.some((c) => activeTab === c.id) ?? false;
 
   return (
-    <aside className="w-[220px] bg-[#1A1A1A] text-[#E3E5E7] flex flex-col shrink-0 overflow-y-auto">
+    <aside className="w-[220px] bg-gradient-to-b from-[#1A1A1A] via-[#1F1F1F] to-[#141414] text-[#E3E5E7] flex flex-col shrink-0 overflow-y-auto">
       {/* Store name */}
-      <div className="px-4 py-4 border-b border-white/10">
-        <span className="text-sm font-semibold tracking-wide text-white">Ogura Store</span>
+      <div className="px-5 py-5 border-b border-white/10">
+        <span className="text-sm font-bold tracking-widest uppercase text-[#D4AF37]">Ogura Store</span>
       </div>
 
       <nav className="flex-1 py-2 px-2 space-y-0.5">
