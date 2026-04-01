@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+import { useSellerAuth } from "@/contexts/SellerAuthContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -31,7 +31,7 @@ const statusColors: Record<string, string> = {
 };
 
 const SellerProducts = () => {
-  const { user } = useAuth();
+  const { sellerUser: user } = useSellerAuth();
   const [products, setProducts] = useState<SellerProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [sellerId, setSellerId] = useState<string | null>(null);

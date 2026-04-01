@@ -17,7 +17,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useAuth } from "@/contexts/AuthContext";
+import { useSellerAuth } from "@/contexts/SellerAuthContext";
 import { cn } from "@/lib/utils";
 
 interface Notification {
@@ -38,7 +38,7 @@ const mockNotifications: Notification[] = [
 ];
 
 export const DashboardHeader = () => {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { sellerUser: user, isSellerAuthenticated: isAuthenticated, sellerLogout: logout } = useSellerAuth();
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState(mockNotifications);
 

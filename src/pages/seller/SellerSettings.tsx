@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+import { useSellerAuth } from "@/contexts/SellerAuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,7 +10,7 @@ import { Loader2, Save } from "lucide-react";
 import { toast } from "sonner";
 
 const SellerSettings = () => {
-  const { user } = useAuth();
+  const { sellerUser: user } = useSellerAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [seller, setSeller] = useState<any>(null);

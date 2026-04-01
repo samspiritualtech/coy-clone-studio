@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, X, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useSellerAuth } from "@/contexts/SellerAuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { ImageUploadZone } from "@/components/ImageUploadZone";
@@ -30,7 +30,7 @@ const styleOptions = ["Boho", "Minimal", "Ethnic", "Western", "Indo-Western", "S
 const DEV_SELLER_ID = "07edb482-2c8e-4711-8cda-d2f3a87b790a";
 
 export const DashboardAddProduct = ({ onBack }: Props) => {
-  const { user } = useAuth();
+  const { sellerUser: user } = useSellerAuth();
   const [sellerId, setSellerId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [imageFiles, setImageFiles] = useState<File[]>([]);

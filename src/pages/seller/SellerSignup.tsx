@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import { useSellerAuth } from "@/contexts/SellerAuthContext";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,17 +10,17 @@ import { Loader2, Store } from "lucide-react";
 import { toast } from "sonner";
 
 const SellerSignup = () => {
-  const { isAuthenticated, isLoading, signUpWithEmail } = useAuth();
+  const { isSellerAuthenticated, isSellerLoading, sellerSignUpWithEmail } = useSellerAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!isLoading && isAuthenticated) {
+    if (!isSellerLoading && isSellerAuthenticated) {
       navigate("/seller/dashboard", { replace: true });
     }
-  }, [isAuthenticated, isLoading, navigate]);
+  }, [isSellerAuthenticated, isSellerLoading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,7 +28,7 @@ const SellerSignup = () => {
     if (password.length < 6) return toast.error("Password must be at least 6 characters");
 
     setSubmitting(true);
-    const { success, error } = await signUpWithEmail(email, password);
+    const { success, error } = await sellerSignUpWithEmail(email, password);
     setSubmitting(false);
 
     if (success) {
@@ -39,7 +39,7 @@ const SellerSignup = () => {
     }
   };
 
-  if (isLoading) {
+  if (isSellerLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
