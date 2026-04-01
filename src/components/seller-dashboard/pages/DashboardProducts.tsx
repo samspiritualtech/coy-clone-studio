@@ -32,7 +32,7 @@ const statusColor: Record<string, string> = {
 const DEV_SELLER_ID = "07edb482-2c8e-4711-8cda-d2f3a87b790a";
 
 export const DashboardProducts = ({ onAddProduct, refreshKey }: Props) => {
-  const { user } = useAuth();
+  const { sellerUser: user } = useSellerAuth();
   const [products, setProducts] = useState<DBProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [sellerId, setSellerId] = useState<string | null>(null);

@@ -30,7 +30,7 @@ const styleOptions = ["Boho", "Minimal", "Ethnic", "Western", "Indo-Western", "S
 const DEV_SELLER_ID = "07edb482-2c8e-4711-8cda-d2f3a87b790a";
 
 export const DashboardAddProduct = ({ onBack }: Props) => {
-  const { user } = useAuth();
+  const { sellerUser: user } = useSellerAuth();
   const [sellerId, setSellerId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [imageFiles, setImageFiles] = useState<File[]>([]);

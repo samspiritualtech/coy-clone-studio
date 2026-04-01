@@ -19,7 +19,7 @@ interface SellerForm {
 }
 
 export const DashboardSettings = () => {
-  const { user } = useAuth();
+  const { sellerUser: user } = useSellerAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [sellerId, setSellerId] = useState<string | null>(null);

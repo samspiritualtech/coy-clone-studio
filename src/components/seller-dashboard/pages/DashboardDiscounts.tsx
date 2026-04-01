@@ -33,7 +33,7 @@ const discountTypes = [
 const DEV_SELLER_ID = "07edb482-2c8e-4711-8cda-d2f3a87b790a";
 
 export const DashboardDiscounts = () => {
-  const { user } = useAuth();
+  const { sellerUser: user } = useSellerAuth();
   const [sellerId, setSellerId] = useState<string | null>(null);
   const [discounts, setDiscounts] = useState<Discount[]>([]);
   const [loading, setLoading] = useState(true);
