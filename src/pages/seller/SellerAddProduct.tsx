@@ -40,7 +40,7 @@ const occasionOptions = ["Wedding", "Festive", "Party", "Casual", "Work", "Brunc
 const styleOptions = ["Boho", "Minimal", "Ethnic", "Western", "Indo-Western", "Streetwear", "Classic", "Contemporary"];
 
 const SellerAddProduct = () => {
-  const { user } = useAuth();
+  const { sellerUser: user } = useSellerAuth();
   const navigate = useNavigate();
   const [sellerId, setSellerId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);

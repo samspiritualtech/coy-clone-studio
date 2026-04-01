@@ -38,7 +38,7 @@ const mockNotifications: Notification[] = [
 ];
 
 export const DashboardHeader = () => {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { sellerUser: user, isSellerAuthenticated: isAuthenticated, sellerLogout: logout } = useSellerAuth();
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState(mockNotifications);
 

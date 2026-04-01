@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import { useSellerAuth } from "@/contexts/SellerAuthContext";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,7 @@ import { Loader2, Store } from "lucide-react";
 import { toast } from "sonner";
 
 const SellerLogin = () => {
-  const { isAuthenticated, isLoading, signInWithEmail } = useAuth();
+  const { isSellerAuthenticated, isSellerLoading, sellerSignInWithEmail } = useSellerAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,17 +27,17 @@ const SellerLogin = () => {
   }, []);
 
   useEffect(() => {
-    if (!isLoading && isAuthenticated) {
+    if (!isSellerLoading && isSellerAuthenticated) {
       navigate("/seller/dashboard", { replace: true });
     }
-  }, [isAuthenticated, isLoading, navigate]);
+  }, [isSellerAuthenticated, isSellerLoading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) return toast.error("Please fill in all fields");
 
     setSubmitting(true);
-    const { success, error } = await signInWithEmail(email, password);
+    const { success, error } = await sellerSignInWithEmail(email, password);
     setSubmitting(false);
 
     if (success) {
@@ -47,7 +47,7 @@ const SellerLogin = () => {
     }
   };
 
-  if (isLoading) {
+  if (isSellerLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />

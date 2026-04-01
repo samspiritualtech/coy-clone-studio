@@ -47,6 +47,7 @@ const App = () => (
             </FilterProvider>
           </CartProvider>
         </LocationProvider>
+        </SellerAuthProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>

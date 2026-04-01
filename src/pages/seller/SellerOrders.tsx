@@ -28,7 +28,7 @@ const orderStatusColors: Record<string, string> = {
 };
 
 const SellerOrders = () => {
-  const { user } = useAuth();
+  const { sellerUser: user } = useSellerAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 

@@ -31,7 +31,7 @@ const statusColors: Record<string, string> = {
 };
 
 const SellerProducts = () => {
-  const { user } = useAuth();
+  const { sellerUser: user } = useSellerAuth();
   const [products, setProducts] = useState<SellerProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [sellerId, setSellerId] = useState<string | null>(null);

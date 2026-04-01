@@ -1,11 +1,11 @@
 import { Navigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+import { useSellerAuth } from "@/contexts/SellerAuthContext";
 import { Loader2 } from "lucide-react";
 
 export const SellerAuthRoute = ({ children }: { children: React.ReactNode }) => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isSellerAuthenticated, isSellerLoading } = useSellerAuth();
 
-  if (isLoading) {
+  if (isSellerLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -13,8 +13,8 @@ export const SellerAuthRoute = ({ children }: { children: React.ReactNode }) => 
     );
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/seller-login" replace />;
+  if (!isSellerAuthenticated) {
+    return <Navigate to="/join" replace />;
   }
 
   return <>{children}</>;

@@ -29,7 +29,7 @@ const navItems = [
 ];
 
 export const SellerDashboardLayout = ({ children }: SellerDashboardLayoutProps) => {
-  const { user, logout } = useAuth();
+  const { sellerUser: user, sellerLogout: logout } = useSellerAuth();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 

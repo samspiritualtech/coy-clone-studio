@@ -10,7 +10,7 @@ import { Loader2, Save } from "lucide-react";
 import { toast } from "sonner";
 
 const SellerSettings = () => {
-  const { user } = useAuth();
+  const { sellerUser: user } = useSellerAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [seller, setSeller] = useState<any>(null);
