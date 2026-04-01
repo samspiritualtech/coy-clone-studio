@@ -41,13 +41,15 @@ export const DashboardHome = () => (
   <div className="space-y-6">
     <h1 className="text-xl font-semibold text-foreground">Dashboard</h1>
 
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
       {kpis.map((kpi) => (
-        <Card key={kpi.label} className="shadow-sm">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-2">
+        <Card key={kpi.label} className="rounded-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 backdrop-blur-sm">
+          <CardContent className="p-5">
+            <div className="flex items-center justify-between mb-3">
               <span className="text-xs text-muted-foreground font-medium">{kpi.label}</span>
-              <kpi.icon className="h-4 w-4 text-muted-foreground" />
+              <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <kpi.icon className="h-4 w-4 text-primary" />
+              </div>
             </div>
             <div className="text-2xl font-bold text-foreground">{kpi.value}</div>
             <span className="text-xs text-green-600 font-medium">{kpi.change}</span>
