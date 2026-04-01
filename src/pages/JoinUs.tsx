@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { ArrowRight, ShieldCheck } from "lucide-react";
 
 const JoinUs = () => {
-  const { sellerUser } = useSellerAuth();
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
