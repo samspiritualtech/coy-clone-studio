@@ -42,11 +42,13 @@ const JoinUs = () => {
       </section>
 
       {/* Seller Dashboard */}
-      <section className="pb-8 px-4 md:px-6">
-        <div className="container mx-auto max-w-[1400px]">
-          <SellerDashboardShowcase />
-        </div>
-      </section>
+      {user && (
+        <section className="pb-8 px-4 md:px-6">
+          <div className="container mx-auto max-w-[1400px]">
+            <SellerDashboardShowcase />
+          </div>
+        </section>
+      )}
     </div>
   );
 };
