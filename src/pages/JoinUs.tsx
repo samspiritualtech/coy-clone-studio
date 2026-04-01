@@ -37,7 +37,7 @@ const JoinUs = () => {
           </p>
         </div>
       </section>
-
+    </div>
   );
 };
 
