@@ -8,6 +8,7 @@ import { FilterProvider } from "@/contexts/FilterContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { WishlistProvider } from "@/contexts/WishlistContext";
 import { LocationProvider } from "@/contexts/LocationContext";
+import { SellerAuthProvider } from "@/contexts/SellerAuthContext";
 import { detectDomain } from "@/lib/domainDetection";
 import CustomerApp from "@/apps/CustomerApp";
 import SellerApp from "@/apps/SellerApp";
