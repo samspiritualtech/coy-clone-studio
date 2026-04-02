@@ -1,42 +1,41 @@
 
 
-# Fix Seller Auth & Routing Flow
+# Restore /join as Full Landing Page with Embedded Auth + Application Flow
 
-## Problem
-The `/join` page currently shows the `SellerDashboardShowcase` component (a full dashboard preview) alongside the hero section. The user wants `/join` to be **auth-only** (login/signup forms), with the dashboard exclusively behind protected routes.
+## Overview
+Rebuild `/join` from a simple login card into a single-page flow: Hero → Auth (hidden until "Apply" clicked) → Application Form (shown after login). All on one page with smooth transitions.
+
+## Architecture
+
+The page manages a `step` state machine:
+1. **hero** — Landing hero visible, auth/form hidden
+2. **auth** — Auth section revealed (scroll down), for unauthenticated users
+3. **apply** — Application form shown, for authenticated users
+
+```text
+User lands → Hero section
+  ↓ clicks "Apply to Join Ogura"
+  ├─ NOT logged in → step="auth" (show login/signup tabs, scroll to them)
+  └─ IS logged in  → step="apply" (show application form, scroll to it)
+After login success → step="apply" (swap auth for form)
+After form submit  → success message → redirect to /seller/dashboard
+```
 
 ## Changes
 
-### 1. Redesign `src/pages/JoinUs.tsx` — Auth-only page
-- Remove the `SellerDashboardShowcase` import and its section entirely
-- Replace the hero + "Apply" button with a **login/signup tabbed form** (email/password + Google sign-in)
-- If user is already authenticated, auto-redirect to `/seller/dashboard`
-- Use the existing `useAuth` context for auth state checks
+### 1. Rewrite `src/pages/JoinUs.tsx`
+- **Hero section**: Full-width hero with "Join Ogura as an Independent Fashion Designer" heading, descriptive subtext, and "Apply to Join Ogura" CTA button
+- **Auth section**: Hidden by default (`step !== "auth"`). Contains Google sign-in + Login/Signup tabs with email/password. Uses existing `useAuth` context. On successful auth, transitions to `step="apply"`
+- **Application section**: Hidden by default (`step !== "apply"`). Embeds the same form logic currently in `SellerApply.tsx` (name, brand, email, phone, city, category, portfolio, sample images). On submit, shows success and redirects to `/seller/dashboard`
+- **Auto-detect**: If user is already authenticated on mount, clicking Apply goes directly to form
+- **Smooth scroll**: Use `scrollIntoView({ behavior: 'smooth' })` via refs when transitioning steps
+- Include `JourneyTimeline` component between hero and auth/form sections for context
+- Use `LuxuryHeader` and `LuxuryFooter` for consistent page framing
 
-### 2. Update `src/components/auth/SellerAuthRoute.tsx` — Redirect to `/join`
-- Change the redirect target from `/seller-login` to `/join` so unauthenticated users hitting any `/seller/dashboard` route land on the new auth page
-
-### 3. Update `src/apps/SellerApp.tsx` — Add `/join` route
-- Add a route for `/join` pointing to `JoinUs` so it works in the seller domain context too
-- Keep existing protected dashboard routes unchanged
-
-### 4. Update `src/pages/seller/SellerLogin.tsx` and `src/pages/seller/SellerSignup.tsx`
-- Update redirect-after-auth from `/seller/dashboard` to `/seller/dashboard` (already correct)
-- Update "Don't have account?" / "Already have account?" links to point to `/join` instead of `/seller-signup` / `/seller-login`
-
-## Auth Flow Summary
-
-```text
-/join (not logged in)  →  Shows login/signup forms
-/join (logged in)      →  Redirects to /seller/dashboard
-/seller/dashboard      →  Protected; redirects to /join if not logged in
-Login/Signup success   →  Redirects to /seller/dashboard
-Logout                 →  Redirects to /join
-```
+### 2. No other file changes needed
+- `SellerAuthRoute`, routing in `SellerApp.tsx`, and dashboard remain untouched
+- `SellerApply.tsx` stays as a standalone fallback page (no changes)
 
 ## Files
-- **Modify**: `src/pages/JoinUs.tsx` — remove dashboard showcase, add auth forms with tabs
-- **Modify**: `src/components/auth/SellerAuthRoute.tsx` — redirect to `/join`
-- **Modify**: `src/apps/SellerApp.tsx` — add `/join` route alias
-- **Modify**: `src/pages/seller/SellerLogin.tsx`, `src/pages/seller/SellerSignup.tsx` — update cross-links
+- **Rewrite**: `src/pages/JoinUs.tsx`
 
