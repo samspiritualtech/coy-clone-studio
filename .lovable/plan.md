@@ -1,44 +1,42 @@
 
 
-# Refine Ogura Seller Dashboard UI (Visual Only)
+# Fix Seller Auth & Routing Flow
 
-## Scope
-Pure CSS/className changes across 4 files. No logic, data, or structural changes.
+## Problem
+The `/join` page currently shows the `SellerDashboardShowcase` component (a full dashboard preview) alongside the hero section. The user wants `/join` to be **auth-only** (login/signup forms), with the dashboard exclusively behind protected routes.
 
 ## Changes
 
-### 1. `SellerDashboardShowcase.tsx` — Full-width layout + background
-- Remove the boxed container (`border rounded-xl`, fixed `85vh` height)
-- Make it `min-h-screen` full-width
-- Add a subtle fashion-themed background image with dark overlay on the main content area for a premium feel
+### 1. Redesign `src/pages/JoinUs.tsx` — Auth-only page
+- Remove the `SellerDashboardShowcase` import and its section entirely
+- Replace the hero + "Apply" button with a **login/signup tabbed form** (email/password + Google sign-in)
+- If user is already authenticated, auto-redirect to `/seller/dashboard`
+- Use the existing `useAuth` context for auth state checks
 
-### 2. `DashboardSidebar.tsx` — Gradient sidebar + refined hover/active states
-- Add a subtle vertical gradient (`from-[#1A1A1A] via-[#1F1F1F] to-[#141414]`)
-- Increase active item contrast with a left accent border and slightly brighter background
-- Add `transition-all duration-200` for smoother hover animations
-- Improve store name section with more padding and a subtle gold/warm accent on the brand name
+### 2. Update `src/components/auth/SellerAuthRoute.tsx` — Redirect to `/join`
+- Change the redirect target from `/seller-login` to `/join` so unauthenticated users hitting any `/seller/dashboard` route land on the new auth page
 
-### 3. `DashboardHeader.tsx` — Shadow + spacing
-- Add `shadow-sm` and increase height slightly (`h-16`)
-- Add `backdrop-blur-sm bg-background/95` for a frosted glass effect
-- Improve search input styling with a subtle border on focus
+### 3. Update `src/apps/SellerApp.tsx` — Add `/join` route
+- Add a route for `/join` pointing to `JoinUs` so it works in the seller domain context too
+- Keep existing protected dashboard routes unchanged
 
-### 4. `DashboardHome.tsx` — Enhanced cards + table
-- KPI cards: add `hover:shadow-md hover:-translate-y-0.5 transition-all duration-200`, increase `rounded-xl`, add icon background circles with soft color tints
-- Chart cards: add `rounded-xl` and `hover:shadow-md transition-all duration-200`
-- Recent Orders card: same rounded + shadow treatment
-- Add `backdrop-blur-sm` to cards for depth against the new background
+### 4. Update `src/pages/seller/SellerLogin.tsx` and `src/pages/seller/SellerSignup.tsx`
+- Update redirect-after-auth from `/seller/dashboard` to `/seller/dashboard` (already correct)
+- Update "Don't have account?" / "Already have account?" links to point to `/join` instead of `/seller-signup` / `/seller-login`
 
-### 5. `SellerDashboardLayout.tsx` — Match sidebar + content styling
-- Add gradient background on the sidebar (`bg-gradient-to-b from-[#1A1A1A] to-[#141414]`)
-- Active nav items: add left border accent + brighter bg
-- Main content area: add subtle background pattern/overlay
-- Sticky header: add `shadow-sm backdrop-blur-sm`
+## Auth Flow Summary
 
-## Files to Modify
-- `src/components/seller-dashboard/SellerDashboardShowcase.tsx`
-- `src/components/seller-dashboard/DashboardSidebar.tsx`
-- `src/components/seller-dashboard/DashboardHeader.tsx`
-- `src/components/seller-dashboard/pages/DashboardHome.tsx`
-- `src/layouts/SellerDashboardLayout.tsx`
+```text
+/join (not logged in)  →  Shows login/signup forms
+/join (logged in)      →  Redirects to /seller/dashboard
+/seller/dashboard      →  Protected; redirects to /join if not logged in
+Login/Signup success   →  Redirects to /seller/dashboard
+Logout                 →  Redirects to /join
+```
+
+## Files
+- **Modify**: `src/pages/JoinUs.tsx` — remove dashboard showcase, add auth forms with tabs
+- **Modify**: `src/components/auth/SellerAuthRoute.tsx` — redirect to `/join`
+- **Modify**: `src/apps/SellerApp.tsx` — add `/join` route alias
+- **Modify**: `src/pages/seller/SellerLogin.tsx`, `src/pages/seller/SellerSignup.tsx` — update cross-links
 
