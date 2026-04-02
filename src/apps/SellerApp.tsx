@@ -5,6 +5,7 @@ import { SellerAuthRoute } from "@/components/auth/SellerAuthRoute";
 import SellerLanding from "@/pages/seller/SellerLanding";
 import SellerLogin from "@/pages/seller/SellerLogin";
 import SellerSignup from "@/pages/seller/SellerSignup";
+import JoinUs from "@/pages/JoinUs";
 import SellerDashboardHome from "@/pages/seller/SellerDashboardHome";
 import SellerProducts from "@/pages/seller/SellerProducts";
 import SellerAddProduct from "@/pages/seller/SellerAddProduct";
