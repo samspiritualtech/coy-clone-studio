@@ -115,7 +115,7 @@ const SellerLogin = () => {
 
           <p className="text-center text-sm text-muted-foreground mt-6">
             Don't have an account?{" "}
-            <Link to="/seller-signup" className="text-primary hover:underline font-medium">
+            <Link to="/join" className="text-primary hover:underline font-medium">
               Create account
             </Link>
           </p>

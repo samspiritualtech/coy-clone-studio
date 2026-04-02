@@ -21,6 +21,7 @@ const WrappedRoute = ({ children }: { children: React.ReactNode }) => (
 const SellerApp = () => {
   return (
     <Routes>
+      <Route path="/join" element={<JoinUs />} />
       <Route path="/seller" element={<SellerPublicLayout><SellerLanding /></SellerPublicLayout>} />
       <Route path="/seller/join" element={<SellerPublicLayout><SellerLanding /></SellerPublicLayout>} />
       <Route path="/seller-login" element={<SellerLogin />} />

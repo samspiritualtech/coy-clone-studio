@@ -14,7 +14,7 @@ export const SellerAuthRoute = ({ children }: { children: React.ReactNode }) => 
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/seller-login" replace />;
+    return <Navigate to="/join" replace />;
   }
 
   return <>{children}</>;
