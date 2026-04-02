@@ -15,9 +15,8 @@ import AdminApp from "@/apps/AdminApp";
 
 const queryClient = new QueryClient();
 
-const domain = detectDomain();
-
 const AppRouter = () => {
+  const domain = detectDomain();
   switch (domain) {
     case 'seller':
       return <SellerApp />;
