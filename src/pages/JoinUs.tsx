@@ -322,7 +322,7 @@ const JoinUs = () => {
       {step === "success" && (
         <section className="py-20 px-4 text-center">
           <div className="max-w-md mx-auto space-y-6">
-            <CheckCircle className="w-16 h-16 text-green-500 mx-auto" />
+            <CheckCircle className="w-16 h-16 text-primary mx-auto" />
             <h2 className="text-3xl font-bold text-foreground">Application Submitted!</h2>
             <p className="text-muted-foreground">We'll review your application and get back to you soon.</p>
             <Button size="lg" onClick={() => navigate("/seller/dashboard")}>
