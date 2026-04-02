@@ -107,7 +107,7 @@ const SellerSignup = () => {
 
           <p className="text-center text-sm text-muted-foreground mt-6">
             Already have an account?{" "}
-            <Link to="/seller-login" className="text-primary hover:underline font-medium">
+            <Link to="/join" className="text-primary hover:underline font-medium">
               Log in
             </Link>
           </p>

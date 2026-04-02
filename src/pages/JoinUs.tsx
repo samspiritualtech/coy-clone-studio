@@ -1,50 +1,137 @@
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { ArrowRight, ShieldCheck } from "lucide-react";
-import { SellerDashboardShowcase } from "@/components/seller-dashboard/SellerDashboardShowcase";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Loader2, Store } from "lucide-react";
+import { toast } from "sonner";
 
 const JoinUs = () => {
+  const { isAuthenticated, isLoading, signInWithEmail, signUpWithEmail } = useAuth();
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      navigate("/seller/dashboard", { replace: true });
+    }
+  }, [isAuthenticated, isLoading, navigate]);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) return toast.error("Please fill in all fields");
+    setSubmitting(true);
+    const { success, error } = await signInWithEmail(email, password);
+    setSubmitting(false);
+    if (success) {
+      navigate("/seller/dashboard", { replace: true });
+    } else {
+      toast.error(error || "Login failed");
+    }
+  };
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) return toast.error("Please fill in all fields");
+    if (password.length < 6) return toast.error("Password must be at least 6 characters");
+    setSubmitting(true);
+    const { success, error } = await signUpWithEmail(email, password);
+    setSubmitting(false);
+    if (success) {
+      toast.success("Account created! Redirecting...");
+      navigate("/seller/dashboard", { replace: true });
+    } else {
+      toast.error(error || "Signup failed");
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <section className="relative py-16 md:py-24 overflow-hidden">
-        <div className="absolute inset-0 z-0 bg-gradient-to-br from-background via-muted/30 to-background" />
-
-        <div className="container mx-auto px-4 max-w-4xl text-center relative z-10">
-          <div className="inline-flex items-center gap-2 bg-primary/10 backdrop-blur-sm text-primary px-4 py-2 rounded-full text-sm font-medium mb-6 animate-fade-in">
-            <ShieldCheck className="w-4 h-4" />
-            Limited Onboarding • Quality First
+    <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
+      <Card className="w-full max-w-md shadow-lg border-0">
+        <CardContent className="pt-8 pb-8 px-8">
+          {/* Logo */}
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <h1 className="text-2xl font-light tracking-[0.3em] text-foreground">OGURA</h1>
+              <span className="text-xs font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+                Seller
+              </span>
+            </div>
+            <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+              <Store className="h-6 w-6 text-primary" />
+            </div>
+            <p className="text-sm text-muted-foreground">Join Ogura as a seller or sign in to your dashboard</p>
           </div>
 
-          <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-6 leading-tight animate-fade-in">
-            Join Ogura as an Independent Fashion Designer or Fashion Studio Owner
-          </h1>
+          {/* Google */}
+          <GoogleSignInButton />
 
-          <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed animate-fade-in">
-            Ogura is a marketplace for custom fashion where designers can manage their store and sell custom outfits.
-          </p>
-
-          <div className="animate-fade-in">
-            <Link to="/join/apply">
-              <Button size="lg" className="px-8 py-6 text-lg font-semibold group hover:scale-105 transition-transform duration-300">
-                Apply to Join Ogura
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
-              </Button>
-            </Link>
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-muted-foreground">or</span>
+            </div>
           </div>
 
-          <p className="text-sm text-muted-foreground mt-4 animate-fade-in">
-            We review each application individually. Not all applications are accepted.
-          </p>
-        </div>
-      </section>
+          {/* Tabs */}
+          <Tabs defaultValue="login" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsTrigger value="login">Log In</TabsTrigger>
+              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            </TabsList>
 
-      {/* Seller Dashboard */}
-      <section className="pb-8 px-4 md:px-6">
-        <div className="container mx-auto max-w-[1400px]">
-          <SellerDashboardShowcase />
-        </div>
-      </section>
+            <TabsContent value="login">
+              <form onSubmit={handleLogin} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="login-email">Email</Label>
+                  <Input id="login-email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="login-password">Password</Label>
+                  <Input id="login-password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} />
+                </div>
+                <Button type="submit" className="w-full" disabled={submitting}>
+                  {submitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                  Log In
+                </Button>
+              </form>
+            </TabsContent>
+
+            <TabsContent value="signup">
+              <form onSubmit={handleSignup} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="signup-email">Email</Label>
+                  <Input id="signup-email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signup-password">Password</Label>
+                  <Input id="signup-password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} />
+                </div>
+                <Button type="submit" className="w-full" disabled={submitting}>
+                  {submitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                  Create Account
+                </Button>
+              </form>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
     </div>
   );
 };
