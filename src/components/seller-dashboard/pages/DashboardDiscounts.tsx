@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus, Percent, Gift, Truck, Tag, ArrowLeft, Loader2, X } from "lucide-react";
-import { useSellerAuth } from "@/contexts/SellerAuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
@@ -33,7 +33,7 @@ const discountTypes = [
 const DEV_SELLER_ID = "07edb482-2c8e-4711-8cda-d2f3a87b790a";
 
 export const DashboardDiscounts = () => {
-  const { sellerUser: user } = useSellerAuth();
+  const { user } = useAuth();
   const [sellerId, setSellerId] = useState<string | null>(null);
   const [discounts, setDiscounts] = useState<Discount[]>([]);
   const [loading, setLoading] = useState(true);

@@ -8,7 +8,6 @@ import { FilterProvider } from "@/contexts/FilterContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { WishlistProvider } from "@/contexts/WishlistContext";
 import { LocationProvider } from "@/contexts/LocationContext";
-import { SellerAuthProvider } from "@/contexts/SellerAuthContext";
 import { detectDomain } from "@/lib/domainDetection";
 import CustomerApp from "@/apps/CustomerApp";
 import SellerApp from "@/apps/SellerApp";
@@ -33,7 +32,6 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
-        <SellerAuthProvider>
         <LocationProvider>
           <CartProvider>
             <FilterProvider>
@@ -47,7 +45,6 @@ const App = () => (
             </FilterProvider>
           </CartProvider>
         </LocationProvider>
-        </SellerAuthProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>

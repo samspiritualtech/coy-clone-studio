@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useSellerAuth } from "@/contexts/SellerAuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -28,7 +28,7 @@ const orderStatusColors: Record<string, string> = {
 };
 
 const SellerOrders = () => {
-  const { sellerUser: user } = useSellerAuth();
+  const { user } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 

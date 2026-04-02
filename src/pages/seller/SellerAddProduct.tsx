@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { useSellerAuth } from "@/contexts/SellerAuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -40,7 +40,7 @@ const occasionOptions = ["Wedding", "Festive", "Party", "Casual", "Work", "Brunc
 const styleOptions = ["Boho", "Minimal", "Ethnic", "Western", "Indo-Western", "Streetwear", "Classic", "Contemporary"];
 
 const SellerAddProduct = () => {
-  const { sellerUser: user } = useSellerAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [sellerId, setSellerId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);

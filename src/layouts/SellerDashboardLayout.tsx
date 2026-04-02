@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { DashboardHeader } from "@/components/seller-dashboard/DashboardHeader";
-import { useSellerAuth } from "@/contexts/SellerAuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,7 +29,7 @@ const navItems = [
 ];
 
 export const SellerDashboardLayout = ({ children }: SellerDashboardLayoutProps) => {
-  const { sellerUser: user, sellerLogout: logout } = useSellerAuth();
+  const { user, logout } = useAuth();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 

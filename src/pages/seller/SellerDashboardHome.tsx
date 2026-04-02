@@ -1,9 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useSellerAuth } from "@/contexts/SellerAuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { Package, ShoppingCart, TrendingUp, IndianRupee } from "lucide-react";
 
 const SellerDashboardHome = () => {
-  const { sellerUser: user } = useSellerAuth();
+  const { user } = useAuth();
 
   return (
     <div>
