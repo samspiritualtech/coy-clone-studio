@@ -325,7 +325,7 @@ const JoinUs = () => {
             <CheckCircle className="w-16 h-16 text-primary mx-auto" />
             <h2 className="text-3xl font-bold text-foreground">Application Submitted!</h2>
             <p className="text-muted-foreground">We'll review your application and get back to you soon.</p>
-            <Button size="lg" onClick={() => navigate("/seller/dashboard")}>
+            <Button size="lg" onClick={() => { window.location.href = "/seller/dashboard"; }}>
               Go to Dashboard
             </Button>
           </div>
