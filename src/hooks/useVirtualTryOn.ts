@@ -35,6 +35,11 @@ export const useVirtualTryOn = () => {
     try {
       setProgress(30);
 
+      console.log("Calling virtual-tryon edge function...", {
+        humanImageUrl: params.humanImageUrl?.substring(0, 80),
+        garmentImageUrl: params.garmentImageUrl?.substring(0, 80),
+      });
+
       const { data, error } = await supabase.functions.invoke('virtual-tryon', {
         body: {
           humanImageUrl: params.humanImageUrl,
@@ -44,7 +49,40 @@ export const useVirtualTryOn = () => {
         },
       });
 
-      if (error) throw error;
+      console.log("Edge function response:", { data: data ? Object.keys(data) : null, error });
+
+      if (error) {
+        // Try to extract context from FunctionsHttpError
+        const ctx = (error as any)?.context;
+        let bodyText = "";
+        try {
+          if (ctx && typeof ctx.json === "function") {
+            const body = await ctx.json();
+            bodyText = JSON.stringify(body);
+            if (body?.loading) {
+              toast({
+                title: "Model is starting up",
+                description: "Please wait 30-60 seconds and try again",
+              });
+              return null;
+            }
+            if (body?.error) {
+              throw new Error(body.error);
+            }
+          }
+        } catch (parseErr) {
+          // ignore parse failures
+        }
+        const msg = error.message || "";
+        if (msg.includes("loading") || msg.includes("503") || bodyText.includes("loading")) {
+          toast({
+            title: "Model is starting up",
+            description: "Please wait 30-60 seconds and try again",
+          });
+          return null;
+        }
+        throw error;
+      }
 
       setProgress(80);
 
@@ -52,14 +90,15 @@ export const useVirtualTryOn = () => {
       if (data?.loading) {
         toast({
           title: "Model is warming up",
-          description: "Please try again in a few seconds",
+          description: "Please try again in 30-60 seconds",
         });
         return null;
       }
 
-      // Direct output (base64 data URL)
-      if (data?.output) {
-        const imageUrl = typeof data.output === 'string' ? data.output : data.output[0];
+      // Direct output (base64 data URL) — support both `image` and `output` keys
+      const imageData = data?.image || data?.output;
+      if (imageData) {
+        const imageUrl = typeof imageData === 'string' ? imageData : imageData[0];
         setProgress(100);
         setResult(imageUrl);
         toast({ title: "Try-on complete!", description: "Your virtual try-on is ready" });
