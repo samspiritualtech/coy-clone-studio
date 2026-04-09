@@ -6,7 +6,7 @@ import { ImageUploadZone } from "./ImageUploadZone";
 import { ModelGallery } from "./ModelGallery";
 import { TryOnResult } from "./TryOnResult";
 import { ModelPreset } from "@/data/modelPresets";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
@@ -42,6 +42,7 @@ export const VirtualTryOn = ({
   };
 
   const handleGenerate = async () => {
+    console.log("Try-On button clicked", { selectedModel: selectedModel?.id, uploadedFiles: uploadedFiles.length });
     if (!selectedModel && uploadedFiles.length === 0) {
       toast({
         title: "Selection required",
@@ -184,15 +185,30 @@ export const VirtualTryOn = ({
 
       {/* Generate Button */}
       <div className="space-y-4">
+        {!selectedModel && uploadedFiles.length === 0 && (
+          <p className="text-sm text-muted-foreground text-center">
+            Select a model or upload your photo to try this outfit
+          </p>
+        )}
         <Button
           onClick={handleGenerate}
           disabled={
             isGenerating || (!selectedModel && uploadedFiles.length === 0)
           }
-          className="w-full h-12 text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
+          title={
+            !selectedModel && uploadedFiles.length === 0
+              ? "Please select a model or upload a photo first"
+              : undefined
+          }
+          className={`w-full h-12 text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 ${
+            !selectedModel && uploadedFiles.length === 0
+              ? "cursor-not-allowed opacity-60"
+              : ""
+          }`}
         >
           {isGenerating ? (
             <>
+              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
               Generating
               {currentBatchIndex > 0 && ` (${currentBatchIndex}/${uploadedFiles.length})`}
               ...
