@@ -5,6 +5,51 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+async function fetchImageAsBase64(url: string): Promise<string> {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Failed to fetch image: ${url} (${res.status})`);
+  const buf = await res.arrayBuffer();
+  const bytes = new Uint8Array(buf);
+  let binary = "";
+  const chunkSize = 8192;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+  }
+  return btoa(binary);
+}
+
+async function callHuggingFace(humanBase64: string, clothBase64: string, token: string, retries = 3): Promise<Response> {
+  const url = "https://api-inference.huggingface.co/models/yisol/IDM-VTON";
+
+  for (let i = 0; i < retries; i++) {
+    console.log(`HF attempt ${i + 1}/${retries}`);
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        inputs: {
+          image: humanBase64,
+          cloth: clothBase64,
+        },
+      }),
+    });
+
+    if (response.status === 503) {
+      const body = await response.text();
+      console.log("Model loading (503), retrying in 3s...", body);
+      await new Promise((r) => setTimeout(r, 3000));
+      continue;
+    }
+
+    return response;
+  }
+
+  throw new Error("Max retries reached — model may still be loading");
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -19,59 +64,38 @@ serve(async (req) => {
     const body = await req.json();
     console.log("Virtual try-on request received");
 
-    if (!body.humanImageUrl || !body.garmentImageUrl) {
+    let humanImageUrl = body.humanImageUrl;
+    const garmentImageUrl = body.garmentImageUrl;
+
+    if (!garmentImageUrl) {
       return new Response(
-        JSON.stringify({ error: "Missing required fields: humanImageUrl and garmentImageUrl" }),
+        JSON.stringify({ error: "Missing required field: garmentImageUrl" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
       );
     }
 
-    console.log("Calling Hugging Face IDM-VTON model...");
-
-    // Fetch both images as blobs
-    const [humanRes, garmentRes] = await Promise.all([
-      fetch(body.humanImageUrl),
-      fetch(body.garmentImageUrl),
-    ]);
-
-    if (!humanRes.ok || !garmentRes.ok) {
-      throw new Error("Failed to fetch input images");
+    // Fallback: if no human image, use garment as both
+    if (!humanImageUrl) {
+      console.log("No human image provided, using garment image as fallback");
+      humanImageUrl = garmentImageUrl;
     }
 
-    const humanBlob = await humanRes.blob();
-    const garmentBlob = await garmentRes.blob();
+    console.log("Converting images to base64...");
+    const [humanBase64, clothBase64] = await Promise.all([
+      fetchImageAsBase64(humanImageUrl),
+      fetchImageAsBase64(garmentImageUrl),
+    ]);
 
-    // Build multipart form for HF Inference API
-    const formData = new FormData();
-    formData.append("inputs", JSON.stringify({
-      human_img: "human",
-      garm_img: "garment",
-      garment_des: body.garmentDescription || "clothing item",
-      category: body.category || "upper_body",
-    }));
-    formData.append("human", humanBlob, "human.jpg");
-    formData.append("garment", garmentBlob, "garment.jpg");
+    console.log("Calling Hugging Face IDM-VTON model...");
+    const hfResponse = await callHuggingFace(humanBase64, clothBase64, HUGGINGFACE_API_TOKEN);
 
-    const hfResponse = await fetch(
-      "https://api-inference.huggingface.co/models/yisol/IDM-VTON",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${HUGGINGFACE_API_TOKEN}`,
-        },
-        body: formData,
-      }
-    );
-
-    // If the model returns JSON (error or loading), handle it
     const contentType = hfResponse.headers.get("content-type") || "";
 
     if (contentType.includes("application/json")) {
       const jsonData = await hfResponse.json();
-      console.log("HF JSON response:", jsonData);
+      console.log("HF JSON response:", JSON.stringify(jsonData));
 
       if (jsonData.error) {
-        // Model might be loading
         if (jsonData.estimated_time) {
           return new Response(
             JSON.stringify({ error: `Model is loading, please retry in ~${Math.ceil(jsonData.estimated_time)}s`, loading: true }),
@@ -89,24 +113,30 @@ serve(async (req) => {
     if (!hfResponse.ok) {
       const errorText = await hfResponse.text();
       console.error("HF error:", hfResponse.status, errorText);
-      throw new Error(`Hugging Face API error: ${hfResponse.status}`);
+      throw new Error(`Hugging Face API error: ${hfResponse.status} - ${errorText}`);
     }
 
-    // Success — response is an image blob
-    const imageArrayBuffer = await hfResponse.arrayBuffer();
-    const base64 = btoa(String.fromCharCode(...new Uint8Array(imageArrayBuffer)));
+    // Success — binary image response
+    const imageBuffer = await hfResponse.arrayBuffer();
+    const imageBytes = new Uint8Array(imageBuffer);
+    let binary = "";
+    const chunkSize = 8192;
+    for (let i = 0; i < imageBytes.length; i += chunkSize) {
+      binary += String.fromCharCode(...imageBytes.subarray(i, i + chunkSize));
+    }
+    const base64 = btoa(binary);
     const dataUrl = `data:image/png;base64,${base64}`;
 
-    console.log("Try-on generation successful, returning base64 image");
+    console.log("Try-on generation successful");
 
     return new Response(
-      JSON.stringify({ output: dataUrl }),
+      JSON.stringify({ output: dataUrl, image: dataUrl }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
     );
   } catch (error) {
     console.error("Error in virtual-tryon function:", error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error occurred" }),
+      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error occurred", ok: false }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
     );
   }
