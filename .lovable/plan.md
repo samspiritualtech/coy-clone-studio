@@ -1,41 +1,47 @@
 
 
-# Fix 404 on `/seller/dashboard` After Form Submission
+# Upgrade Virtual Try-On to Hugging Face IDM-VTON
 
-## Root Cause
+## Current State
+The project already has a fully functional Virtual Try-On system:
+- Edge function (`supabase/functions/virtual-tryon/index.ts`) calls Replicate API with the IDM-VTON model
+- Frontend hook (`useVirtualTryOn.ts`) handles uploads, generation, and polling
+- Dialog UI (`VirtualTryOnDialog.tsx`) with upload zone, model gallery, result display, and history
+- Result component (`TryOnResult.tsx`) with download/share/reset + "Before vs After" is missing
+- Already wired into `ProductDetail.tsx` on line 405
 
-`detectDomain()` in `src/App.tsx` is called **once at module level** as a constant:
+The user wants to switch from **Replicate** to **Hugging Face Inference API** for the same IDM-VTON model, and add a Before vs After comparison modal.
 
-```typescript
-const domain = detectDomain(); // evaluated on initial page load
-```
+## What Needs to Change
 
-When the user lands on `/join`, the pathname doesn't start with `/seller`, so `domain` is set to `'customer'` and `CustomerApp` renders. When `navigate("/seller/dashboard")` is called after form submission, React Router updates the URL client-side, but the `domain` constant never re-evaluates — so `CustomerApp` stays mounted. Since `CustomerApp` has no `/seller/dashboard` route, the `*` catch-all renders `NotFound`.
+### 1. Add Hugging Face API secret
+A `HUGGINGFACE_API_TOKEN` secret is needed. Will use the `add_secret` tool to request it from the user.
 
-## Fix
+### 2. Rewrite `supabase/functions/virtual-tryon/index.ts`
+- Remove Replicate SDK dependency
+- Call the Hugging Face Inference API at `https://api-inference.huggingface.co/models/yisol/IDM-VTON`
+- Send the human image and garment image as the request payload
+- Since IDM-VTON on HF Inference takes two images, use the multipart approach or the API's JSON input format
+- Read `HUGGINGFACE_API_TOKEN` from `Deno.env`
+- Return the generated image as base64 or upload to storage and return URL
+- Keep CORS headers and error handling
 
-### 1. `src/App.tsx` — Make domain detection reactive to pathname
+### 3. Update `src/hooks/useVirtualTryOn.ts`
+- Simplify response handling — HF Inference returns the image directly (no polling needed)
+- Handle the new response format (binary image blob vs URL)
 
-Move `detectDomain()` inside the component so it re-evaluates on every render when the URL changes:
+### 4. Enhance `src/components/TryOnResult.tsx` — Add Before vs After modal
+- Add a "Before vs After" comparison view showing the original product image alongside the try-on result
+- Side-by-side layout on desktop, stacked on mobile
+- Wrap in a Dialog for full-screen viewing
 
-```typescript
-const AppRouter = () => {
-  const domain = detectDomain(); // now reactive to current pathname
-  switch (domain) { ... }
-};
-```
-
-Remove the module-level `const domain = detectDomain();` line.
-
-### 2. `src/pages/JoinUs.tsx` — Use hard navigation for cross-app redirect
-
-As a safety measure, replace `navigate("/seller/dashboard")` calls with `window.location.href = "/seller/dashboard"` so the full page reloads and domain detection runs fresh. This applies to:
-- The "Go to Dashboard" button in the success step (line 328)
-- The `useEffect` auto-redirect for already-authenticated users
-
-This dual approach ensures routing works both with client-side navigation (fix #1) and as a fallback via full page reload (fix #2).
+### 5. Update `src/components/VirtualTryOn.tsx`
+- Pass `productImageUrl` to `TryOnResult` for the Before vs After comparison
 
 ## Files to Modify
-- `src/App.tsx` — move `detectDomain()` inside `AppRouter`
-- `src/pages/JoinUs.tsx` — use `window.location.href` for the `/seller/dashboard` redirect
+- **Add secret**: `HUGGINGFACE_API_TOKEN`
+- **Rewrite**: `supabase/functions/virtual-tryon/index.ts` — switch from Replicate to HF Inference API
+- **Update**: `src/hooks/useVirtualTryOn.ts` — handle direct image response (no polling)
+- **Update**: `src/components/TryOnResult.tsx` — add Before vs After modal
+- **Update**: `src/components/VirtualTryOn.tsx` — pass product image to result component
 
