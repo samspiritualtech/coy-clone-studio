@@ -129,6 +129,7 @@ export const VirtualTryOn = ({
               <TryOnResult
                 key={index}
                 resultImageUrl={resultUrl}
+                productImageUrl={productImageUrl}
                 onReset={handleReset}
               />
             ))}
@@ -136,6 +137,7 @@ export const VirtualTryOn = ({
         ) : (
           <TryOnResult
             resultImageUrl={result || batchResults[0]}
+            productImageUrl={productImageUrl}
             onReset={handleReset}
           />
         )}
