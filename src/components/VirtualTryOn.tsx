@@ -178,7 +178,7 @@ export const VirtualTryOn = ({
           </p>
         </div>
         {batchResults.length > 1 ? (
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {batchResults.map((resultUrl, index) => (
               <TryOnResult
                 key={index}
