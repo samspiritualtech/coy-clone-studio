@@ -5,6 +5,44 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+const SPACE_URL = "https://yisol-idm-vton.hf.space";
+
+async function fetchImageBlob(url: string): Promise<Blob> {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Failed to fetch image: ${url} (${res.status})`);
+  return await res.blob();
+}
+
+async function uploadToSpace(blob: Blob, filename: string, token: string): Promise<string> {
+  const formData = new FormData();
+  formData.append("files", blob, filename);
+
+  const res = await fetch(`${SPACE_URL}/upload`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Upload failed (${res.status}): ${errText}`);
+  }
+
+  const paths = await res.json();
+  return paths[0];
+}
+
+async function blobToBase64DataUrl(blob: Blob): Promise<string> {
+  const buf = await blob.arrayBuffer();
+  const bytes = new Uint8Array(buf);
+  let binary = "";
+  const chunkSize = 8192;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
+  }
+  return `data:image/png;base64,${btoa(binary)}`;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -19,94 +57,184 @@ serve(async (req) => {
     const body = await req.json();
     console.log("Virtual try-on request received");
 
-    if (!body.humanImageUrl || !body.garmentImageUrl) {
+    let humanImageUrl = body.humanImageUrl;
+    const garmentImageUrl = body.garmentImageUrl;
+
+    if (!garmentImageUrl) {
       return new Response(
-        JSON.stringify({ error: "Missing required fields: humanImageUrl and garmentImageUrl" }),
+        JSON.stringify({ error: "Missing required field: garmentImageUrl" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
       );
     }
 
-    console.log("Calling Hugging Face IDM-VTON model...");
+    if (!humanImageUrl) {
+      console.log("No human image, using garment as fallback");
+      humanImageUrl = garmentImageUrl;
+    }
 
-    // Fetch both images as blobs
-    const [humanRes, garmentRes] = await Promise.all([
-      fetch(body.humanImageUrl),
-      fetch(body.garmentImageUrl),
+    const garmentDesc = body.garmentDescription || "clothing item";
+
+    // Step 1: Fetch images
+    console.log("Fetching images...");
+    const [humanBlob, garmentBlob] = await Promise.all([
+      fetchImageBlob(humanImageUrl),
+      fetchImageBlob(garmentImageUrl),
     ]);
 
-    if (!humanRes.ok || !garmentRes.ok) {
-      throw new Error("Failed to fetch input images");
-    }
+    // Step 2: Upload to Gradio Space
+    console.log("Uploading images to Space...");
+    const [humanPath, garmentPath] = await Promise.all([
+      uploadToSpace(humanBlob, "human.jpg", HUGGINGFACE_API_TOKEN),
+      uploadToSpace(garmentBlob, "garment.jpg", HUGGINGFACE_API_TOKEN),
+    ]);
+    console.log("Uploaded:", humanPath, garmentPath);
 
-    const humanBlob = await humanRes.blob();
-    const garmentBlob = await garmentRes.blob();
+    // Step 3: Call the /tryon named endpoint
+    // dict param = ImageEditor with background + empty layers
+    // garm_img = garment FileData
+    const predictPayload = {
+      data: [
+        {
+          background: { path: humanPath, meta: { _type: "gradio.FileData" } },
+          layers: [],
+          composite: null,
+        },
+        { path: garmentPath, meta: { _type: "gradio.FileData" } },
+        garmentDesc,
+        true,   // is_checked (auto-masking)
+        false,  // is_checked_crop
+        30,     // denoise_steps
+        42,     // seed
+      ],
+    };
 
-    // Build multipart form for HF Inference API
-    const formData = new FormData();
-    formData.append("inputs", JSON.stringify({
-      human_img: "human",
-      garm_img: "garment",
-      garment_des: body.garmentDescription || "clothing item",
-      category: body.category || "upper_body",
-    }));
-    formData.append("human", humanBlob, "human.jpg");
-    formData.append("garment", garmentBlob, "garment.jpg");
+    console.log("Calling /api/predict (tryon endpoint)...");
 
-    const hfResponse = await fetch(
-      "https://api-inference.huggingface.co/models/yisol/IDM-VTON",
-      {
+    let predictRes: Response | null = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      predictRes = await fetch(`${SPACE_URL}/call/tryon`, {
         method: "POST",
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${HUGGINGFACE_API_TOKEN}`,
         },
-        body: formData,
-      }
-    );
-
-    // If the model returns JSON (error or loading), handle it
-    const contentType = hfResponse.headers.get("content-type") || "";
-
-    if (contentType.includes("application/json")) {
-      const jsonData = await hfResponse.json();
-      console.log("HF JSON response:", jsonData);
-
-      if (jsonData.error) {
-        // Model might be loading
-        if (jsonData.estimated_time) {
-          return new Response(
-            JSON.stringify({ error: `Model is loading, please retry in ~${Math.ceil(jsonData.estimated_time)}s`, loading: true }),
-            { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 503 }
-          );
-        }
-        throw new Error(jsonData.error);
-      }
-
-      return new Response(JSON.stringify(jsonData), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        body: JSON.stringify(predictPayload),
       });
+
+      if (predictRes.status === 503 || predictRes.status === 429) {
+        const txt = await predictRes.text();
+        console.log(`Space ${predictRes.status}, retry ${attempt + 1}...`, txt);
+        await new Promise((r) => setTimeout(r, 5000));
+        continue;
+      }
+      break;
     }
 
-    if (!hfResponse.ok) {
-      const errorText = await hfResponse.text();
-      console.error("HF error:", hfResponse.status, errorText);
-      throw new Error(`Hugging Face API error: ${hfResponse.status}`);
+    if (!predictRes || !predictRes.ok) {
+      const errText = predictRes ? await predictRes.text() : "No response";
+      console.error("Call error:", predictRes?.status, errText);
+
+      if (predictRes?.status === 503 || predictRes?.status === 502) {
+        return new Response(
+          JSON.stringify({ error: "The AI model is loading. Please try again in 30-60 seconds.", loading: true }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 503 }
+        );
+      }
+      throw new Error(`Model API error (${predictRes?.status}): ${errText.substring(0, 300)}`);
     }
 
-    // Success — response is an image blob
-    const imageArrayBuffer = await hfResponse.arrayBuffer();
-    const base64 = btoa(String.fromCharCode(...new Uint8Array(imageArrayBuffer)));
-    const dataUrl = `data:image/png;base64,${base64}`;
+    // /call/ returns { event_id: "..." } - need to poll /call/tryon/{event_id}
+    const callResult = await predictRes.json();
+    const eventId = callResult.event_id;
+    console.log("Event ID:", eventId);
 
-    console.log("Try-on generation successful, returning base64 image");
+    if (!eventId) {
+      throw new Error("No event_id returned from /call/tryon");
+    }
+
+    // Step 4: Poll for result using SSE endpoint
+    console.log("Polling for result...");
+    const resultRes = await fetch(`${SPACE_URL}/call/tryon/${eventId}`, {
+      headers: { Authorization: `Bearer ${HUGGINGFACE_API_TOKEN}` },
+    });
+
+    if (!resultRes.ok) {
+      const errText = await resultRes.text();
+      throw new Error(`Result polling error (${resultRes.status}): ${errText.substring(0, 300)}`);
+    }
+
+    // Parse SSE response - may need to wait for completion
+    const sseText = await resultRes.text();
+    console.log("SSE response:", sseText.substring(0, 500));
+
+    const lines = sseText.split("\n");
+    let resultData = null;
+    let errorMsg = null;
+
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i].startsWith("event: complete")) {
+        const dataLine = lines[i + 1];
+        if (dataLine && dataLine.startsWith("data: ")) {
+          resultData = JSON.parse(dataLine.substring(6));
+          break;
+        }
+      }
+      if (lines[i].startsWith("event: error")) {
+        const dataLine = lines[i + 1];
+        errorMsg = dataLine?.startsWith("data: ") ? dataLine.substring(6) : "Unknown model error";
+      }
+    }
+
+    if (errorMsg) {
+      // Common: ZeroGPU queue full or Space sleeping
+      const isLoadingError = errorMsg.includes("loading") || errorMsg.includes("queue") || errorMsg === "null";
+      if (isLoadingError) {
+        return new Response(
+          JSON.stringify({ error: "The AI model is currently busy or loading. Please try again in 30-60 seconds.", loading: true }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 503 }
+        );
+      }
+      throw new Error(`Model processing error: ${errorMsg}`);
+    }
+
+    if (!resultData || !resultData.length) {
+      console.error("Full SSE:", sseText);
+      return new Response(
+        JSON.stringify({ error: "The AI model is currently busy. Please try again shortly.", loading: true }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 503 }
+      );
+    }
+
+    // First element is the output image FileData
+    const outputFile = resultData[0];
+    const filePath = outputFile?.url || outputFile?.path;
+
+    if (!filePath) {
+      console.error("Output:", JSON.stringify(outputFile));
+      throw new Error("No output file path");
+    }
+
+    const fileUrl = filePath.startsWith("http")
+      ? filePath
+      : `${SPACE_URL}/file=${filePath}`;
+
+    console.log("Fetching result image:", fileUrl);
+    const resultBlob = await fetchImageBlob(fileUrl);
+    const outputDataUrl = await blobToBase64DataUrl(resultBlob);
+
+    console.log("Try-on generation successful");
 
     return new Response(
-      JSON.stringify({ output: dataUrl }),
+      JSON.stringify({ output: outputDataUrl, image: outputDataUrl }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
     );
   } catch (error) {
     console.error("Error in virtual-tryon function:", error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error occurred" }),
+      JSON.stringify({
+        error: error instanceof Error ? error.message : "Unknown error occurred",
+        ok: false,
+      }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
     );
   }
