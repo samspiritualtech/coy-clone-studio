@@ -5,19 +5,42 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-async function fetchImageAsBase64DataUrl(url: string): Promise<string> {
+const SPACE_URL = "https://yisol-idm-vton.hf.space";
+
+async function fetchImageBlob(url: string): Promise<Blob> {
   const res = await fetch(url);
-  if (!res.ok) throw new Error(`Failed to fetch image from ${url} (${res.status})`);
-  const buf = await res.arrayBuffer();
+  if (!res.ok) throw new Error(`Failed to fetch image: ${url} (${res.status})`);
+  return await res.blob();
+}
+
+async function uploadToSpace(blob: Blob, filename: string, token: string): Promise<string> {
+  const formData = new FormData();
+  formData.append("files", blob, filename);
+
+  const res = await fetch(`${SPACE_URL}/upload`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Upload failed (${res.status}): ${errText}`);
+  }
+
+  const paths = await res.json();
+  return paths[0]; // returns the uploaded file path
+}
+
+async function blobToBase64DataUrl(blob: Blob): Promise<string> {
+  const buf = await blob.arrayBuffer();
   const bytes = new Uint8Array(buf);
   let binary = "";
   const chunkSize = 8192;
   for (let i = 0; i < bytes.length; i += chunkSize) {
     binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
   }
-  const base64 = btoa(binary);
-  const ct = res.headers.get("content-type") || "image/jpeg";
-  return `data:${ct};base64,${base64}`;
+  return `data:image/png;base64,${btoa(binary)}`;
 }
 
 serve(async (req) => {
@@ -44,49 +67,46 @@ serve(async (req) => {
       );
     }
 
-    // Fallback: use garment as human if not provided
     if (!humanImageUrl) {
       console.log("No human image, using garment as fallback");
       humanImageUrl = garmentImageUrl;
     }
 
-    console.log("Converting images to base64 data URLs...");
-    const [humanDataUrl, garmentDataUrl] = await Promise.all([
-      fetchImageAsBase64DataUrl(humanImageUrl),
-      fetchImageAsBase64DataUrl(garmentImageUrl),
+    const garmentDesc = body.garmentDescription || "clothing item";
+
+    // Step 1: Fetch images
+    console.log("Fetching images...");
+    const [humanBlob, garmentBlob] = await Promise.all([
+      fetchImageBlob(humanImageUrl),
+      fetchImageBlob(garmentImageUrl),
     ]);
 
-    // Use Gradio Spaces API for IDM-VTON
-    const spaceUrl = "https://yisol-idm-vton.hf.space";
-    const garmentDesc = body.garmentDescription || "clothing item";
-    const category = body.category || "upper_body";
+    // Step 2: Upload to Gradio Space
+    console.log("Uploading images to Space...");
+    const [humanPath, garmentPath] = await Promise.all([
+      uploadToSpace(humanBlob, "human.jpg", HUGGINGFACE_API_TOKEN),
+      uploadToSpace(garmentBlob, "garment.jpg", HUGGINGFACE_API_TOKEN),
+    ]);
+    console.log("Uploaded paths:", humanPath, garmentPath);
 
-    // Map category to the Space's expected format
-    const categoryMap: Record<string, boolean> = {
-      upper_body: true,
-      lower_body: false,
-      dresses: false,
-    };
-    const isUpperBody = categoryMap[category] ?? true;
+    // Step 3: Call predict with uploaded file paths
+    console.log("Calling IDM-VTON predict...");
 
-    console.log("Calling IDM-VTON Gradio Space...");
-
-    // Step 1: Submit prediction
     const predictPayload = {
       data: [
-        { path: humanDataUrl }, // human image
-        { path: garmentDataUrl }, // garment image
-        garmentDesc, // description
-        isUpperBody, // is_checked (upper body)
-        !isUpperBody, // is_checked_crop (for lower/dress)
-        30, // denoise steps
-        2, // seed
+        { path: humanPath, meta: { _type: "gradio.FileData" } },
+        { path: garmentPath, meta: { _type: "gradio.FileData" } },
+        garmentDesc,
+        true,  // is_checked (auto-crop)
+        true,  // is_checked_crop
+        30,    // denoise_steps
+        42,    // seed
       ],
     };
 
     let predictRes: Response | null = null;
     for (let attempt = 0; attempt < 3; attempt++) {
-      predictRes = await fetch(`${spaceUrl}/api/predict`, {
+      predictRes = await fetch(`${SPACE_URL}/api/predict`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -96,8 +116,8 @@ serve(async (req) => {
       });
 
       if (predictRes.status === 503 || predictRes.status === 429) {
-        console.log(`Space returned ${predictRes.status}, retrying in 5s... (attempt ${attempt + 1})`);
-        await predictRes.text(); // consume body
+        const txt = await predictRes.text();
+        console.log(`Space ${predictRes.status}, retry ${attempt + 1}...`, txt);
         await new Promise((r) => setTimeout(r, 5000));
         continue;
       }
@@ -106,51 +126,48 @@ serve(async (req) => {
 
     if (!predictRes || !predictRes.ok) {
       const errText = predictRes ? await predictRes.text() : "No response";
-      console.error("Gradio predict error:", predictRes?.status, errText);
-      
-      // If Space is sleeping/loading, return friendly message
+      console.error("Predict error:", predictRes?.status, errText);
+
       if (predictRes?.status === 503 || predictRes?.status === 502) {
         return new Response(
-          JSON.stringify({ error: "The AI model is currently loading. Please try again in 30-60 seconds.", loading: true }),
+          JSON.stringify({ error: "The AI model is loading. Please try again in 30-60 seconds.", loading: true }),
           { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 503 }
         );
       }
-      throw new Error(`Gradio API error: ${predictRes?.status} - ${errText}`);
+      throw new Error(`Model API error (${predictRes?.status}): ${errText.substring(0, 200)}`);
     }
 
     const result = await predictRes.json();
-    console.log("Gradio response received");
+    console.log("Predict response keys:", Object.keys(result));
 
-    // Extract the output image from Gradio response
-    // Gradio returns { data: [...] } where the image is typically the first element
     if (!result.data || result.data.length === 0) {
       throw new Error("No output from model");
     }
 
+    // Extract output image
     const outputImage = result.data[0];
     let outputDataUrl: string;
 
-    if (typeof outputImage === "string") {
-      // Already a data URL or URL
-      if (outputImage.startsWith("data:")) {
-        outputDataUrl = outputImage;
-      } else {
-        // It's a URL, fetch it
-        outputDataUrl = await fetchImageAsBase64DataUrl(
-          outputImage.startsWith("/") ? `${spaceUrl}${outputImage}` : outputImage
-        );
-      }
-    } else if (outputImage?.url) {
-      outputDataUrl = await fetchImageAsBase64DataUrl(
-        outputImage.url.startsWith("/") ? `${spaceUrl}${outputImage.url}` : outputImage.url
-      );
-    } else if (outputImage?.path) {
-      // Gradio file response with path
-      const fileUrl = `${spaceUrl}/file=${outputImage.path}`;
-      outputDataUrl = await fetchImageAsBase64DataUrl(fileUrl);
+    if (typeof outputImage === "string" && outputImage.startsWith("data:")) {
+      outputDataUrl = outputImage;
     } else {
-      console.error("Unexpected output format:", JSON.stringify(outputImage));
-      throw new Error("Unexpected output format from model");
+      // Gradio returns file info with path — fetch it
+      const filePath = typeof outputImage === "string"
+        ? outputImage
+        : outputImage?.path || outputImage?.url;
+
+      if (!filePath) {
+        console.error("Unexpected output:", JSON.stringify(outputImage));
+        throw new Error("Could not extract output image path");
+      }
+
+      const fileUrl = filePath.startsWith("http")
+        ? filePath
+        : `${SPACE_URL}/file=${filePath}`;
+
+      console.log("Fetching result image from:", fileUrl);
+      const resultBlob = await fetchImageBlob(fileUrl);
+      outputDataUrl = await blobToBase64DataUrl(resultBlob);
     }
 
     console.log("Try-on generation successful");
@@ -162,7 +179,10 @@ serve(async (req) => {
   } catch (error) {
     console.error("Error in virtual-tryon function:", error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error occurred", ok: false }),
+      JSON.stringify({
+        error: error instanceof Error ? error.message : "Unknown error occurred",
+        ok: false,
+      }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
     );
   }
