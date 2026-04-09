@@ -2,10 +2,46 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+  "Content-Type": "application/json",
 };
 
 const SPACE_URL = "https://yisol-idm-vton.hf.space";
+const MAX_WAIT_MS = 90_000;
+const RETRY_DELAY_MS = 3_000;
+
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const jsonResponse = (payload: Record<string, unknown>) =>
+  new Response(JSON.stringify(payload), {
+    headers: corsHeaders,
+    status: 200,
+  });
+
+const isLoadingMessage = (message?: string | null) =>
+  /loading|warming|busy|queue|503|429|null|timeout/i.test(message ?? "");
+
+function parseSseEvent(eventBlock: string): { event: string; data: string } | null {
+  const lines = eventBlock
+    .split("\n")
+    .map((line) => line.trimEnd())
+    .filter(Boolean);
+
+  if (!lines.length) return null;
+
+  let event = "message";
+  const dataLines: string[] = [];
+
+  for (const line of lines) {
+    if (line.startsWith("event:")) {
+      event = line.slice(6).trim();
+    } else if (line.startsWith("data:")) {
+      dataLines.push(line.slice(5).trimStart());
+    }
+  }
+
+  return { event, data: dataLines.join("\n") };
+}
 
 async function fetchImageBlob(url: string): Promise<Blob> {
   const res = await fetch(url);
@@ -32,6 +68,194 @@ async function uploadToSpace(blob: Blob, filename: string, token: string): Promi
   return paths[0];
 }
 
+async function callTryOnSpace(
+  payload: Record<string, unknown>,
+  token: string,
+): Promise<{ success: true; eventId: string } | { success: false; loading?: true; error: string }> {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const response = await fetch(`${SPACE_URL}/call/tryon`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (response.status === 503 || response.status === 429) {
+      const message = await response.text();
+      console.log(`Space ${response.status}, retry ${attempt + 1}...`, message);
+
+      if (attempt === 2) {
+        return {
+          success: false,
+          loading: true,
+          error: message || "The model is starting up.",
+        };
+      }
+
+      await wait(RETRY_DELAY_MS);
+      continue;
+    }
+
+    if (!response.ok) {
+      const message = await response.text();
+      return {
+        success: false,
+        error: `Model API error (${response.status}): ${message.substring(0, 300)}`,
+      };
+    }
+
+    const callResult = await response.json();
+    const eventId = callResult?.event_id;
+
+    if (!eventId) {
+      return {
+        success: false,
+        error: "No event_id returned from /call/tryon",
+      };
+    }
+
+    return { success: true, eventId };
+  }
+
+  return {
+    success: false,
+    loading: true,
+    error: "The model is still loading.",
+  };
+}
+
+async function waitForTryOnResult(
+  eventId: string,
+  token: string,
+): Promise<
+  | { success: true; resultData: unknown[] }
+  | { success: false; loading?: true; error: string }
+> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), MAX_WAIT_MS);
+
+  try {
+    const response = await fetch(`${SPACE_URL}/call/tryon/${eventId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      const message = await response.text();
+      if (response.status === 503 || isLoadingMessage(message)) {
+        return {
+          success: false,
+          loading: true,
+          error: message || "The model is still loading.",
+        };
+      }
+
+      return {
+        success: false,
+        error: `Result polling error (${response.status}): ${message.substring(0, 300)}`,
+      };
+    }
+
+    if (!response.body) {
+      return {
+        success: false,
+        loading: true,
+        error: "No response stream returned from the model.",
+      };
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+
+      let separatorIndex = buffer.indexOf("\n\n");
+      while (separatorIndex !== -1) {
+        const eventBlock = buffer.slice(0, separatorIndex);
+        buffer = buffer.slice(separatorIndex + 2);
+        separatorIndex = buffer.indexOf("\n\n");
+
+        const parsedEvent = parseSseEvent(eventBlock);
+        if (!parsedEvent) continue;
+
+        console.log("SSE event:", parsedEvent.event, parsedEvent.data.slice(0, 200));
+
+        if (parsedEvent.event === "complete") {
+          const parsedData = JSON.parse(parsedEvent.data);
+          if (Array.isArray(parsedData) && parsedData.length > 0) {
+            return { success: true, resultData: parsedData };
+          }
+
+          return {
+            success: false,
+            error: "Unexpected completion payload from model.",
+          };
+        }
+
+        if (parsedEvent.event === "error") {
+          if (isLoadingMessage(parsedEvent.data)) {
+            return {
+              success: false,
+              loading: true,
+              error: parsedEvent.data || "The model is still warming up.",
+            };
+          }
+
+          return {
+            success: false,
+            error: parsedEvent.data || "Unknown model error.",
+          };
+        }
+      }
+    }
+
+    return {
+      success: false,
+      loading: true,
+      error: "Timed out waiting for the model result.",
+    };
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      return {
+        success: false,
+        loading: true,
+        error: "Timed out waiting for the model result.",
+      };
+    }
+
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to poll model result.",
+    };
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+function resolveOutputFileUrl(resultData: unknown[]): string | null {
+  const output = resultData[0];
+
+  if (typeof output === "string") {
+    return output.startsWith("http") ? output : `${SPACE_URL}/file=${output}`;
+  }
+
+  if (output && typeof output === "object") {
+    const candidate = output as { url?: string; path?: string };
+    const filePath = candidate.url || candidate.path;
+    if (!filePath) return null;
+    return filePath.startsWith("http") ? filePath : `${SPACE_URL}/file=${filePath}`;
+  }
+
+  return null;
+}
+
 async function blobToBase64DataUrl(blob: Blob): Promise<string> {
   const buf = await blob.arrayBuffer();
   const bytes = new Uint8Array(buf);
@@ -51,7 +275,7 @@ serve(async (req) => {
   try {
     const HUGGINGFACE_API_TOKEN = Deno.env.get("HUGGINGFACE_API_TOKEN");
     if (!HUGGINGFACE_API_TOKEN) {
-      throw new Error("HUGGINGFACE_API_TOKEN is not set");
+      return jsonResponse({ success: false, error: "HUGGINGFACE_API_TOKEN is not set" });
     }
 
     const body = await req.json();
@@ -61,10 +285,7 @@ serve(async (req) => {
     const garmentImageUrl = body.garmentImageUrl;
 
     if (!garmentImageUrl) {
-      return new Response(
-        JSON.stringify({ error: "Missing required field: garmentImageUrl" }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
-      );
+      return jsonResponse({ success: false, error: "Missing required field: garmentImageUrl" });
     }
 
     if (!humanImageUrl) {
@@ -110,113 +331,39 @@ serve(async (req) => {
 
     console.log("Calling /api/predict (tryon endpoint)...");
 
-    let predictRes: Response | null = null;
-    for (let attempt = 0; attempt < 3; attempt++) {
-      predictRes = await fetch(`${SPACE_URL}/call/tryon`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${HUGGINGFACE_API_TOKEN}`,
-        },
-        body: JSON.stringify(predictPayload),
-      });
-
-      if (predictRes.status === 503 || predictRes.status === 429) {
-        const txt = await predictRes.text();
-        console.log(`Space ${predictRes.status}, retry ${attempt + 1}...`, txt);
-        await new Promise((r) => setTimeout(r, 5000));
-        continue;
-      }
-      break;
+    const callResult = await callTryOnSpace(predictPayload, HUGGINGFACE_API_TOKEN);
+    if (!callResult.success) {
+      console.error("Call error:", callResult.error);
+      return jsonResponse(
+        callResult.loading
+          ? { success: false, loading: true }
+          : { success: false, error: callResult.error },
+      );
     }
 
-    if (!predictRes || !predictRes.ok) {
-      const errText = predictRes ? await predictRes.text() : "No response";
-      console.error("Call error:", predictRes?.status, errText);
-
-      if (predictRes?.status === 503 || predictRes?.status === 502) {
-        return new Response(
-          JSON.stringify({ error: "The AI model is loading. Please try again in 30-60 seconds.", loading: true }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 503 }
-        );
-      }
-      throw new Error(`Model API error (${predictRes?.status}): ${errText.substring(0, 300)}`);
-    }
-
-    // /call/ returns { event_id: "..." } - need to poll /call/tryon/{event_id}
-    const callResult = await predictRes.json();
-    const eventId = callResult.event_id;
+    const eventId = callResult.eventId;
     console.log("Event ID:", eventId);
-
-    if (!eventId) {
-      throw new Error("No event_id returned from /call/tryon");
-    }
 
     // Step 4: Poll for result using SSE endpoint
     console.log("Polling for result...");
-    const resultRes = await fetch(`${SPACE_URL}/call/tryon/${eventId}`, {
-      headers: { Authorization: `Bearer ${HUGGINGFACE_API_TOKEN}` },
-    });
 
-    if (!resultRes.ok) {
-      const errText = await resultRes.text();
-      throw new Error(`Result polling error (${resultRes.status}): ${errText.substring(0, 300)}`);
-    }
-
-    // Parse SSE response - may need to wait for completion
-    const sseText = await resultRes.text();
-    console.log("SSE response:", sseText.substring(0, 500));
-
-    const lines = sseText.split("\n");
-    let resultData = null;
-    let errorMsg = null;
-
-    for (let i = 0; i < lines.length; i++) {
-      if (lines[i].startsWith("event: complete")) {
-        const dataLine = lines[i + 1];
-        if (dataLine && dataLine.startsWith("data: ")) {
-          resultData = JSON.parse(dataLine.substring(6));
-          break;
-        }
-      }
-      if (lines[i].startsWith("event: error")) {
-        const dataLine = lines[i + 1];
-        errorMsg = dataLine?.startsWith("data: ") ? dataLine.substring(6) : "Unknown model error";
-      }
-    }
-
-    if (errorMsg) {
-      // Common: ZeroGPU queue full or Space sleeping
-      const isLoadingError = errorMsg.includes("loading") || errorMsg.includes("queue") || errorMsg === "null";
-      if (isLoadingError) {
-        return new Response(
-          JSON.stringify({ error: "The AI model is currently busy or loading. Please try again in 30-60 seconds.", loading: true }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 503 }
-        );
-      }
-      throw new Error(`Model processing error: ${errorMsg}`);
-    }
-
-    if (!resultData || !resultData.length) {
-      console.error("Full SSE:", sseText);
-      return new Response(
-        JSON.stringify({ error: "The AI model is currently busy. Please try again shortly.", loading: true }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 503 }
+    const result = await waitForTryOnResult(eventId, HUGGINGFACE_API_TOKEN);
+    if (!result.success) {
+      console.error("Result polling error:", result.error);
+      return jsonResponse(
+        result.loading
+          ? { success: false, loading: true }
+          : { success: false, error: result.error },
       );
     }
 
     // First element is the output image FileData
-    const outputFile = resultData[0];
-    const filePath = outputFile?.url || outputFile?.path;
+    const fileUrl = resolveOutputFileUrl(result.resultData);
 
-    if (!filePath) {
-      console.error("Output:", JSON.stringify(outputFile));
-      throw new Error("No output file path");
+    if (!fileUrl) {
+      console.error("Output:", JSON.stringify(result.resultData[0]));
+      return jsonResponse({ success: false, error: "No output file path returned by the model." });
     }
-
-    const fileUrl = filePath.startsWith("http")
-      ? filePath
-      : `${SPACE_URL}/file=${filePath}`;
 
     console.log("Fetching result image:", fileUrl);
     const resultBlob = await fetchImageBlob(fileUrl);
@@ -224,18 +371,12 @@ serve(async (req) => {
 
     console.log("Try-on generation successful");
 
-    return new Response(
-      JSON.stringify({ output: outputDataUrl, image: outputDataUrl }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
-    );
+    return jsonResponse({ success: true, image: outputDataUrl });
   } catch (error) {
     console.error("Error in virtual-tryon function:", error);
-    return new Response(
-      JSON.stringify({
-        error: error instanceof Error ? error.message : "Unknown error occurred",
-        ok: false,
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
-    );
+    return jsonResponse({
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error occurred",
+    });
   }
 });
