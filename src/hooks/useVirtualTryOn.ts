@@ -9,12 +9,6 @@ interface TryOnParams {
   category?: "upper_body" | "lower_body" | "dresses";
 }
 
-interface TryOnResult {
-  output?: string[];
-  error?: string;
-  status?: string;
-}
-
 export const useVirtualTryOn = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -23,23 +17,14 @@ export const useVirtualTryOn = () => {
   const uploadImage = async (file: File): Promise<string> => {
     const fileExt = file.name.split('.').pop();
     const fileName = `${Math.random()}.${fileExt}`;
-    const filePath = `${fileName}`;
 
     const { error: uploadError } = await supabase.storage
       .from('tryon-images')
-      .upload(filePath, file, {
-        cacheControl: '3600',
-        upsert: false
-      });
+      .upload(fileName, file, { cacheControl: '3600', upsert: false });
 
-    if (uploadError) {
-      throw new Error(`Upload failed: ${uploadError.message}`);
-    }
+    if (uploadError) throw new Error(`Upload failed: ${uploadError.message}`);
 
-    const { data } = supabase.storage
-      .from('tryon-images')
-      .getPublicUrl(filePath);
-
+    const { data } = supabase.storage.from('tryon-images').getPublicUrl(fileName);
     return data.publicUrl;
   };
 
@@ -48,86 +33,40 @@ export const useVirtualTryOn = () => {
     setProgress(10);
 
     try {
-      setProgress(20);
-      
-      // Start generation
-      const { data: functionData, error: functionError } = await supabase.functions.invoke(
-        'virtual-tryon',
-        {
-          body: {
-            humanImageUrl: params.humanImageUrl,
-            garmentImageUrl: params.garmentImageUrl,
-            garmentDescription: params.garmentDescription,
-            category: params.category || "upper_body",
-          }
-        }
-      );
+      setProgress(30);
 
-      if (functionError) throw functionError;
+      const { data, error } = await supabase.functions.invoke('virtual-tryon', {
+        body: {
+          humanImageUrl: params.humanImageUrl,
+          garmentImageUrl: params.garmentImageUrl,
+          garmentDescription: params.garmentDescription,
+          category: params.category || "upper_body",
+        },
+      });
 
-      setProgress(40);
+      if (error) throw error;
 
-      // Handle direct output (non-async models)
-      if (functionData?.output) {
-        const imageUrl = Array.isArray(functionData.output) 
-          ? functionData.output[0] 
-          : functionData.output;
-        
+      setProgress(80);
+
+      // Handle model loading
+      if (data?.loading) {
+        toast({
+          title: "Model is warming up",
+          description: "Please try again in a few seconds",
+        });
+        return null;
+      }
+
+      // Direct output (base64 data URL)
+      if (data?.output) {
+        const imageUrl = typeof data.output === 'string' ? data.output : data.output[0];
         setProgress(100);
         setResult(imageUrl);
-        toast({
-          title: "Try-on complete!",
-          description: "Your virtual try-on is ready",
-        });
+        toast({ title: "Try-on complete!", description: "Your virtual try-on is ready" });
         return imageUrl;
       }
 
-      // Handle async prediction (polling)
-      if (functionData?.id) {
-        const predictionId = functionData.id;
-        let attempts = 0;
-        const maxAttempts = 60; // 2 minutes max
-
-        while (attempts < maxAttempts) {
-          await new Promise(resolve => setTimeout(resolve, 2000));
-          
-          const { data: statusData, error: statusError } = await supabase.functions.invoke(
-            'virtual-tryon',
-            {
-              body: { predictionId }
-            }
-          );
-
-          if (statusError) throw statusError;
-
-          setProgress(40 + (attempts / maxAttempts) * 55);
-
-          if (statusData?.status === 'succeeded' && statusData?.output) {
-            const imageUrl = Array.isArray(statusData.output) 
-              ? statusData.output[0] 
-              : statusData.output;
-            
-            setProgress(100);
-            setResult(imageUrl);
-            toast({
-              title: "Try-on complete!",
-              description: "Your virtual try-on is ready",
-            });
-            return imageUrl;
-          }
-
-          if (statusData?.status === 'failed') {
-            throw new Error(statusData?.error || 'Generation failed');
-          }
-
-          attempts++;
-        }
-
-        throw new Error('Generation timed out');
-      }
-
-      throw new Error('Unexpected response format');
-
+      throw new Error(data?.error || 'Unexpected response format');
     } catch (error) {
       console.error("Virtual try-on error:", error);
       toast({
@@ -147,12 +86,5 @@ export const useVirtualTryOn = () => {
     setResult(null);
   };
 
-  return {
-    isGenerating,
-    progress,
-    result,
-    generateTryOn,
-    uploadImage,
-    reset,
-  };
+  return { isGenerating, progress, result, generateTryOn, uploadImage, reset };
 };
