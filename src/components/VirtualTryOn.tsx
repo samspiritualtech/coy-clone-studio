@@ -27,8 +27,18 @@ export const VirtualTryOn = ({
   const [batchResults, setBatchResults] = useState<string[]>([]);
   const [currentBatchIndex, setCurrentBatchIndex] = useState(0);
 
-  const { isGenerating, progress, result, generateTryOn, uploadImage, reset } =
+  const {
+    isGenerating,
+    progress,
+    result,
+    timeLeft,
+    generateTryOn,
+    uploadImage,
+    reset,
+  } =
     useVirtualTryOn();
+
+  const hasSelection = Boolean(selectedModel || uploadedFiles.length > 0);
 
   const handleModelSelect = (model: ModelPreset) => {
     setSelectedModel(model);
@@ -42,73 +52,110 @@ export const VirtualTryOn = ({
   };
 
   const handleGenerate = async () => {
-    console.log("Try-On button clicked", { selectedModel: selectedModel?.id, uploadedFiles: uploadedFiles.length });
-    if (!selectedModel && uploadedFiles.length === 0) {
+    console.log("Try-On clicked", {
+      selectedModel: selectedModel?.id,
+      uploadedFiles: uploadedFiles.length,
+    });
+
+    if (!hasSelection) {
       toast({
         title: "Selection required",
-        description: "Please upload your photo or select a model",
+        description: "Please upload or select a model",
         variant: "destructive",
       });
       return;
     }
 
-    // Batch generation for multiple uploads
-    if (uploadedFiles.length > 0) {
-      setBatchResults([]);
-      for (let i = 0; i < uploadedFiles.length; i++) {
-        setCurrentBatchIndex(i + 1);
-        try {
-          const humanImageUrl = await uploadImage(uploadedFiles[i]);
-          const result = await generateTryOn({
-            humanImageUrl,
-            garmentImageUrl: productImageUrl,
-            garmentDescription: productName,
-            category: category || "upper_body",
-          });
-
-          if (result) {
-            // Save to history
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-              await supabase.from("tryon_history").insert({
-                user_id: user.id,
-                model_image_url: humanImageUrl,
-                product_image_url: productImageUrl,
-                result_image_url: result,
-                model_name: "Custom Upload",
-                product_name: productName,
-              });
-            }
-            setBatchResults((prev) => [...prev, result]);
-          }
-        } catch (error) {
-          console.error("Batch generation error:", error);
-        }
-      }
-      setCurrentBatchIndex(0);
-    } else if (selectedModel) {
-      // Single generation with preset model
-      const result = await generateTryOn({
-        humanImageUrl: selectedModel.image,
-        garmentImageUrl: productImageUrl,
-        garmentDescription: productName,
-        category: category || "upper_body",
+    if (!productImageUrl) {
+      toast({
+        title: "Product image missing",
+        description: "We couldn't find the product image for this try-on.",
+        variant: "destructive",
       });
+      return;
+    }
 
-      if (result) {
-        // Save to history
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          await supabase.from("tryon_history").insert({
-            user_id: user.id,
-            model_image_url: selectedModel.image,
-            product_image_url: productImageUrl,
-            result_image_url: result,
-            model_name: selectedModel.name,
-            product_name: productName,
-          });
+    try {
+      // Batch generation for multiple uploads
+      if (uploadedFiles.length > 0) {
+        setBatchResults([]);
+        for (let i = 0; i < uploadedFiles.length; i++) {
+          setCurrentBatchIndex(i + 1);
+          try {
+            const humanImageUrl = await uploadImage(uploadedFiles[i]);
+            const result = await generateTryOn({
+              humanImageUrl,
+              garmentImageUrl: productImageUrl,
+              garmentDescription: productName,
+              category: category || "upper_body",
+            });
+
+            if (result) {
+              const {
+                data: { user },
+              } = await supabase.auth.getUser();
+
+              if (user) {
+                await supabase.from("tryon_history").insert({
+                  user_id: user.id,
+                  model_image_url: humanImageUrl,
+                  product_image_url: productImageUrl,
+                  result_image_url: result,
+                  model_name: "Custom Upload",
+                  product_name: productName,
+                });
+              }
+
+              setBatchResults((prev) => [...prev, result]);
+            }
+          } catch (error) {
+            console.error("Batch generation error:", error);
+            toast({
+              title: "Upload failure",
+              description:
+                error instanceof Error
+                  ? error.message
+                  : "We couldn't upload your image. Please try again.",
+              variant: "destructive",
+            });
+          }
+        }
+      } else if (selectedModel) {
+        const result = await generateTryOn({
+          humanImageUrl: selectedModel.image,
+          garmentImageUrl: productImageUrl,
+          garmentDescription: productName,
+          category: category || "upper_body",
+        });
+
+        if (result) {
+          const {
+            data: { user },
+          } = await supabase.auth.getUser();
+          if (user) {
+            await supabase.from("tryon_history").insert({
+              user_id: user.id,
+              model_image_url: selectedModel.image,
+              product_image_url: productImageUrl,
+              result_image_url: result,
+              model_name: selectedModel.name,
+              product_name: productName,
+            });
+          }
         }
       }
+    } catch (error) {
+      console.error("Try-on generation error:", error);
+      toast({
+        title: "Try-on failed",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Something went wrong while generating your try-on.",
+        variant: "destructive",
+      });
+    } finally {
+      setCurrentBatchIndex(0);
     }
   };
 
@@ -123,9 +170,15 @@ export const VirtualTryOn = ({
 
   if (result || batchResults.length > 0) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-4 animate-in fade-in-50 slide-in-from-bottom-2 duration-300">
+        <div className="text-center space-y-1">
+          <h3 className="text-xl font-semibold">Your try-on is ready ✅</h3>
+          <p className="text-sm text-muted-foreground">
+            Compare the before and after view, then save or share your result.
+          </p>
+        </div>
         {batchResults.length > 1 ? (
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {batchResults.map((resultUrl, index) => (
               <TryOnResult
                 key={index}
@@ -185,26 +238,16 @@ export const VirtualTryOn = ({
 
       {/* Generate Button */}
       <div className="space-y-4">
-        {!selectedModel && uploadedFiles.length === 0 && (
+        {!hasSelection && (
           <p className="text-sm text-muted-foreground text-center">
             Select a model or upload your photo to try this outfit
           </p>
         )}
         <Button
           onClick={handleGenerate}
-          disabled={
-            isGenerating || (!selectedModel && uploadedFiles.length === 0)
-          }
-          title={
-            !selectedModel && uploadedFiles.length === 0
-              ? "Please select a model or upload a photo first"
-              : undefined
-          }
-          className={`w-full h-12 text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 ${
-            !selectedModel && uploadedFiles.length === 0
-              ? "cursor-not-allowed opacity-60"
-              : ""
-          }`}
+          disabled={isGenerating}
+          title={isGenerating ? "Generating your virtual try-on" : undefined}
+          className="w-full h-12 text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 disabled:cursor-not-allowed disabled:opacity-70"
         >
           {isGenerating ? (
             <>
@@ -224,12 +267,16 @@ export const VirtualTryOn = ({
         {isGenerating && (
           <div className="space-y-2">
             <Progress value={progress} className="w-full" />
-            <p className="text-sm text-center text-muted-foreground">
-              {progress < 20 && "Preparing your try-on..."}
-              {progress >= 20 && progress < 40 && "Uploading images..."}
-              {progress >= 40 && progress < 100 && "AI is working its magic..."}
-              {progress === 100 && "Almost ready!"}
-            </p>
+            <div className="space-y-1 text-center">
+              <p className="text-sm text-muted-foreground">
+                Generating your try-on... {timeLeft}s
+              </p>
+              {currentBatchIndex > 0 && uploadedFiles.length > 1 && (
+                <p className="text-xs text-muted-foreground">
+                  Processing image {currentBatchIndex} of {uploadedFiles.length}
+                </p>
+              )}
+            </div>
           </div>
         )}
       </div>
