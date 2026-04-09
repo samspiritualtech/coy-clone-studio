@@ -19,7 +19,7 @@ async function fetchImageAsBase64(url: string): Promise<string> {
 }
 
 async function callHuggingFace(humanBase64: string, clothBase64: string, token: string, retries = 3): Promise<Response> {
-  const url = "https://api-inference.huggingface.co/models/yisol/IDM-VTON";
+  const url = "https://router.huggingface.co/hf-inference/models/yisol/IDM-VTON";
 
   for (let i = 0; i < retries; i++) {
     console.log(`HF attempt ${i + 1}/${retries}`);
