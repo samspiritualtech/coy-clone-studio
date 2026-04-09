@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import Replicate from "https://esm.sh/replicate@0.25.2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -12,77 +11,103 @@ serve(async (req) => {
   }
 
   try {
-    const REPLICATE_API_KEY = Deno.env.get("REPLICATE_API_KEY");
-    if (!REPLICATE_API_KEY) {
-      throw new Error("REPLICATE_API_KEY is not set");
+    const HUGGINGFACE_API_TOKEN = Deno.env.get("HUGGINGFACE_API_TOKEN");
+    if (!HUGGINGFACE_API_TOKEN) {
+      throw new Error("HUGGINGFACE_API_TOKEN is not set");
     }
 
-    const replicate = new Replicate({ auth: REPLICATE_API_KEY });
     const body = await req.json();
+    console.log("Virtual try-on request received");
 
-    console.log("Virtual try-on request:", body);
+    if (!body.humanImageUrl || !body.garmentImageUrl) {
+      return new Response(
+        JSON.stringify({ error: "Missing required fields: humanImageUrl and garmentImageUrl" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
+      );
+    }
 
-    // Handle status check
-    if (body.predictionId) {
-      console.log("Checking status for prediction:", body.predictionId);
-      const prediction = await replicate.predictions.get(body.predictionId);
-      console.log("Status check response:", prediction);
-      
-      return new Response(JSON.stringify(prediction), {
+    console.log("Calling Hugging Face IDM-VTON model...");
+
+    // Fetch both images as blobs
+    const [humanRes, garmentRes] = await Promise.all([
+      fetch(body.humanImageUrl),
+      fetch(body.garmentImageUrl),
+    ]);
+
+    if (!humanRes.ok || !garmentRes.ok) {
+      throw new Error("Failed to fetch input images");
+    }
+
+    const humanBlob = await humanRes.blob();
+    const garmentBlob = await garmentRes.blob();
+
+    // Build multipart form for HF Inference API
+    const formData = new FormData();
+    formData.append("inputs", JSON.stringify({
+      human_img: "human",
+      garm_img: "garment",
+      garment_des: body.garmentDescription || "clothing item",
+      category: body.category || "upper_body",
+    }));
+    formData.append("human", humanBlob, "human.jpg");
+    formData.append("garment", garmentBlob, "garment.jpg");
+
+    const hfResponse = await fetch(
+      "https://api-inference.huggingface.co/models/yisol/IDM-VTON",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${HUGGINGFACE_API_TOKEN}`,
+        },
+        body: formData,
+      }
+    );
+
+    // If the model returns JSON (error or loading), handle it
+    const contentType = hfResponse.headers.get("content-type") || "";
+
+    if (contentType.includes("application/json")) {
+      const jsonData = await hfResponse.json();
+      console.log("HF JSON response:", jsonData);
+
+      if (jsonData.error) {
+        // Model might be loading
+        if (jsonData.estimated_time) {
+          return new Response(
+            JSON.stringify({ error: `Model is loading, please retry in ~${Math.ceil(jsonData.estimated_time)}s`, loading: true }),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 503 }
+          );
+        }
+        throw new Error(jsonData.error);
+      }
+
+      return new Response(JSON.stringify(jsonData), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Handle new generation
-    if (!body.humanImageUrl || !body.garmentImageUrl) {
-      return new Response(
-        JSON.stringify({ 
-          error: "Missing required fields: humanImageUrl and garmentImageUrl are required" 
-        }), 
-        {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 400,
-        }
-      );
+    if (!hfResponse.ok) {
+      const errorText = await hfResponse.text();
+      console.error("HF error:", hfResponse.status, errorText);
+      throw new Error(`Hugging Face API error: ${hfResponse.status}`);
     }
 
-    console.log("Starting virtual try-on generation");
-    console.log("Human image:", body.humanImageUrl);
-    console.log("Garment image:", body.garmentImageUrl);
+    // Success — response is an image blob
+    const imageArrayBuffer = await hfResponse.arrayBuffer();
+    const base64 = btoa(String.fromCharCode(...new Uint8Array(imageArrayBuffer)));
+    const dataUrl = `data:image/png;base64,${base64}`;
 
-    // Use IDM-VTON model for high-quality virtual try-on
-    const output = await replicate.run(
-      "cuuupid/idm-vton:c871bb9b046607b680449ecbae55fd8c6d945e0a1948644bf2361b3d021d3ff4",
-      {
-        input: {
-          human_img: body.humanImageUrl,
-          garm_img: body.garmentImageUrl,
-          garment_des: body.garmentDescription || "clothing item",
-          category: body.category || "upper_body",
-          n_samples: 1,
-          n_steps: body.steps || 20,
-          guidance_scale: body.guidanceScale || 2.0,
-          seed: body.seed || Math.floor(Math.random() * 1000000),
-        }
-      }
+    console.log("Try-on generation successful, returning base64 image");
+
+    return new Response(
+      JSON.stringify({ output: dataUrl }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
     );
-
-    console.log("Generation response:", output);
-    
-    return new Response(JSON.stringify({ output }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 200,
-    });
   } catch (error) {
     console.error("Error in virtual-tryon function:", error);
     return new Response(
-      JSON.stringify({ 
-        error: error instanceof Error ? error.message : "Unknown error occurred"
-      }), 
-      {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 500,
-      }
+      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error occurred" }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
     );
   }
 });
