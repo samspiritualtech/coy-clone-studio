@@ -163,13 +163,14 @@ serve(async (req) => {
       throw new Error(`Result polling error (${resultRes.status}): ${errText.substring(0, 300)}`);
     }
 
-    // Parse SSE response
+    // Parse SSE response - may need to wait for completion
     const sseText = await resultRes.text();
-    console.log("SSE response length:", sseText.length);
+    console.log("SSE response:", sseText.substring(0, 500));
 
-    // Find the "complete" event data
     const lines = sseText.split("\n");
     let resultData = null;
+    let errorMsg = null;
+
     for (let i = 0; i < lines.length; i++) {
       if (lines[i].startsWith("event: complete")) {
         const dataLine = lines[i + 1];
@@ -180,14 +181,28 @@ serve(async (req) => {
       }
       if (lines[i].startsWith("event: error")) {
         const dataLine = lines[i + 1];
-        const errMsg = dataLine?.startsWith("data: ") ? dataLine.substring(6) : "Unknown error";
-        throw new Error(`Model error: ${errMsg}`);
+        errorMsg = dataLine?.startsWith("data: ") ? dataLine.substring(6) : "Unknown model error";
       }
     }
 
+    if (errorMsg) {
+      // Common: ZeroGPU queue full or Space sleeping
+      const isLoadingError = errorMsg.includes("loading") || errorMsg.includes("queue") || errorMsg === "null";
+      if (isLoadingError) {
+        return new Response(
+          JSON.stringify({ error: "The AI model is currently busy or loading. Please try again in 30-60 seconds.", loading: true }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 503 }
+        );
+      }
+      throw new Error(`Model processing error: ${errorMsg}`);
+    }
+
     if (!resultData || !resultData.length) {
-      console.error("SSE text:", sseText.substring(0, 500));
-      throw new Error("No result data from model");
+      console.error("Full SSE:", sseText);
+      return new Response(
+        JSON.stringify({ error: "The AI model is currently busy. Please try again shortly.", loading: true }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 503 }
+      );
     }
 
     // First element is the output image FileData
