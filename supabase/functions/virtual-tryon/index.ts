@@ -29,7 +29,7 @@ async function uploadToSpace(blob: Blob, filename: string, token: string): Promi
   }
 
   const paths = await res.json();
-  return paths[0]; // returns the uploaded file path
+  return paths[0];
 }
 
 async function blobToBase64DataUrl(blob: Blob): Promise<string> {
@@ -87,26 +87,32 @@ serve(async (req) => {
       uploadToSpace(humanBlob, "human.jpg", HUGGINGFACE_API_TOKEN),
       uploadToSpace(garmentBlob, "garment.jpg", HUGGINGFACE_API_TOKEN),
     ]);
-    console.log("Uploaded paths:", humanPath, garmentPath);
+    console.log("Uploaded:", humanPath, garmentPath);
 
-    // Step 3: Call predict with uploaded file paths
-    console.log("Calling IDM-VTON predict...");
-
+    // Step 3: Call the /tryon named endpoint
+    // dict param = ImageEditor with background + empty layers
+    // garm_img = garment FileData
     const predictPayload = {
       data: [
-        { path: humanPath, meta: { _type: "gradio.FileData" } },
+        {
+          background: { path: humanPath, meta: { _type: "gradio.FileData" } },
+          layers: [],
+          composite: null,
+        },
         { path: garmentPath, meta: { _type: "gradio.FileData" } },
         garmentDesc,
-        true,  // is_checked (auto-crop)
-        true,  // is_checked_crop
-        30,    // denoise_steps
-        42,    // seed
+        true,   // is_checked (auto-masking)
+        false,  // is_checked_crop
+        30,     // denoise_steps
+        42,     // seed
       ],
     };
 
+    console.log("Calling /api/predict (tryon endpoint)...");
+
     let predictRes: Response | null = null;
     for (let attempt = 0; attempt < 3; attempt++) {
-      predictRes = await fetch(`${SPACE_URL}/api/predict`, {
+      predictRes = await fetch(`${SPACE_URL}/call/tryon`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -126,7 +132,7 @@ serve(async (req) => {
 
     if (!predictRes || !predictRes.ok) {
       const errText = predictRes ? await predictRes.text() : "No response";
-      console.error("Predict error:", predictRes?.status, errText);
+      console.error("Call error:", predictRes?.status, errText);
 
       if (predictRes?.status === 503 || predictRes?.status === 502) {
         return new Response(
@@ -134,41 +140,72 @@ serve(async (req) => {
           { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 503 }
         );
       }
-      throw new Error(`Model API error (${predictRes?.status}): ${errText.substring(0, 200)}`);
+      throw new Error(`Model API error (${predictRes?.status}): ${errText.substring(0, 300)}`);
     }
 
-    const result = await predictRes.json();
-    console.log("Predict response keys:", Object.keys(result));
+    // /call/ returns { event_id: "..." } - need to poll /call/tryon/{event_id}
+    const callResult = await predictRes.json();
+    const eventId = callResult.event_id;
+    console.log("Event ID:", eventId);
 
-    if (!result.data || result.data.length === 0) {
-      throw new Error("No output from model");
+    if (!eventId) {
+      throw new Error("No event_id returned from /call/tryon");
     }
 
-    // Extract output image
-    const outputImage = result.data[0];
-    let outputDataUrl: string;
+    // Step 4: Poll for result using SSE endpoint
+    console.log("Polling for result...");
+    const resultRes = await fetch(`${SPACE_URL}/call/tryon/${eventId}`, {
+      headers: { Authorization: `Bearer ${HUGGINGFACE_API_TOKEN}` },
+    });
 
-    if (typeof outputImage === "string" && outputImage.startsWith("data:")) {
-      outputDataUrl = outputImage;
-    } else {
-      // Gradio returns file info with path — fetch it
-      const filePath = typeof outputImage === "string"
-        ? outputImage
-        : outputImage?.path || outputImage?.url;
+    if (!resultRes.ok) {
+      const errText = await resultRes.text();
+      throw new Error(`Result polling error (${resultRes.status}): ${errText.substring(0, 300)}`);
+    }
 
-      if (!filePath) {
-        console.error("Unexpected output:", JSON.stringify(outputImage));
-        throw new Error("Could not extract output image path");
+    // Parse SSE response
+    const sseText = await resultRes.text();
+    console.log("SSE response length:", sseText.length);
+
+    // Find the "complete" event data
+    const lines = sseText.split("\n");
+    let resultData = null;
+    for (let i = 0; i < lines.length; i++) {
+      if (lines[i].startsWith("event: complete")) {
+        const dataLine = lines[i + 1];
+        if (dataLine && dataLine.startsWith("data: ")) {
+          resultData = JSON.parse(dataLine.substring(6));
+          break;
+        }
       }
-
-      const fileUrl = filePath.startsWith("http")
-        ? filePath
-        : `${SPACE_URL}/file=${filePath}`;
-
-      console.log("Fetching result image from:", fileUrl);
-      const resultBlob = await fetchImageBlob(fileUrl);
-      outputDataUrl = await blobToBase64DataUrl(resultBlob);
+      if (lines[i].startsWith("event: error")) {
+        const dataLine = lines[i + 1];
+        const errMsg = dataLine?.startsWith("data: ") ? dataLine.substring(6) : "Unknown error";
+        throw new Error(`Model error: ${errMsg}`);
+      }
     }
+
+    if (!resultData || !resultData.length) {
+      console.error("SSE text:", sseText.substring(0, 500));
+      throw new Error("No result data from model");
+    }
+
+    // First element is the output image FileData
+    const outputFile = resultData[0];
+    const filePath = outputFile?.url || outputFile?.path;
+
+    if (!filePath) {
+      console.error("Output:", JSON.stringify(outputFile));
+      throw new Error("No output file path");
+    }
+
+    const fileUrl = filePath.startsWith("http")
+      ? filePath
+      : `${SPACE_URL}/file=${filePath}`;
+
+    console.log("Fetching result image:", fileUrl);
+    const resultBlob = await fetchImageBlob(fileUrl);
+    const outputDataUrl = await blobToBase64DataUrl(resultBlob);
 
     console.log("Try-on generation successful");
 
