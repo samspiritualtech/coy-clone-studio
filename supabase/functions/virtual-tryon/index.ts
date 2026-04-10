@@ -151,7 +151,12 @@ serve(async (req) => {
             }
 
             // Process completed but failed
-            console.error("Process completed with error:", JSON.stringify(msg.output?.error || msg.output));
+            const errDetail = msg.output?.error || "Unknown error";
+            console.error("Process completed with error:", JSON.stringify(errDetail));
+            const errStr = typeof errDetail === "string" ? errDetail : JSON.stringify(errDetail);
+            if (/quota|limit|rate/i.test(errStr)) {
+              return jsonResponse({ success: false, loading: true });
+            }
             return jsonResponse({ success: false, error: "Model processing failed. Please try again." });
           }
 
