@@ -23,9 +23,10 @@ export const OptimizedImage = ({
   const [hasError, setHasError] = useState(false);
 
   // Optimize image URL for better performance
-  const optimizedSrc = src.includes("unsplash.com")
-    ? `${src}${src.includes("?") ? "&" : "?"}auto=format&fit=crop&q=80`
-    : src;
+  const safeSrc = src || fallbackSrc;
+  const optimizedSrc = safeSrc.includes("unsplash.com")
+    ? `${safeSrc}${safeSrc.includes("?") ? "&" : "?"}auto=format&fit=crop&q=80`
+    : safeSrc;
 
   const handleLoad = () => {
     setIsLoading(false);
