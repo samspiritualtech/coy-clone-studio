@@ -1,31 +1,29 @@
 
 
-# Fetch & Display External API Products on Collections Page
+# Fix Product Detail Page for External API Products
 
-## Overview
-Integrate the external API (`https://pyesltzkemtranachpne.supabase.co/functions/v1/products`) into the existing Collections page, replacing the current local database fetch with API products while keeping the existing static products as a fallback/merge.
+## Problem
+The PDP currently looks up products only from the static `products` array (`src/data/products.ts`). When a user clicks an API product from Collections, the ID won't match any static product, so they see "Product not found."
 
-## Changes
+## Solution
+Add an API fetch to the ProductDetail page that mirrors the Collections page pattern. On mount, fetch all products from the external API, find the one matching the URL `id`, and merge with the static catalog as fallback.
 
-### 1. `src/pages/Collections.tsx`
-- Replace the `fetchLiveProducts` Supabase query with a `fetch()` call to the external API URL
-- Map the API response fields (`image_url`, `name`, `price`) to the existing `Product` type
-- Add a "Buy Now" button to each product card (navigates to cart or product detail)
-- Add loading state: show skeleton/spinner while fetching
-- Add empty state: "No products available" message when API returns no products
-- Keep existing static products as fallback (merge with API products, API takes precedence)
+## Changes — `src/pages/ProductDetail.tsx`
 
-### 2. Product Card Updates (inline in Collections.tsx)
-- Display `image_url` as the product image
-- Display `name` and `price`
-- Add a "Buy Now" button below price that navigates to `/product/:id` or adds to cart
+1. **Add state**: `apiProduct` (Product | null), `isApiLoading` (boolean), `apiError` (boolean)
 
-## Technical Details
-- Use `fetch()` directly to the external URL (no Supabase client needed for this call)
-- Handle network errors gracefully with try/catch
-- Loading: show a grid of skeleton cards (reuse existing pattern)
-- Empty: centered message with icon
+2. **Add useEffect** that fetches from `https://pyesltzkemtranachpne.supabase.co/functions/v1/products`, maps the response to `Product` type (reuse same mapping logic from Collections), and finds the item matching `id`
+
+3. **Resolve product**: `currentProduct = apiProduct ?? staticProducts.find(p => p.id === id)` — API takes precedence, static is fallback
+
+4. **Loading state**: Show skeleton/spinner while `isApiLoading` is true
+
+5. **Error state**: If loading is done and no product found, show "Product not found" with a "Browse Collections" button (already exists)
+
+6. **"Buy Now" button**: Already exists in the page — no changes needed
+
+7. No other structural changes — the rest of the PDP (gallery, sizes, cart, wishlist, recommendations) continues to work with the resolved `currentProduct`
 
 ## Files to Modify
-- `src/pages/Collections.tsx`
+- `src/pages/ProductDetail.tsx`
 
