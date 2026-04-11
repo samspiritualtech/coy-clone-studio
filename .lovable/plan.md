@@ -1,58 +1,31 @@
 
 
-# Fix Virtual Try-On End-to-End
+# Fetch & Display External API Products on Collections Page
 
-## Root Cause
-
-The Gradio Space consistently returns `SSE event: error null` because the edge function uploads images to the Space's local filesystem (`/tmp/gradio/...`), but the ZeroGPU worker that runs the model cannot access those files (they're on a different server). Every request gets an event_id but immediately fails with `null` error.
-
-**Fix**: Pass image URLs directly to the Gradio API instead of uploading files. The Gradio `/call/tryon` endpoint accepts `url` fields in FileData objects, which the model worker can fetch directly.
-
-Secondary issue: `tryon-images` bucket requires authentication for uploads, so unauthenticated users get a silent failure. We need to allow anonymous uploads or handle the error gracefully.
+## Overview
+Integrate the external API (`https://pyesltzkemtranachpne.supabase.co/functions/v1/products`) into the existing Collections page, replacing the current local database fetch with API products while keeping the existing static products as a fallback/merge.
 
 ## Changes
 
-### 1. Edge Function (`supabase/functions/virtual-tryon/index.ts`)
-- Remove the `uploadToSpace` function entirely
-- Instead of fetching images and uploading them, pass the original URLs directly in the Gradio payload using the `url` field (as shown in the Space's own `/info` example_input)
-- Add detailed logging of the SSE error data (currently logs `null` without context)
-- Keep the retry logic for 503/429
+### 1. `src/pages/Collections.tsx`
+- Replace the `fetchLiveProducts` Supabase query with a `fetch()` call to the external API URL
+- Map the API response fields (`image_url`, `name`, `price`) to the existing `Product` type
+- Add a "Buy Now" button to each product card (navigates to cart or product detail)
+- Add loading state: show skeleton/spinner while fetching
+- Add empty state: "No products available" message when API returns no products
+- Keep existing static products as fallback (merge with API products, API takes precedence)
 
-### 2. Storage Policy (SQL migration)
-- Add an anonymous upload policy for `tryon-images` bucket so unauthenticated users can still upload their photos for try-on
+### 2. Product Card Updates (inline in Collections.tsx)
+- Display `image_url` as the product image
+- Display `name` and `price`
+- Add a "Buy Now" button below price that navigates to `/product/:id` or adds to cart
 
-### 3. Frontend Hook (`src/hooks/useVirtualTryOn.ts`)
-- No structural changes needed; the hook already handles `success`, `loading`, and `error` responses correctly
-- Add a log of the full SSE error data in the edge function so we can debug further if needed
-
-### 4. Frontend UI (`src/components/VirtualTryOn.tsx`)
-- No changes needed; button, timer, and result display logic are already correct
-
-## Technical Detail
-
-Current broken payload:
-```json
-{
-  "data": [
-    { "background": { "path": "/tmp/gradio/abc/human.jpg", "meta": {...} }, "layers": [], "composite": null },
-    { "path": "/tmp/gradio/def/garment.jpg", "meta": {...} },
-    ...
-  ]
-}
-```
-
-Fixed payload (using URLs directly):
-```json
-{
-  "data": [
-    { "background": { "url": "https://images.unsplash.com/...", "path": "human.jpg", "meta": {...}, "orig_name": "human.jpg" }, "layers": [], "composite": null },
-    { "url": "https://example.com/garment.jpg", "path": "garment.jpg", "meta": {...}, "orig_name": "garment.jpg" },
-    ...
-  ]
-}
-```
+## Technical Details
+- Use `fetch()` directly to the external URL (no Supabase client needed for this call)
+- Handle network errors gracefully with try/catch
+- Loading: show a grid of skeleton cards (reuse existing pattern)
+- Empty: centered message with icon
 
 ## Files to Modify
-- `supabase/functions/virtual-tryon/index.ts` — remove upload step, use URL-based FileData
-- SQL migration — allow anonymous uploads to `tryon-images`
+- `src/pages/Collections.tsx`
 
