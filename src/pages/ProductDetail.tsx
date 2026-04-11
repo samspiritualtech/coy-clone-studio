@@ -129,7 +129,7 @@ export default function ProductDetail() {
   const similarProducts = useMemo(() => {
     if (!currentProduct) return [];
     
-    return products.filter(p => 
+    return staticProducts.filter(p => 
       p.id !== currentProduct.id &&
       (p.category === currentProduct.category ||
        (p.price >= currentProduct.price * 0.7 && p.price <= currentProduct.price * 1.3))
@@ -521,7 +521,7 @@ export default function ProductDetail() {
         {/* Similar Products Grid - Myntra Style */}
         <SimilarProductsGrid
           currentProduct={currentProduct}
-          allProducts={products}
+          allProducts={staticProducts}
         />
       </main>
       <Footer />
