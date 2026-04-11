@@ -46,8 +46,52 @@ export default function ProductDetail() {
   const { toggleItem, isInWishlist } = useWishlist();
   const { setShowAddressModal, showAddressModal, selectedAddress, setSelectedAddress } = useLocation();
 
-  // Find the current product
-  const currentProduct = useMemo(() => products.find(p => p.id === id), [id]);
+  // API product state
+  const [apiProduct, setApiProduct] = useState<Product | null>(null);
+  const [isApiLoading, setIsApiLoading] = useState(true);
+
+  // Fetch from external API
+  useEffect(() => {
+    const fetchProduct = async () => {
+      setIsApiLoading(true);
+      try {
+        const res = await fetch("https://pyesltzkemtranachpne.supabase.co/functions/v1/products");
+        if (!res.ok) throw new Error("API error");
+        const data = await res.json();
+        const items = Array.isArray(data) ? data : data?.products ?? data?.data ?? [];
+        const found = items.find((p: any) => String(p.id) === String(id));
+        if (found) {
+          const mapped: Product = {
+            id: String(found.id),
+            name: found.name ?? found.title ?? "Untitled",
+            price: Number(found.price) || 0,
+            originalPrice: found.original_price ? Number(found.original_price) : undefined,
+            images: found.image_url ? [found.image_url] : found.images ?? ["/placeholder.svg"],
+            brand: found.brand ?? found.brand_name ?? "Brand",
+            category: found.category ?? "general",
+            sizes: found.sizes ?? ["S", "M", "L", "XL"],
+            colors: found.colors ?? [{ name: "Default", hex: "#000000" }],
+            inStock: found.in_stock ?? found.is_available ?? true,
+            rating: found.rating ?? 4.2,
+            reviews: found.reviews ?? 0,
+            tags: found.tags ?? found.style_tags ?? [],
+            description: found.description ?? "",
+            colorVariants: found.colorVariants ?? [],
+            occasions: found.occasions ?? [],
+          };
+          setApiProduct(mapped);
+        }
+      } catch (e) {
+        console.error("Failed to fetch product from API:", e);
+      } finally {
+        setIsApiLoading(false);
+      }
+    };
+    fetchProduct();
+  }, [id]);
+
+  // Resolve: API first, static fallback
+  const currentProduct = useMemo(() => apiProduct ?? staticProducts.find(p => p.id === id), [apiProduct, id]);
   
   // Single source of truth: activeVariant controls images and color
   const [activeVariant, setActiveVariant] = useState<ColorVariant | null>(null);
