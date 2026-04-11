@@ -78,7 +78,8 @@ export default function ProductDetail() {
             description: found.description ?? "",
             colorVariants: found.colorVariants ?? [],
             occasions: found.occasions ?? [],
-          };
+            material: found.material ?? found.fabric ?? "",
+          } as Product;
           setApiProduct(mapped);
         }
       } catch (e) {
