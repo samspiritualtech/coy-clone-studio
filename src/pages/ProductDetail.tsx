@@ -19,12 +19,13 @@ import {
   Minus,
   Plus
 } from "lucide-react";
-import { products } from "@/data/products";
+import { products as staticProducts } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { useLocation } from "@/contexts/LocationContext";
 import { toast } from "@/hooks/use-toast";
 import { useState, useMemo, useEffect } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { VirtualTryOnDialog } from "@/components/VirtualTryOnDialog";
 import { RecommendationCarousel } from "@/components/RecommendationCarousel";
 import { SimilarProductsGrid } from "@/components/SimilarProductsGrid";
@@ -45,8 +46,53 @@ export default function ProductDetail() {
   const { toggleItem, isInWishlist } = useWishlist();
   const { setShowAddressModal, showAddressModal, selectedAddress, setSelectedAddress } = useLocation();
 
-  // Find the current product
-  const currentProduct = useMemo(() => products.find(p => p.id === id), [id]);
+  // API product state
+  const [apiProduct, setApiProduct] = useState<Product | null>(null);
+  const [isApiLoading, setIsApiLoading] = useState(true);
+
+  // Fetch from external API
+  useEffect(() => {
+    const fetchProduct = async () => {
+      setIsApiLoading(true);
+      try {
+        const res = await fetch("https://pyesltzkemtranachpne.supabase.co/functions/v1/products");
+        if (!res.ok) throw new Error("API error");
+        const data = await res.json();
+        const items = Array.isArray(data) ? data : data?.products ?? data?.data ?? [];
+        const found = items.find((p: any) => String(p.id) === String(id));
+        if (found) {
+          const mapped: Product = {
+            id: String(found.id),
+            name: found.name ?? found.title ?? "Untitled",
+            price: Number(found.price) || 0,
+            originalPrice: found.original_price ? Number(found.original_price) : undefined,
+            images: found.image_url ? [found.image_url] : found.images ?? ["/placeholder.svg"],
+            brand: found.brand ?? found.brand_name ?? "Brand",
+            category: found.category ?? "general",
+            sizes: found.sizes ?? ["S", "M", "L", "XL"],
+            colors: found.colors ?? [{ name: "Default", hex: "#000000" }],
+            inStock: found.in_stock ?? found.is_available ?? true,
+            rating: found.rating ?? 4.2,
+            reviews: found.reviews ?? 0,
+            tags: found.tags ?? found.style_tags ?? [],
+            description: found.description ?? "",
+            colorVariants: found.colorVariants ?? [],
+            occasions: found.occasions ?? [],
+            material: found.material ?? found.fabric ?? "",
+          } as Product;
+          setApiProduct(mapped);
+        }
+      } catch (e) {
+        console.error("Failed to fetch product from API:", e);
+      } finally {
+        setIsApiLoading(false);
+      }
+    };
+    fetchProduct();
+  }, [id]);
+
+  // Resolve: API first, static fallback
+  const currentProduct = useMemo(() => apiProduct ?? staticProducts.find(p => p.id === id), [apiProduct, id]);
   
   // Single source of truth: activeVariant controls images and color
   const [activeVariant, setActiveVariant] = useState<ColorVariant | null>(null);
@@ -83,7 +129,7 @@ export default function ProductDetail() {
   const similarProducts = useMemo(() => {
     if (!currentProduct) return [];
     
-    return products.filter(p => 
+    return staticProducts.filter(p => 
       p.id !== currentProduct.id &&
       (p.category === currentProduct.category ||
        (p.price >= currentProduct.price * 0.7 && p.price <= currentProduct.price * 1.3))
@@ -98,6 +144,27 @@ export default function ProductDetail() {
   };
 
   const isSelectionComplete = selectedSize !== null;
+
+  if (isApiLoading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1 container mx-auto px-4 py-6 lg:py-10">
+          <div className="grid lg:grid-cols-2 gap-6 lg:gap-12">
+            <Skeleton className="aspect-square w-full rounded-xl" />
+            <div className="space-y-4">
+              <Skeleton className="h-6 w-1/3" />
+              <Skeleton className="h-8 w-2/3" />
+              <Skeleton className="h-6 w-1/4" />
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!currentProduct) {
     return (
@@ -475,7 +542,7 @@ export default function ProductDetail() {
         {/* Similar Products Grid - Myntra Style */}
         <SimilarProductsGrid
           currentProduct={currentProduct}
-          allProducts={products}
+          allProducts={staticProducts}
         />
       </main>
       <Footer />
