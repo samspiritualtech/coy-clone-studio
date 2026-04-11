@@ -19,12 +19,13 @@ import {
   Minus,
   Plus
 } from "lucide-react";
-import { products } from "@/data/products";
+import { products as staticProducts } from "@/data/products";
 import { useCart } from "@/contexts/CartContext";
 import { useWishlist } from "@/contexts/WishlistContext";
 import { useLocation } from "@/contexts/LocationContext";
 import { toast } from "@/hooks/use-toast";
 import { useState, useMemo, useEffect } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { VirtualTryOnDialog } from "@/components/VirtualTryOnDialog";
 import { RecommendationCarousel } from "@/components/RecommendationCarousel";
 import { SimilarProductsGrid } from "@/components/SimilarProductsGrid";
