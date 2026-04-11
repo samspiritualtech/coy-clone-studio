@@ -70,7 +70,7 @@ export default function Collections() {
           price: Number(p.price) || 0,
           originalPrice: p.original_price ? Number(p.original_price) : undefined,
           category: (p.category as Product["category"]) ?? "accessories",
-          images: p.image_url ? [p.image_url] : p.images ?? [],
+          images: p.image_urls ?? (p.image_url ? [p.image_url] : p.images ?? ["/placeholder.svg"]),
           tags: p.tags ?? [],
           sizes: p.sizes ?? [],
           colors: p.colors ?? [],
