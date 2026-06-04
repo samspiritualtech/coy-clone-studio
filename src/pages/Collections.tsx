@@ -10,7 +10,9 @@ import { useWishlist } from "@/contexts/WishlistContext";
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { supabase } from "@/integrations/supabase/client";
 import type { Product } from "@/types";
+
 import {
   Breadcrumb,
   BreadcrumbItem,
