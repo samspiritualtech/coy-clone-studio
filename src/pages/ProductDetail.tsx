@@ -68,6 +68,7 @@ export default function ProductDetail() {
           .eq("id", id)
           .maybeSingle();
         if (error) console.error("[PDP] DB error:", error);
+        console.log("PDP RAW DATA", row);
         console.log("[PDP] DB product row:", row);
 
         if (row) {
