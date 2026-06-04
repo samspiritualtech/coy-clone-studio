@@ -306,6 +306,11 @@ export default function ProductDetail() {
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
       <main className="flex-1 container mx-auto px-4 py-6 lg:py-10">
+        {new URLSearchParams(window.location.search).get("debug") === "1" && (
+          <pre className="text-xs bg-muted p-3 rounded overflow-auto max-h-64 mb-4">
+            {JSON.stringify(currentProduct, null, 2)}
+          </pre>
+        )}
         <div className="grid lg:grid-cols-2 gap-6 lg:gap-12 mb-16">
           {/* Image Gallery - Left Side */}
           <div className="lg:sticky lg:top-24 lg:h-fit">
