@@ -65,7 +65,7 @@ export default function Collections() {
         const { data: dbRows, error: dbErr } = await supabase
           .from("products")
           .select("*")
-          .eq("status", "live")
+          .in("status", ["live", "submitted"])
           .eq("is_available", true);
         if (dbErr) console.error("DB products fetch error:", dbErr);
         console.log("[Collections] DB products:", dbRows?.length ?? 0, dbRows);
