@@ -26,6 +26,7 @@ import { useLocation } from "@/contexts/LocationContext";
 import { toast } from "@/hooks/use-toast";
 import { useState, useMemo, useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { supabase } from "@/integrations/supabase/client";
 import { VirtualTryOnDialog } from "@/components/VirtualTryOnDialog";
 import { RecommendationCarousel } from "@/components/RecommendationCarousel";
 import { SimilarProductsGrid } from "@/components/SimilarProductsGrid";
