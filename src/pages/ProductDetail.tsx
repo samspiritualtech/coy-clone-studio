@@ -93,6 +93,7 @@ export default function ProductDetail() {
             colorVariants: [],
             occasions: (row as any).occasion_tags ?? [],
             material: (row as any).material ?? (row as any).fabric ?? "",
+            status: (row as any).status,
           } as Product;
           console.log("[PDP] mapped description:", mapped.description);
           setApiProduct(mapped);
