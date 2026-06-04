@@ -10,7 +10,9 @@ import { useWishlist } from "@/contexts/WishlistContext";
 import { OptimizedImage } from "@/components/OptimizedImage";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { supabase } from "@/integrations/supabase/client";
 import type { Product } from "@/types";
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -59,37 +61,74 @@ export default function Collections() {
     const fetchProducts = async () => {
       setIsLoading(true);
       try {
-        const res = await fetch(EXTERNAL_API_URL);
-        if (!res.ok) throw new Error(`API error: ${res.status}`);
-        const data = await res.json();
-        const items = Array.isArray(data) ? data : data?.products ?? data?.data ?? [];
-        const mapped: Product[] = items.map((p: any, i: number) => ({
-          id: p.id ?? `api-${i}`,
-          name: p.name ?? p.title ?? "Untitled",
-          brand: p.brand ?? "External",
+        // 1) Fetch live seller products from our Lovable Cloud DB
+        const { data: dbRows, error: dbErr } = await supabase
+          .from("products")
+          .select("*")
+          .eq("status", "live")
+          .eq("is_available", true);
+        if (dbErr) console.error("DB products fetch error:", dbErr);
+        console.log("[Collections] DB products:", dbRows?.length ?? 0, dbRows);
+
+        const dbMapped: Product[] = (dbRows ?? []).map((p: any) => ({
+          id: String(p.id),
+          name: p.title ?? "Untitled",
+          brand: p.brand ?? "Ogura",
           price: Number(p.price) || 0,
           originalPrice: p.original_price ? Number(p.original_price) : undefined,
           category: (p.category as Product["category"]) ?? "accessories",
-          images: p.image_urls ?? (p.image_url ? [p.image_url] : p.images ?? ["/placeholder.svg"]),
-          tags: p.tags ?? [],
+          images: (Array.isArray(p.images) && p.images.length ? p.images : ["/placeholder.svg"]) as string[],
+          tags: p.style_tags ?? [],
           sizes: p.sizes ?? [],
           colors: p.colors ?? [],
           rating: 0,
           reviews: 0,
-          inStock: true,
+          inStock: p.is_available ?? true,
           description: p.description ?? "",
-          material: p.material ?? "",
-          occasions: [],
+          material: p.material ?? p.fabric ?? "",
+          occasions: p.occasion_tags ?? [],
         }));
-        setApiProducts(mapped);
-      } catch (err) {
-        console.error("Failed to fetch external products:", err);
+
+        // 2) Also fetch external API as legacy source
+        let apiMapped: Product[] = [];
+        try {
+          const res = await fetch(EXTERNAL_API_URL);
+          if (res.ok) {
+            const data = await res.json();
+            const items = Array.isArray(data) ? data : data?.products ?? data?.data ?? [];
+            apiMapped = items.map((p: any, i: number) => ({
+              id: p.id ?? `api-${i}`,
+              name: p.name ?? p.title ?? "Untitled",
+              brand: p.brand ?? "External",
+              price: Number(p.price) || 0,
+              originalPrice: p.original_price ? Number(p.original_price) : undefined,
+              category: (p.category as Product["category"]) ?? "accessories",
+              images: p.image_urls ?? (p.image_url ? [p.image_url] : p.images ?? ["/placeholder.svg"]),
+              tags: p.tags ?? [],
+              sizes: p.sizes ?? [],
+              colors: p.colors ?? [],
+              rating: 0,
+              reviews: 0,
+              inStock: true,
+              description: p.description ?? "",
+              material: p.material ?? "",
+              occasions: [],
+            }));
+          }
+        } catch (err) {
+          console.error("Failed to fetch external products:", err);
+        }
+
+        // Local DB items take precedence on duplicate ids
+        const dbIds = new Set(dbMapped.map((p) => p.id));
+        setApiProducts([...dbMapped, ...apiMapped.filter((p) => !dbIds.has(p.id))]);
       } finally {
         setIsLoading(false);
       }
     };
     fetchProducts();
   }, []);
+
 
   const categoryParam = searchParams.get("category");
   const subcategoryParam = searchParams.get("subcategory");
