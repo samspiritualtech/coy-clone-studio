@@ -18,7 +18,7 @@ export const ProductDetailsAccordion = ({ product }: ProductDetailsAccordionProp
           Product Description
         </AccordionTrigger>
         <AccordionContent className="text-sm text-muted-foreground leading-relaxed pb-4">
-          {product.description || "No description available."}
+          {product.description?.trim() ? product.description : "No description available."}
         </AccordionContent>
       </AccordionItem>
 
