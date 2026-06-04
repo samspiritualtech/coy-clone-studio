@@ -46,15 +46,59 @@ export default function ProductDetail() {
   const { toggleItem, isInWishlist } = useWishlist();
   const { setShowAddressModal, showAddressModal, selectedAddress, setSelectedAddress } = useLocation();
 
-  // API product state
+  // Product fetch state
   const [apiProduct, setApiProduct] = useState<Product | null>(null);
   const [isApiLoading, setIsApiLoading] = useState(true);
 
-  // Fetch from external API
+  // Fetch from local Lovable Cloud DB first, fall back to external API
   useEffect(() => {
     const fetchProduct = async () => {
+      if (!id) {
+        setIsApiLoading(false);
+        return;
+      }
       setIsApiLoading(true);
+
       try {
+        // 1) Try local DB (where seller-portal products live)
+        const { data: row, error } = await supabase
+          .from("products")
+          .select("*")
+          .eq("id", id)
+          .maybeSingle();
+        if (error) console.error("[PDP] DB error:", error);
+        console.log("[PDP] DB product row:", row);
+
+        if (row) {
+          const mapped: Product = {
+            id: String(row.id),
+            name: (row as any).title ?? "Untitled",
+            price: Number((row as any).price) || 0,
+            originalPrice: (row as any).original_price ? Number((row as any).original_price) : undefined,
+            images:
+              Array.isArray((row as any).images) && (row as any).images.length
+                ? ((row as any).images as string[])
+                : ["/placeholder.svg"],
+            brand: (row as any).brand ?? "Ogura",
+            category: (row as any).category ?? "general",
+            sizes: (row as any).sizes ?? ["S", "M", "L", "XL"],
+            colors: (row as any).colors ?? [{ name: "Default", hex: "#000000" }],
+            inStock: (row as any).is_available ?? true,
+            rating: 4.2,
+            reviews: 0,
+            tags: (row as any).style_tags ?? [],
+            description: (row as any).description ?? "",
+            colorVariants: [],
+            occasions: (row as any).occasion_tags ?? [],
+            material: (row as any).material ?? (row as any).fabric ?? "",
+          } as Product;
+          console.log("[PDP] mapped description:", mapped.description);
+          setApiProduct(mapped);
+          setIsApiLoading(false);
+          return;
+        }
+
+        // 2) Fallback: external API
         const res = await fetch("https://pyesltzkemtranachpne.supabase.co/functions/v1/products");
         if (!res.ok) throw new Error("API error");
         const data = await res.json();
@@ -83,13 +127,14 @@ export default function ProductDetail() {
           setApiProduct(mapped);
         }
       } catch (e) {
-        console.error("Failed to fetch product from API:", e);
+        console.error("Failed to fetch product:", e);
       } finally {
         setIsApiLoading(false);
       }
     };
     fetchProduct();
   }, [id]);
+
 
   // Resolve: API first, static fallback
   const currentProduct = useMemo(() => apiProduct ?? staticProducts.find(p => p.id === id), [apiProduct, id]);
