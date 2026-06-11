@@ -1,4 +1,6 @@
 import { Link } from "react-router-dom";
+import { Tilt3D } from "@/components/luxury3d/Tilt3D";
+
 
 const brands = [
   {
