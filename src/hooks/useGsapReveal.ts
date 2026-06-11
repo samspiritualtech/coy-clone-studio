@@ -13,6 +13,7 @@ interface Options {
   duration?: number;
   start?: string;
   clip?: boolean;
+  blur?: boolean;
 }
 
 /** GSAP scroll-triggered reveal for children matching selector inside ref. */
@@ -20,11 +21,12 @@ export const useGsapReveal = <T extends HTMLElement = HTMLElement>(
   ref: RefObject<T>,
   {
     selector = "[data-reveal]",
-    y = 36,
-    stagger = 0.08,
-    duration = 1.0,
+    y = 60,
+    stagger = 0.14,
+    duration = 1.2,
     start = "top 85%",
     clip = true,
+    blur = true,
   }: Options = {}
 ) => {
   useEffect(() => {
@@ -40,12 +42,14 @@ export const useGsapReveal = <T extends HTMLElement = HTMLElement>(
       gsap.set(targets, {
         opacity: 0,
         y,
-        ...(clip ? { clipPath: "inset(8% 0% 8% 0%)" } : {}),
+        ...(clip ? { clipPath: "inset(10% 0% 10% 0%)" } : {}),
+        ...(blur ? { filter: "blur(12px)" } : {}),
       });
       gsap.to(targets, {
         opacity: 1,
         y: 0,
         ...(clip ? { clipPath: "inset(0% 0% 0% 0%)" } : {}),
+        ...(blur ? { filter: "blur(0px)" } : {}),
         duration,
         ease: "expo.out",
         stagger,
@@ -58,5 +62,5 @@ export const useGsapReveal = <T extends HTMLElement = HTMLElement>(
     }, el);
 
     return () => ctx.revert();
-  }, [ref, selector, y, stagger, duration, start, clip]);
+  }, [ref, selector, y, stagger, duration, start, clip, blur]);
 };
