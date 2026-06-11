@@ -4,123 +4,99 @@ import { Tilt3D } from "@/components/luxury3d/Tilt3D";
 import { ParallaxLayer } from "@/components/luxury3d/ParallaxLayer";
 import { useGsapReveal } from "@/hooks/useGsapReveal";
 
-
 const brands = [
-  {
-    name: "Chanderi Shine",
-    image: "https://images.unsplash.com/photo-1583391265196-53c5e5e92b0d?w=600&q=80",
-    slug: "chanderi-shine",
-  },
-  {
-    name: "Insta Loved",
-    image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=600&q=80",
-    slug: "insta-loved",
-  },
-  {
-    name: "Indie Vogue",
-    image: "https://images.unsplash.com/photo-1544022613-e87ca75a784a?w=600&q=80",
-    slug: "indie-vogue",
-  },
-  {
-    name: "Urban Loom",
-    image: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=600&q=80",
-    slug: "urban-loom",
-  },
-  {
-    name: "Saree Society",
-    image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=600&q=80",
-    slug: "saree-society",
-  },
-  {
-    name: "Velvet Threads",
-    image: "https://images.unsplash.com/photo-1611652022419-a9419f74343d?w=600&q=80",
-    slug: "velvet-threads",
-  },
+  { name: "Chanderi Shine", image: "https://images.unsplash.com/photo-1583391265196-53c5e5e92b0d?w=600&q=80", slug: "chanderi-shine" },
+  { name: "Insta Loved", image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=600&q=80", slug: "insta-loved" },
+  { name: "Indie Vogue", image: "https://images.unsplash.com/photo-1544022613-e87ca75a784a?w=600&q=80", slug: "indie-vogue" },
+  { name: "Urban Loom", image: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=600&q=80", slug: "urban-loom" },
+  { name: "Saree Society", image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=600&q=80", slug: "saree-society" },
+  { name: "Velvet Threads", image: "https://images.unsplash.com/photo-1611652022419-a9419f74343d?w=600&q=80", slug: "velvet-threads" },
 ];
 
 export const HiddenGemsSection = () => {
   const sectionRef = useRef<HTMLElement>(null);
-  useGsapReveal(sectionRef, { selector: "[data-reveal]", stagger: 0.1 });
+  useGsapReveal(sectionRef, { selector: "[data-reveal]", stagger: 0.14, y: 60 });
 
   return (
     <section
       ref={sectionRef}
-      className="relative py-12 md:py-20 px-4 md:px-8 lg:px-16 overflow-hidden isolate"
-      style={{ backgroundColor: "#2A0A14" }}
+      className="relative py-24 md:py-36 px-4 md:px-8 lg:px-16 overflow-hidden isolate"
     >
-      {/* Cinematic overlays */}
-      <div className="luxury-vignette" aria-hidden />
-      <div className="luxury-grain" aria-hidden />
-
-      {/* Section Header */}
-      <div className="relative z-10 text-center mb-10 md:mb-14">
-        <p data-reveal className="luxury-eyebrow-gold text-xs md:text-sm mb-4 justify-center">
-          Instagram Brands
+      {/* Section Header — museum gallery treatment */}
+      <div className="relative z-10 max-w-7xl mx-auto mb-16 md:mb-20">
+        <p data-reveal className="museum-eyebrow mb-7">
+          Gallery 01 — Hidden Gems
         </p>
-        <h2 data-reveal className="text-white text-3xl md:text-5xl font-serif font-light tracking-wide">
-          Hidden Gems
+        <h2 data-reveal className="museum-display max-w-4xl">
+          Pieces that <em>find you</em>
         </h2>
+        <p data-reveal className="museum-lede mt-7">
+          Niche, homegrown labels discovered from Instagram creators. Rare finds float in their own light — move closer, the spotlight follows.
+        </p>
       </div>
-
 
       {/* Split Layout */}
       <div className="relative z-10 max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 lg:gap-12">
         {/* Left - Large Banner */}
-        <Tilt3D className="lg:w-1/2" max={4} scale={1.01} style={{ opacity: 0 }}>
+        <Tilt3D className="lg:w-1/2" max={6} scale={1.015} style={{ opacity: 0 }}>
           <div data-reveal>
-          <Link to="/collections?category=instagram" className="relative rounded-2xl overflow-hidden group block luxury-depth luxury-spotlight luxury-hairline-gold">
-            <div style={{ aspectRatio: "3/4" }} className="relative overflow-hidden">
-              <ParallaxLayer speed={40} className="absolute inset-0">
-                <img
-                  src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=900&q=80"
-                  alt="Hidden Gems Collection"
-                  className="w-full h-full object-cover scale-110 transition-transform duration-700 group-hover:scale-[1.18]"
-                />
-              </ParallaxLayer>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 z-10">
-                <h3 className="text-white text-4xl md:text-5xl font-serif font-light tracking-wide mb-3">
-                  HIDDEN GEMS
-                </h3>
-                <p className="text-white/80 text-sm md:text-base font-light max-w-sm leading-relaxed mb-5">
-                  Niche, homegrown labels discovered from Instagram creators.
-                </p>
-                <span className="luxury-cta-glass luxury-sweep">
-                  Explore Instagram
-                </span>
+            <Link
+              to="/collections?category=instagram"
+              className="relative block museum-card museum-spotlight overflow-hidden"
+            >
+              <div style={{ aspectRatio: "3/4" }} className="relative overflow-hidden">
+                <ParallaxLayer speed={100} className="absolute inset-0">
+                  <img
+                    src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=900&q=80"
+                    alt="Hidden Gems Collection"
+                    className="w-full h-full object-cover scale-110 transition-transform duration-[1200ms] group-hover:scale-[1.18]"
+                  />
+                </ParallaxLayer>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-[2]" />
+                <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 z-10">
+                  <p className="museum-eyebrow text-[10px] mb-4">Featured</p>
+                  <h3 className="museum-display-sm mb-4">
+                    Hidden <em>Gems</em>
+                  </h3>
+                  <p className="museum-lede mb-6 text-[13px]">
+                    Niche, homegrown labels discovered from Instagram creators.
+                  </p>
+                  <div className="museum-meta mb-6">
+                    <div>
+                      <span className="k">Now showing</span>
+                      24 curated objects
+                    </div>
+                  </div>
+                  <span className="museum-cta">Explore Instagram</span>
+                </div>
               </div>
-            </div>
-          </Link>
+            </Link>
           </div>
         </Tilt3D>
-
-
 
         {/* Right - Brand Cards Grid */}
         <div className="lg:w-1/2 grid grid-cols-2 gap-4 md:gap-6 content-start">
           {brands.map((brand) => (
-            <Tilt3D key={brand.slug} max={8} scale={1.02} style={{ opacity: 0 }}>
+            <Tilt3D key={brand.slug} max={9} scale={1.03} style={{ opacity: 0 }}>
               <div data-reveal>
-              <Link
-                to={`/collections?brand=${brand.slug}`}
-                className="group block luxury-spotlight rounded-xl overflow-hidden luxury-depth luxury-hairline-gold hover:luxury-float-idle"
-              >
-                <div className="rounded-xl overflow-hidden">
+                <Link
+                  to={`/collections?brand=${brand.slug}`}
+                  className="group block museum-card museum-spotlight"
+                >
                   <div className="aspect-[3/4] overflow-hidden">
                     <img
                       src={brand.image}
                       alt={brand.name}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      className="w-full h-full object-cover transition-transform duration-[1200ms] group-hover:scale-110"
                       loading="lazy"
                     />
                   </div>
-                  <div className="py-3 px-4 luxury-glass" style={{ backgroundColor: "rgba(58,26,36,0.85)" }}>
-                    <p className="text-white/90 text-sm md:text-base font-serif tracking-wide text-center">
+                  <div className="px-4 py-4 border-t border-[rgba(233,212,163,0.18)]">
+                    <p className="text-[11px] tracking-[0.32em] uppercase text-[#c9a56b] italic font-serif text-center">
                       {brand.name}
                     </p>
                   </div>
-                </div>
-              </Link>
+                </Link>
               </div>
             </Tilt3D>
           ))}
