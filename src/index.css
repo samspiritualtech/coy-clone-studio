@@ -379,6 +379,14 @@ All colors MUST be HSL.
     isolation: isolate;
   }
   .museum-surface * { border-color: rgba(233, 212, 163, 0.12); }
+  /* Neutralize light section backgrounds inside the museum band */
+  .museum-surface .bg-background,
+  .museum-surface .bg-secondary\/30,
+  .museum-surface .bg-secondary,
+  .museum-surface .bg-muted,
+  .museum-surface .bg-white { background-color: transparent !important; }
+  .museum-surface .text-foreground { color: var(--museum-ivory) !important; }
+  .museum-surface .text-muted-foreground { color: rgba(244, 239, 230, 0.6) !important; }
 
   .museum-gold-glow {
     position: absolute; inset: 0; pointer-events: none; z-index: 0;
