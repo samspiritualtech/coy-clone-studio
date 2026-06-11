@@ -358,3 +358,213 @@ All colors MUST be HSL.
     box-shadow: 0 10px 40px -10px rgba(201, 165, 107, 0.45);
   }
 }
+
+/* ============================================================
+   OGURA MUSEUM AESTHETIC LAYER
+   Atelier of Light — cinematic dark band with gold accents.
+   Utility-scoped vars (do not affect semantic tokens / dark mode).
+   ============================================================ */
+@layer utilities {
+  .museum-surface {
+    --museum-bg: #08070a;
+    --museum-espresso: #15110d;
+    --museum-gold: #c9a56b;
+    --museum-gold-bright: #e9d4a3;
+    --museum-ivory: #f4efe6;
+    --museum-glass: rgba(244, 239, 230, 0.04);
+    --museum-glass-line: rgba(233, 212, 163, 0.18);
+    background: radial-gradient(140% 90% at 50% 0%, #1a1410 0%, #0c0a08 55%, #08070a 100%);
+    color: var(--museum-ivory);
+    position: relative;
+    isolation: isolate;
+  }
+  .museum-surface * { border-color: rgba(233, 212, 163, 0.12); }
+
+  .museum-gold-glow {
+    position: absolute; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(60% 40% at 15% 10%, rgba(201, 165, 107, 0.18), transparent 60%),
+      radial-gradient(50% 35% at 85% 30%, rgba(233, 212, 163, 0.10), transparent 60%),
+      radial-gradient(70% 50% at 50% 100%, rgba(201, 165, 107, 0.12), transparent 60%);
+    mix-blend-mode: screen;
+  }
+
+  .museum-vignette-strong {
+    position: absolute; inset: 0; pointer-events: none; z-index: 1;
+    background: radial-gradient(120% 90% at 50% 40%, transparent 35%, rgba(0,0,0,0.78) 100%);
+    mix-blend-mode: multiply;
+  }
+
+  .museum-grain-strong {
+    position: absolute; inset: -10%; pointer-events: none; z-index: 2; opacity: 0.10;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.92' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    animation: lux-grain 6s steps(6) infinite;
+    mix-blend-mode: overlay;
+  }
+  @media (prefers-reduced-motion: reduce) { .museum-grain-strong { animation: none; } }
+
+  .museum-eyebrow {
+    font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: var(--museum-gold, #c9a56b);
+    font-size: 11px;
+    display: inline-flex; align-items: center; gap: 14px;
+  }
+  .museum-eyebrow::before,
+  .museum-eyebrow::after {
+    content: ""; width: 36px; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(201, 165, 107, 0.8), transparent);
+  }
+
+  .museum-display {
+    font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+    font-weight: 300;
+    line-height: 0.96;
+    letter-spacing: -0.01em;
+    color: var(--museum-ivory, #f4efe6);
+    font-size: clamp(40px, 6.4vw, 96px);
+  }
+  .museum-display em,
+  .museum-display .accent {
+    font-style: italic;
+    color: var(--museum-gold-bright, #e9d4a3);
+  }
+  .museum-display-sm {
+    font-family: 'Cormorant Garamond', 'Times New Roman', serif;
+    font-weight: 300;
+    line-height: 0.98;
+    letter-spacing: -0.005em;
+    color: var(--museum-ivory, #f4efe6);
+    font-size: clamp(26px, 3.4vw, 48px);
+  }
+  .museum-display-sm em { font-style: italic; color: var(--museum-gold-bright, #e9d4a3); }
+
+  .museum-lede {
+    font-family: 'Manrope', system-ui, sans-serif;
+    font-weight: 300;
+    color: rgba(244, 239, 230, 0.66);
+    font-size: clamp(14px, 1.05vw, 17px);
+    line-height: 1.7;
+    max-width: 42ch;
+  }
+
+  .museum-glass {
+    background: var(--museum-glass, rgba(244, 239, 230, 0.04));
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border: 1px solid var(--museum-glass-line, rgba(233, 212, 163, 0.18));
+    box-shadow:
+      0 24px 60px -30px rgba(0, 0, 0, 0.9),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    border-radius: 18px;
+  }
+  @media (max-width: 768px) {
+    .museum-glass { backdrop-filter: blur(8px) saturate(130%); -webkit-backdrop-filter: blur(8px) saturate(130%); }
+    .museum-grain-strong { opacity: 0.06; }
+  }
+
+  .museum-card {
+    position: relative;
+    background: var(--museum-glass, rgba(244, 239, 230, 0.04));
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    border: 1px solid var(--museum-glass-line, rgba(233, 212, 163, 0.18));
+    border-radius: 18px;
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.04) inset,
+      0 24px 60px -30px rgba(0, 0, 0, 0.95),
+      0 50px 90px -40px rgba(201, 165, 107, 0.18);
+    transition: transform 600ms cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 500ms cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 600ms cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .museum-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(233, 212, 163, 0.55);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.06) inset,
+      0 30px 70px -25px rgba(0, 0, 0, 0.95),
+      0 60px 110px -35px rgba(201, 165, 107, 0.35);
+  }
+
+  .museum-hairline-gold {
+    border: 1px solid rgba(201, 165, 107, 0.34);
+    box-shadow: inset 0 0 0 1px rgba(233, 212, 163, 0.10);
+  }
+
+  .museum-spotlight { position: relative; isolation: isolate; }
+  .museum-spotlight::before {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+    background: radial-gradient(700px circle at var(--mx, 50%) var(--my, 50%),
+      rgba(233, 212, 163, 0.22), rgba(201, 165, 107, 0.08) 30%, transparent 60%);
+    opacity: 0.45; transition: opacity 600ms ease; z-index: 3;
+    mix-blend-mode: screen;
+  }
+  .museum-spotlight:hover::before { opacity: 1; }
+
+  .museum-cta {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 16px 40px; border-radius: 999px;
+    color: var(--museum-ivory, #f4efe6);
+    background: var(--museum-glass, rgba(244, 239, 230, 0.04));
+    border: 1px solid var(--museum-glass-line, rgba(233, 212, 163, 0.18));
+    backdrop-filter: blur(14px) saturate(150%);
+    -webkit-backdrop-filter: blur(14px) saturate(150%);
+    text-transform: uppercase;
+    letter-spacing: 0.32em;
+    font-size: 11px;
+    font-family: 'Manrope', system-ui, sans-serif;
+    font-weight: 400;
+    transition: all 500ms cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative; overflow: hidden;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .museum-cta:hover {
+    border-color: var(--museum-gold, #c9a56b);
+    color: var(--museum-gold-bright, #e9d4a3);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px -10px rgba(201, 165, 107, 0.55);
+  }
+
+  .museum-meta {
+    display: flex; gap: 36px; flex-wrap: wrap;
+    font-family: 'Manrope', system-ui, sans-serif;
+  }
+  .museum-meta > div { font-size: 13px; letter-spacing: 0.04em; color: var(--museum-ivory, #f4efe6); }
+  .museum-meta .k {
+    display: block;
+    color: var(--museum-gold, #c9a56b);
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    font-style: italic;
+    font-family: 'Cormorant Garamond', serif;
+  }
+
+  .museum-rule {
+    display: block; height: 1px; width: 96px;
+    background: linear-gradient(90deg, transparent, rgba(201, 165, 107, 0.9), transparent);
+  }
+
+  /* Orbital ring decoration for Brands ("Houses in orbit") */
+  .museum-orbit {
+    position: absolute; inset: 0; pointer-events: none; z-index: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .museum-orbit::before,
+  .museum-orbit::after {
+    content: ""; position: absolute;
+    border: 1px solid rgba(201, 165, 107, 0.14);
+    border-radius: 50%;
+  }
+  .museum-orbit::before { width: 70vmin; height: 70vmin; }
+  .museum-orbit::after  { width: 110vmin; height: 110vmin; border-color: rgba(201, 165, 107, 0.08); }
+}
+
