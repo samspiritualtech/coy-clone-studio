@@ -53,14 +53,15 @@ export const HiddenGemsSection = () => {
       <div className="luxury-grain" aria-hidden />
 
       {/* Section Header */}
-      <div className="text-center mb-10 md:mb-14">
-        <p className="text-[#C9A96E] text-xs md:text-sm uppercase tracking-[0.3em] mb-3 font-light">
+      <div className="relative z-10 text-center mb-10 md:mb-14">
+        <p data-reveal className="luxury-eyebrow-gold text-xs md:text-sm mb-4 justify-center">
           Instagram Brands
         </p>
-        <h2 className="text-white text-3xl md:text-5xl font-serif font-light tracking-wide">
+        <h2 data-reveal className="text-white text-3xl md:text-5xl font-serif font-light tracking-wide">
           Hidden Gems
         </h2>
       </div>
+
 
       {/* Split Layout */}
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 lg:gap-12">
