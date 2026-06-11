@@ -1,8 +1,8 @@
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useRef, MouseEvent } from "react";
-
+import { ParallaxLayer } from "@/components/luxury3d/ParallaxLayer";
+import { useGsapReveal } from "@/hooks/useGsapReveal";
 
 interface FullWidthImageSectionProps {
   backgroundImage: string;
@@ -40,8 +40,8 @@ export const FullWidthImageSection = ({
 
   const overlayClasses = {
     light: "from-black/30 via-black/20 to-black/10",
-    medium: "from-black/50 via-black/30 to-black/20",
-    dark: "from-black/60 via-black/40 to-black/30",
+    medium: "from-black/55 via-black/30 to-black/20",
+    dark: "from-black/70 via-black/45 to-black/30",
   };
 
   const alignClasses = {
@@ -50,6 +50,8 @@ export const FullWidthImageSection = ({
   };
 
   const sectionRef = useRef<HTMLElement>(null);
+  useGsapReveal(sectionRef, { selector: "[data-reveal]", stagger: 0.12, y: 30 });
+
   const onMove = (e: MouseEvent<HTMLElement>) => {
     const el = sectionRef.current;
     if (!el) return;
@@ -63,39 +65,43 @@ export const FullWidthImageSection = ({
       ref={sectionRef}
       onMouseMove={onMove}
       className={cn(
-        "relative w-full overflow-hidden group luxury-spotlight",
+        "relative w-full overflow-hidden group luxury-spotlight isolate",
         heightClasses[height],
         className
       )}
     >
-      {/* Background Image with subtle parallax depth */}
-      <div
-        className={cn(
-          "absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-[8000ms] ease-out",
-          enableZoom && "group-hover:scale-[1.06]"
-        )}
-        style={{ backgroundImage: `url(${backgroundImage})` }}
-      />
+      {/* Parallax background image */}
+      <ParallaxLayer speed={50} className="absolute inset-0">
+        <div
+          className={cn(
+            "absolute inset-0 bg-cover bg-center bg-no-repeat scale-110 transition-transform duration-[8000ms] ease-out",
+            enableZoom && "group-hover:scale-[1.18]"
+          )}
+          style={{ backgroundImage: `url(${backgroundImage})` }}
+        />
+      </ParallaxLayer>
 
-      {/* Premium cinematic light overlay — follows cursor */}
+      {/* Cinematic gold spotlight following cursor */}
       <div
         aria-hidden
         className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-[1]"
         style={{
           background:
-            "radial-gradient(700px circle at var(--mx,50%) var(--my,50%), rgba(255,255,255,0.12), transparent 55%)",
+            "radial-gradient(700px circle at var(--mx,50%) var(--my,50%), rgba(233,212,163,0.18), rgba(255,255,255,0.05) 30%, transparent 60%)",
           mixBlendMode: "screen",
         }}
       />
 
+      {/* Vignette */}
+      <div className="luxury-vignette" aria-hidden />
+
       {/* Gradient Overlay */}
       <div
         className={cn(
-          "absolute inset-0 bg-gradient-to-t",
+          "absolute inset-0 bg-gradient-to-t z-[1]",
           overlayClasses[overlayOpacity]
         )}
       />
-
 
       {/* Content */}
       <div
@@ -105,32 +111,31 @@ export const FullWidthImageSection = ({
         )}
       >
         {label && (
-          <span className="text-white/80 text-xs md:text-sm uppercase tracking-[0.3em] mb-4 animate-fade-in">
+          <span data-reveal className="luxury-eyebrow-gold text-[10px] md:text-xs mb-5">
             {label}
           </span>
         )}
-        
-        <h2 className="text-white text-4xl md:text-6xl lg:text-7xl font-light uppercase tracking-[0.2em] mb-4 animate-fade-in">
+
+        <h2
+          data-reveal
+          className="text-white text-4xl md:text-6xl lg:text-7xl font-light uppercase tracking-[0.2em] mb-4"
+          style={{ fontFamily: "'Cormorant Garamond', serif", letterSpacing: "0.18em" }}
+        >
           {title}
         </h2>
-        
+
         {subtitle && (
-          <p className="text-white/90 text-sm md:text-lg font-light tracking-wide max-w-md mb-8 animate-fade-in" style={{ animationDelay: "0.1s" }}>
+          <p data-reveal className="text-white/90 text-sm md:text-lg font-light tracking-wide max-w-md mb-8">
             {subtitle}
           </p>
         )}
-        
+
         {ctaText && (
-          <Link to={ctaLink}>
-            <Button
-              variant="outline"
-              size="lg"
-              className="border-white/80 bg-transparent text-white hover:bg-white hover:text-black transition-all duration-300 tracking-widest uppercase text-sm animate-fade-in"
-              style={{ animationDelay: "0.2s" }}
-            >
+          <div data-reveal>
+            <Link to={ctaLink} className="luxury-cta-glass luxury-sweep">
               {ctaText}
-            </Button>
-          </Link>
+            </Link>
+          </div>
         )}
       </div>
     </section>
