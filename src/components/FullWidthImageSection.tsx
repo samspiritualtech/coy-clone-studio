@@ -39,9 +39,9 @@ export const FullWidthImageSection = ({
   };
 
   const overlayClasses = {
-    light: "from-black/30 via-black/20 to-black/10",
-    medium: "from-black/55 via-black/30 to-black/20",
-    dark: "from-black/70 via-black/45 to-black/30",
+    light: "from-black/60 via-black/35 to-black/20",
+    medium: "from-black/80 via-black/45 to-black/25",
+    dark: "from-black/90 via-black/60 to-black/35",
   };
 
   const alignClasses = {
@@ -50,7 +50,7 @@ export const FullWidthImageSection = ({
   };
 
   const sectionRef = useRef<HTMLElement>(null);
-  useGsapReveal(sectionRef, { selector: "[data-reveal]", stagger: 0.12, y: 30 });
+  useGsapReveal(sectionRef, { selector: "[data-reveal]", stagger: 0.16, y: 70 });
 
   const onMove = (e: MouseEvent<HTMLElement>) => {
     const el = sectionRef.current;
@@ -65,42 +65,35 @@ export const FullWidthImageSection = ({
       ref={sectionRef}
       onMouseMove={onMove}
       className={cn(
-        "relative w-full overflow-hidden group luxury-spotlight isolate",
+        "relative w-full overflow-hidden group museum-spotlight isolate",
         heightClasses[height],
         className
       )}
     >
       {/* Parallax background image */}
-      <ParallaxLayer speed={50} className="absolute inset-0">
+      <ParallaxLayer speed={120} className="absolute inset-0">
         <div
           className={cn(
-            "absolute inset-0 bg-cover bg-center bg-no-repeat scale-110 transition-transform duration-[8000ms] ease-out",
-            enableZoom && "group-hover:scale-[1.18]"
+            "absolute inset-0 bg-cover bg-center bg-no-repeat scale-125 transition-transform duration-[8000ms] ease-out",
+            enableZoom && "group-hover:scale-[1.32]"
           )}
           style={{ backgroundImage: `url(${backgroundImage})` }}
         />
       </ParallaxLayer>
 
-      {/* Cinematic gold spotlight following cursor */}
-      <div
-        aria-hidden
-        className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-[1]"
-        style={{
-          background:
-            "radial-gradient(700px circle at var(--mx,50%) var(--my,50%), rgba(233,212,163,0.18), rgba(255,255,255,0.05) 30%, transparent 60%)",
-          mixBlendMode: "screen",
-        }}
-      />
-
-      {/* Vignette */}
-      <div className="luxury-vignette" aria-hidden />
-
       {/* Gradient Overlay */}
       <div
         className={cn(
-          "absolute inset-0 bg-gradient-to-t z-[1]",
+          "absolute inset-0 bg-gradient-to-t z-[2]",
           overlayClasses[overlayOpacity]
         )}
+      />
+
+      {/* Vignette + grain (cinematic) */}
+      <div
+        aria-hidden
+        className="absolute inset-0 z-[2] pointer-events-none"
+        style={{ background: "radial-gradient(120% 90% at 50% 40%, transparent 35%, rgba(0,0,0,0.7) 100%)", mixBlendMode: "multiply" }}
       />
 
       {/* Content */}
@@ -111,28 +104,24 @@ export const FullWidthImageSection = ({
         )}
       >
         {label && (
-          <span data-reveal className="luxury-eyebrow-gold text-[10px] md:text-xs mb-5">
+          <span data-reveal className="museum-eyebrow mb-6">
             {label}
           </span>
         )}
 
-        <h2
-          data-reveal
-          className="text-white text-4xl md:text-6xl lg:text-7xl font-light uppercase tracking-[0.2em] mb-4"
-          style={{ fontFamily: "'Cormorant Garamond', serif", letterSpacing: "0.18em" }}
-        >
-          {title}
+        <h2 data-reveal className="museum-display max-w-4xl mb-6">
+          <em>{title}</em>
         </h2>
 
         {subtitle && (
-          <p data-reveal className="text-white/90 text-sm md:text-lg font-light tracking-wide max-w-md mb-8">
+          <p data-reveal className="museum-lede mb-8">
             {subtitle}
           </p>
         )}
 
         {ctaText && (
           <div data-reveal>
-            <Link to={ctaLink} className="luxury-cta-glass luxury-sweep">
+            <Link to={ctaLink} className="museum-cta">
               {ctaText}
             </Link>
           </div>
