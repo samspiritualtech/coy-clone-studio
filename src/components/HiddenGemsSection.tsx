@@ -79,27 +79,28 @@ export const HiddenGemsSection = () => {
         {/* Right - Brand Cards Grid */}
         <div className="lg:w-1/2 grid grid-cols-2 gap-4 md:gap-6 content-start">
           {brands.map((brand) => (
-            <Link
-              key={brand.slug}
-              to={`/collections?brand=${brand.slug}`}
-              className="group block"
-            >
-              <div className="rounded-xl overflow-hidden shadow-lg shadow-black/30 transition-all duration-500 hover:shadow-xl hover:shadow-black/40 hover:-translate-y-1">
-                <div className="aspect-[3/4] overflow-hidden">
-                  <img
-                    src={brand.image}
-                    alt={brand.name}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    loading="lazy"
-                  />
+            <Tilt3D key={brand.slug} max={8} scale={1.02}>
+              <Link
+                to={`/collections?brand=${brand.slug}`}
+                className="group block luxury-spotlight rounded-xl overflow-hidden luxury-depth"
+              >
+                <div className="rounded-xl overflow-hidden">
+                  <div className="aspect-[3/4] overflow-hidden">
+                    <img
+                      src={brand.image}
+                      alt={brand.name}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      loading="lazy"
+                    />
+                  </div>
+                  <div className="py-3 px-4 luxury-glass" style={{ backgroundColor: "rgba(58,26,36,0.85)" }}>
+                    <p className="text-white/90 text-sm md:text-base font-serif tracking-wide text-center">
+                      {brand.name}
+                    </p>
+                  </div>
                 </div>
-                <div className="py-3 px-4" style={{ backgroundColor: "#3A1A24" }}>
-                  <p className="text-white/90 text-sm md:text-base font-serif tracking-wide text-center">
-                    {brand.name}
-                  </p>
-                </div>
-              </div>
-            </Link>
+              </Link>
+            </Tilt3D>
           ))}
         </div>
       </div>
