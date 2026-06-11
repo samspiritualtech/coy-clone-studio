@@ -1,6 +1,8 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useRef, MouseEvent } from "react";
+
 
 interface FullWidthImageSectionProps {
   backgroundImage: string;
