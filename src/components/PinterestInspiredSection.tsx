@@ -45,43 +45,50 @@ export const PinterestInspiredSection = () => {
             const aspect = i % 3 === 0 ? "aspect-[3/4]" : i % 3 === 1 ? "aspect-[4/5]" : "aspect-[2/3]";
 
             return (
-              <div
+              <Tilt3D
                 key={product.id}
-                className="break-inside-avoid group relative rounded-xl overflow-hidden cursor-pointer shadow-md hover:shadow-xl transition-shadow duration-300 bg-card"
-                onClick={() => navigate(`/product/${product.id}`)}
+                max={6}
+                scale={1.02}
+                className="break-inside-avoid mb-4 block"
               >
-                <OptimizedImage
-                  src={imageUrl}
-                  alt={product.name}
-                  className={aspect}
-                />
-
-                {/* Hover overlay */}
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-3 p-4">
-                  <span className="text-white text-sm font-semibold uppercase tracking-widest">
-                    Shop This Look
-                  </span>
-                  <span className="text-white/80 text-xs line-clamp-1">{product.name}</span>
-                  <span className="text-white font-bold text-lg">
-                    ₹{product.price.toLocaleString("en-IN")}
-                  </span>
-                </div>
-
-                {/* Pinterest save */}
-                <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                  <SaveToPinterestButton
-                    productUrl={productUrl}
-                    imageUrl={imageUrl}
-                    description={`${product.name} — Shop now on Ogura`}
+                <div
+                  className="group relative rounded-xl overflow-hidden cursor-pointer luxury-depth luxury-spotlight bg-card"
+                  onClick={() => navigate(`/product/${product.id}`)}
+                >
+                  <OptimizedImage
+                    src={imageUrl}
+                    alt={product.name}
+                    className={aspect}
                   />
-                </div>
 
-                {/* Brand tag */}
-                <div className="absolute bottom-3 left-3 bg-background/80 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium text-foreground opacity-0 group-hover:opacity-100 transition-opacity">
-                  {product.brand || "Ogura"}
+                  {/* Hover overlay */}
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-3 p-4 z-10">
+                    <span className="text-white text-sm font-semibold uppercase tracking-widest">
+                      Shop This Look
+                    </span>
+                    <span className="text-white/80 text-xs line-clamp-1">{product.name}</span>
+                    <span className="text-white font-bold text-lg">
+                      ₹{product.price.toLocaleString("en-IN")}
+                    </span>
+                  </div>
+
+                  {/* Pinterest save */}
+                  <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                    <SaveToPinterestButton
+                      productUrl={productUrl}
+                      imageUrl={imageUrl}
+                      description={`${product.name} — Shop now on Ogura`}
+                    />
+                  </div>
+
+                  {/* Brand tag */}
+                  <div className="absolute bottom-3 left-3 luxury-glass rounded-full px-3 py-1 text-xs font-medium text-white opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                    {product.brand || "Ogura"}
+                  </div>
                 </div>
-              </div>
+              </Tilt3D>
             );
+
           })}
         </div>
 
