@@ -53,22 +53,24 @@ export const LuxuryBrands = () => {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
           {brands.map((brand, index) => (
-            <Link
-              key={index}
-              to={`/brands/${brand.name.toLowerCase().replace(/\s/g, "-")}`}
-              className="group relative aspect-square flex items-center justify-center border border-white/20 hover:border-white/50 transition-all duration-500 hover:bg-white/5"
-            >
-              <div className="text-center">
-                <div className="text-4xl md:text-5xl font-extralight text-white/80 group-hover:text-white transition-colors mb-2">
-                  {brand.logo}
+            <Tilt3D key={index} max={10} scale={1.03}>
+              <Link
+                to={`/brands/${brand.name.toLowerCase().replace(/\s/g, "-")}`}
+                className="group relative aspect-square flex items-center justify-center luxury-glass luxury-sweep luxury-spotlight rounded-sm transition-all duration-500 hover:border-white/50"
+              >
+                <div className="text-center relative z-10">
+                  <div className="text-4xl md:text-5xl font-extralight text-white/80 group-hover:text-white transition-colors mb-2">
+                    {brand.logo}
+                  </div>
+                  <p className="text-[10px] md:text-xs font-light text-white/50 uppercase tracking-[0.2em] group-hover:text-white/80 transition-colors">
+                    {brand.name}
+                  </p>
                 </div>
-                <p className="text-[10px] md:text-xs font-light text-white/50 uppercase tracking-[0.2em] group-hover:text-white/80 transition-colors">
-                  {brand.name}
-                </p>
-              </div>
-            </Link>
+              </Link>
+            </Tilt3D>
           ))}
         </div>
+
       </div>
     </section>
   );
