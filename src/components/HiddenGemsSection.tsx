@@ -39,8 +39,19 @@ const brands = [
 ];
 
 export const HiddenGemsSection = () => {
+  const sectionRef = useRef<HTMLElement>(null);
+  useGsapReveal(sectionRef, { selector: "[data-reveal]", stagger: 0.1 });
+
   return (
-    <section className="py-12 md:py-20 px-4 md:px-8 lg:px-16" style={{ backgroundColor: "#2A0A14" }}>
+    <section
+      ref={sectionRef}
+      className="relative py-12 md:py-20 px-4 md:px-8 lg:px-16 overflow-hidden isolate"
+      style={{ backgroundColor: "#2A0A14" }}
+    >
+      {/* Cinematic overlays */}
+      <div className="luxury-vignette" aria-hidden />
+      <div className="luxury-grain" aria-hidden />
+
       {/* Section Header */}
       <div className="text-center mb-10 md:mb-14">
         <p className="text-[#C9A96E] text-xs md:text-sm uppercase tracking-[0.3em] mb-3 font-light">
