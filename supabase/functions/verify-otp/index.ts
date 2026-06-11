@@ -174,9 +174,12 @@ serve(async (req) => {
       );
     }
 
-    // New user - create account with a consistent password
-    const phonePassword = `ogura_secure_${phone}_auth`;
-    
+    // New user - create account with a cryptographically random password (never reused or revealed)
+    const randomBytes = crypto.getRandomValues(new Uint8Array(32));
+    const phonePassword = Array.from(randomBytes)
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('');
+
     const { data: signUpData, error: signUpError } = await supabase.auth.admin.createUser({
       email: phoneEmail,
       password: phonePassword,
@@ -195,17 +198,25 @@ serve(async (req) => {
     // Update profile with phone
     await supabase
       .from('profiles')
-      .upsert({ 
-        id: signUpData.user.id, 
+      .upsert({
+        id: signUpData.user.id,
         name: name || `User ${phone.slice(-4)}`,
-        phone 
+        phone
       });
 
-    // Sign in the new user to get session
-    const { data: newSession } = await supabase.auth.signInWithPassword({
+    // Sign in the new user via a one-time magic link (password is random and never reused)
+    let newSession: { session: unknown } | null = null;
+    const { data: linkData } = await supabase.auth.admin.generateLink({
+      type: 'magiclink',
       email: phoneEmail,
-      password: phonePassword
     });
+    if (linkData?.properties?.hashed_token) {
+      const { data: verifyData } = await supabase.auth.verifyOtp({
+        token_hash: linkData.properties.hashed_token,
+        type: 'magiclink',
+      });
+      newSession = verifyData?.session ? { session: verifyData.session } : null;
+    }
 
     console.log(`New user created: +91${phone}`);
 
