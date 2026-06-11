@@ -1,5 +1,8 @@
+import { useRef } from "react";
 import { Link } from "react-router-dom";
 import { Tilt3D } from "@/components/luxury3d/Tilt3D";
+import { ParallaxLayer } from "@/components/luxury3d/ParallaxLayer";
+import { useGsapReveal } from "@/hooks/useGsapReveal";
 
 
 const brands = [
