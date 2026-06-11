@@ -1,4 +1,6 @@
 import { Link } from "react-router-dom";
+import { Tilt3D } from "@/components/luxury3d/Tilt3D";
+
 
 const brands = [
   {
@@ -49,52 +51,56 @@ export const HiddenGemsSection = () => {
       {/* Split Layout */}
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 lg:gap-12">
         {/* Left - Large Banner */}
-        <Link to="/collections?category=instagram" className="lg:w-1/2 relative rounded-2xl overflow-hidden group block shadow-lg hover:shadow-2xl transition-shadow duration-500">
-          <div style={{ aspectRatio: "3/4" }} className="relative">
-            <img
-              src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=900&q=80"
-              alt="Hidden Gems Collection"
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12">
-              <h3 className="text-white text-4xl md:text-5xl font-serif font-light tracking-wide mb-3">
-                HIDDEN GEMS
-              </h3>
-              <p className="text-white/80 text-sm md:text-base font-light max-w-sm leading-relaxed mb-5">
-                Niche, homegrown labels discovered from Instagram creators.
-              </p>
-              <span className="inline-block px-6 py-2 text-xs uppercase tracking-[0.2em] text-white/90 border border-white/30 rounded-full backdrop-blur-sm bg-white/5 transition-all duration-300 group-hover:bg-white/15 group-hover:border-white/50">
-                Explore Instagram
-              </span>
+        <Tilt3D className="lg:w-1/2" max={4} scale={1.01}>
+          <Link to="/collections?category=instagram" className="relative rounded-2xl overflow-hidden group block luxury-depth luxury-spotlight">
+            <div style={{ aspectRatio: "3/4" }} className="relative">
+              <img
+                src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=900&q=80"
+                alt="Hidden Gems Collection"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 z-10">
+                <h3 className="text-white text-4xl md:text-5xl font-serif font-light tracking-wide mb-3">
+                  HIDDEN GEMS
+                </h3>
+                <p className="text-white/80 text-sm md:text-base font-light max-w-sm leading-relaxed mb-5">
+                  Niche, homegrown labels discovered from Instagram creators.
+                </p>
+                <span className="inline-block px-6 py-2 text-xs uppercase tracking-[0.2em] text-white/90 luxury-glass rounded-full transition-all duration-300 group-hover:bg-white/15">
+                  Explore Instagram
+                </span>
+              </div>
             </div>
-          </div>
-        </Link>
+          </Link>
+        </Tilt3D>
+
 
         {/* Right - Brand Cards Grid */}
         <div className="lg:w-1/2 grid grid-cols-2 gap-4 md:gap-6 content-start">
           {brands.map((brand) => (
-            <Link
-              key={brand.slug}
-              to={`/collections?brand=${brand.slug}`}
-              className="group block"
-            >
-              <div className="rounded-xl overflow-hidden shadow-lg shadow-black/30 transition-all duration-500 hover:shadow-xl hover:shadow-black/40 hover:-translate-y-1">
-                <div className="aspect-[3/4] overflow-hidden">
-                  <img
-                    src={brand.image}
-                    alt={brand.name}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    loading="lazy"
-                  />
+            <Tilt3D key={brand.slug} max={8} scale={1.02}>
+              <Link
+                to={`/collections?brand=${brand.slug}`}
+                className="group block luxury-spotlight rounded-xl overflow-hidden luxury-depth"
+              >
+                <div className="rounded-xl overflow-hidden">
+                  <div className="aspect-[3/4] overflow-hidden">
+                    <img
+                      src={brand.image}
+                      alt={brand.name}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      loading="lazy"
+                    />
+                  </div>
+                  <div className="py-3 px-4 luxury-glass" style={{ backgroundColor: "rgba(58,26,36,0.85)" }}>
+                    <p className="text-white/90 text-sm md:text-base font-serif tracking-wide text-center">
+                      {brand.name}
+                    </p>
+                  </div>
                 </div>
-                <div className="py-3 px-4" style={{ backgroundColor: "#3A1A24" }}>
-                  <p className="text-white/90 text-sm md:text-base font-serif tracking-wide text-center">
-                    {brand.name}
-                  </p>
-                </div>
-              </div>
-            </Link>
+              </Link>
+            </Tilt3D>
           ))}
         </div>
       </div>

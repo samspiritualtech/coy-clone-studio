@@ -11,8 +11,10 @@ import { LuxuryBrands } from "@/components/LuxuryBrands";
 import { LuxuryGiftCard } from "@/components/LuxuryGiftCard";
 import { LuxuryStoreLocator } from "@/components/LuxuryStoreLocator";
 import { LuxuryFooter } from "@/components/LuxuryFooter";
+import { useLenis } from "@/hooks/useLenis";
 
 const Index = () => {
+  useLenis();
   return (
     <div className="min-h-screen bg-background">
       <LuxuryHeader />

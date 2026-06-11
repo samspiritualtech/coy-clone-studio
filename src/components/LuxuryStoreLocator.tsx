@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { MapPin, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Tilt3D } from "@/components/luxury3d/Tilt3D";
+
 
 const stores = [
   { name: "Mumbai Flagship", address: "High Street Phoenix, Lower Parel" },
@@ -34,20 +36,20 @@ export const LuxuryStoreLocator = () => {
         
         <div className="flex flex-col md:flex-row gap-6 md:gap-12 mb-12">
           {stores.map((store, index) => (
-            <div
-              key={index}
-              className="text-center border border-white/20 px-8 py-6 hover:border-white/40 transition-colors"
-            >
-              <MapPin className="h-5 w-5 text-white/60 mx-auto mb-3" strokeWidth={1.5} />
-              <h3 className="text-white font-light text-sm uppercase tracking-[0.15em] mb-1">
-                {store.name}
-              </h3>
-              <p className="text-white/50 text-xs">
-                {store.address}
-              </p>
-            </div>
+            <Tilt3D key={index} max={8} scale={1.03}>
+              <div className="text-center luxury-glass luxury-spotlight luxury-sweep px-8 py-6 rounded-sm">
+                <MapPin className="h-5 w-5 text-[#C9A96E] mx-auto mb-3 relative z-10" strokeWidth={1.5} />
+                <h3 className="text-white font-light text-sm uppercase tracking-[0.15em] mb-1 relative z-10">
+                  {store.name}
+                </h3>
+                <p className="text-white/60 text-xs relative z-10">
+                  {store.address}
+                </p>
+              </div>
+            </Tilt3D>
           ))}
         </div>
+
         
         <Link to="/stores">
           <Button

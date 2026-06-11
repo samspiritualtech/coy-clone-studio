@@ -1,6 +1,8 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { useRef, MouseEvent } from "react";
+
 
 interface FullWidthImageSectionProps {
   backgroundImage: string;
@@ -47,21 +49,43 @@ export const FullWidthImageSection = ({
     left: "items-start justify-center text-left pl-8 md:pl-16 lg:pl-24",
   };
 
+  const sectionRef = useRef<HTMLElement>(null);
+  const onMove = (e: MouseEvent<HTMLElement>) => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    el.style.setProperty("--mx", `${((e.clientX - r.left) / r.width) * 100}%`);
+    el.style.setProperty("--my", `${((e.clientY - r.top) / r.height) * 100}%`);
+  };
+
   return (
     <section
+      ref={sectionRef}
+      onMouseMove={onMove}
       className={cn(
-        "relative w-full overflow-hidden group",
+        "relative w-full overflow-hidden group luxury-spotlight",
         heightClasses[height],
         className
       )}
     >
-      {/* Background Image */}
+      {/* Background Image with subtle parallax depth */}
       <div
         className={cn(
           "absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-[8000ms] ease-out",
-          enableZoom && "group-hover:scale-105"
+          enableZoom && "group-hover:scale-[1.06]"
         )}
         style={{ backgroundImage: `url(${backgroundImage})` }}
+      />
+
+      {/* Premium cinematic light overlay — follows cursor */}
+      <div
+        aria-hidden
+        className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-[1]"
+        style={{
+          background:
+            "radial-gradient(700px circle at var(--mx,50%) var(--my,50%), rgba(255,255,255,0.12), transparent 55%)",
+          mixBlendMode: "screen",
+        }}
       />
 
       {/* Gradient Overlay */}
@@ -71,6 +95,7 @@ export const FullWidthImageSection = ({
           overlayClasses[overlayOpacity]
         )}
       />
+
 
       {/* Content */}
       <div
