@@ -44,15 +44,17 @@ export const PinterestInspiredSection = () => {
             const imageUrl = product.images[0];
             const aspect = i % 3 === 0 ? "aspect-[3/4]" : i % 3 === 1 ? "aspect-[4/5]" : "aspect-[2/3]";
 
+            const depths = [4, 8, 6, 10, 5, 7];
+            const max = depths[i % depths.length];
             return (
               <Tilt3D
                 key={product.id}
-                max={6}
-                scale={1.02}
+                max={max}
+                scale={1.025}
                 className="break-inside-avoid mb-4 block"
               >
                 <div
-                  className="group relative rounded-xl overflow-hidden cursor-pointer luxury-depth luxury-spotlight bg-card"
+                  className="group relative rounded-xl overflow-hidden cursor-pointer luxury-depth luxury-spotlight luxury-hairline-gold bg-card"
                   onClick={() => navigate(`/product/${product.id}`)}
                 >
                   <OptimizedImage
@@ -62,12 +64,10 @@ export const PinterestInspiredSection = () => {
                   />
 
                   {/* Hover overlay */}
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-3 p-4 z-10">
-                    <span className="text-white text-sm font-semibold uppercase tracking-widest">
-                      Shop This Look
-                    </span>
-                    <span className="text-white/80 text-xs line-clamp-1">{product.name}</span>
-                    <span className="text-white font-bold text-lg">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col items-center justify-end gap-3 p-5 z-10">
+                    <span className="luxury-cta-glass luxury-sweep">Shop This Look</span>
+                    <span className="text-white/85 text-xs line-clamp-1">{product.name}</span>
+                    <span className="text-white font-light text-lg" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                       ₹{product.price.toLocaleString("en-IN")}
                     </span>
                   </div>
@@ -82,12 +82,13 @@ export const PinterestInspiredSection = () => {
                   </div>
 
                   {/* Brand tag */}
-                  <div className="absolute bottom-3 left-3 luxury-glass rounded-full px-3 py-1 text-xs font-medium text-white opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                  <div className="absolute bottom-3 left-3 luxury-glass luxury-hairline-gold rounded-full px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-white opacity-0 group-hover:opacity-100 transition-opacity z-10">
                     {product.brand || "Ogura"}
                   </div>
                 </div>
               </Tilt3D>
             );
+
 
           })}
         </div>

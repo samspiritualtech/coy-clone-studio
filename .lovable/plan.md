@@ -1,69 +1,81 @@
 
-# Fix: Seller product descriptions not visible on consumer PDP
+# Luxury 3D Enhancement Layer — Homepage Sections
 
-## What the investigation showed
+Goal: bring the cinematic feeling from `ogura-museum.html` (gold-on-espresso light, glass, depth, smooth GSAP reveals, parallax) into the existing homepage sections **after Shop By Categories**, without changing layout, content, products, links, or routing. ~90% ecommerce / ~10% 3D polish.
 
-- The Seller Portal **does** write to our Lovable Cloud `products` table with a real `description` value. Verified directly:
-  - `ABC` → description `"acjwsc"`, status `submitted`
-  - `tshirt` → description `"ggod bro"`, status `submitted`
-  - `Navy Blue Structured Knit Set` → description `"Sophisticated..."`, status `live`
-- The consumer PDP already reads from the local DB first. Console for the navy-blue product confirms:
-  ```
-  [PDP] DB product row: {... description: "Sophisticated..." ...}
-  [PDP] mapped description: Sophisticated structured knit set...
-  ```
-- `ProductDetailsAccordion` renders `{product.description || "No description available."}`. With a non-empty mapped description, it renders correctly.
+## Scope (sections touched, in order)
+1. Hidden Gems (`HiddenGemsSection.tsx`)
+2. Dresses / Tops / Bottoms / Accessories banners (`FullWidthImageSection.tsx`, `CategoryShowcase.tsx`)
+3. Brands (`LuxuryBrands.tsx`)
+4. Pinterest Inspiration (`PinterestInspiredSection.tsx`)
+5. Stores (`LuxuryStoreLocator.tsx`)
 
-**The mapping layer is not the bug.** Two real issues remain:
+No other files, routes, or business logic change. Existing `Tilt3D`, `useLenis`, and luxury utility classes are kept and extended.
 
-1. Seller products are saved with `status = 'submitted'`, but the consumer Collections grid only shows `status = 'live'` (RLS + filter). So sellers never see their own products on the consumer site → they assume the PDP is broken.
-2. There's no visible on-screen verification (raw JSON) confirming what the PDP fetched, so debugging is guesswork.
+## What stays exactly the same
+- All section order, copy, images, products, brands, links, CTAs, Pinterest functionality, store data.
+- Header, Hero, Premium3DCategorySection, Designers, Trust Badges, Gift Card, Footer.
+- Routing, auth, cart, wishlist, data sources.
+- Light theme of the page overall (we are NOT turning the site dark). Cinematic dark/gold treatment is applied only within already-dark sections (Hidden Gems, Brands) and as subtle overlays elsewhere.
 
-## Changes
+## Visual & motion language (from reference)
+- Palette accents: gold `#C9A56B` / bright gold `#E9D4A3` / ivory `#F4EFE6` used as glow/spotlight/hairlines only (added as CSS vars, no semantic token changes).
+- Typography accents: optional Cormorant Garamond for section eyebrows in the enhanced sections (loaded once in `index.html`), body unchanged.
+- Motion: GSAP + ScrollTrigger for reveal-on-scroll (clip-path + y/opacity), Lenis already powering smooth scroll, Framer Motion `Tilt3D` for hover depth.
+- Effects: glassmorphism (`luxury-glass`), gold spotlight (`luxury-spotlight`), light sweep (`luxury-sweep`), layered depth shadows (`luxury-depth`), fine grain overlay, vignette on dark sections.
 
-### 1. `src/pages/ProductDetail.tsx` — add visible debug + raw log
+## Per-section enhancements
 
-- Add `console.log("PDP RAW DATA", row)` right after the local DB fetch (in addition to the existing `[PDP] DB product row` log) so it matches the contract the user asked for.
-- Render a temporary debug block at the top of the PDP (behind a `?debug=1` query param, so it doesn't leak to production users):
-  ```tsx
-  {new URLSearchParams(window.location.search).get("debug") === "1" && (
-    <pre className="text-xs bg-muted p-3 rounded overflow-auto max-h-64">
-      {JSON.stringify(currentProduct, null, 2)}
-    </pre>
-  )}
-  ```
-  Visit `/product/<id>?debug=1` to confirm `description` is on the resolved object.
+### 1. Hidden Gems
+- Add a soft vignette + faint film grain inside the section background (absolute overlays, pointer-events none).
+- Large banner: stronger parallax on the image (translateY based on scroll progress via GSAP ScrollTrigger), gold hairline border, glass CTA pill with light sweep, animated eyebrow underline.
+- Brand grid cards: increase `Tilt3D` depth, add staggered GSAP reveal (clip-path inset), gold spotlight on hover, hairline border, floating idle motion (subtle 6s yoyo translateY) only on hover.
 
-### 2. `src/pages/Collections.tsx` — show submitted products too (dev visibility)
+### 2. Dresses / Tops / Bottoms / Accessories
+- In `FullWidthImageSection.tsx`: keep banner; add a parallax wrapper (image translateY -8% → +8% across viewport via ScrollTrigger), cinematic gradient + gold-tinted radial spotlight following cursor (already partly in place — refine intensity), and a clip-path reveal for the heading/CTA on enter.
+- In `CategoryShowcase.tsx` cards (Tops/Bottoms/Accessories tiles): wrap each tile in `Tilt3D`, add hover expansion (image scale 1.08 + caption rise), glass CTA with sweep, and depth shadow on hover.
 
-- Change the local DB query from `.eq("status", "live")` to `.in("status", ["live", "submitted"])` so seller-added products appear on the consumer grid immediately and you can click into their PDP without typing the URL.
-- (Long-term, "submitted" should require admin approval — that's the existing workflow. This is intentional for now so the seller can verify their listing end-to-end. We can revert to live-only once approvals are wired up.)
+### 3. Brands
+- Keep dark background image and grid.
+- Replace flat tiles with glass cards: thicker blur, gold hairline, light sweep on hover, `Tilt3D` perspective, scroll-triggered staggered fade-up. Section heading gets a thin animated gold underline.
 
-### 3. `src/components/ProductDetailsAccordion.tsx` — tighter empty-check
+### 4. Pinterest Inspiration
+- Keep masonry. Vary `Tilt3D` `max` per column to suggest different depth planes. Add a ScrollTrigger that translates odd/even columns at slightly different speeds (subtle, ~20px range, disabled on mobile and on reduced-motion).
+- Hover: keep current overlay; add gold spotlight and glass info chip.
 
-- Replace `product.description || "No description available."` with a trim-aware check so whitespace-only strings still fall back:
-  ```tsx
-  {product.description?.trim() ? product.description : "No description available."}
-  ```
+### 5. Stores
+- Add a subtle dark cinematic overlay on store imagery, glass info panel with gold hairline, `Tilt3D` on each store card, light sweep on CTA. Section eyebrow + heading get a clip-path reveal.
 
-### 4. Cleanup
+## New / changed files
+- `src/index.css` — extend the existing "LUXURY 3D ENHANCEMENT LAYER" with:
+  - `--gold`, `--gold-bright`, `--ivory` CSS vars (scoped to utilities, not the semantic token system).
+  - `.luxury-vignette`, `.luxury-grain`, `.luxury-hairline-gold`, `.luxury-eyebrow-gold`, `.luxury-reveal` (clip-path base state), `.luxury-float-idle` (keyframes).
+- `src/hooks/useGsapReveal.ts` (new) — small hook that registers ScrollTrigger and animates elements matching a ref/selector with stagger + clip-path reveal; respects `prefers-reduced-motion`. Uses already-installed `gsap` if present; otherwise add `gsap` via package install in build step.
+- `src/components/luxury3d/ParallaxLayer.tsx` (new) — wrapper that translates children on scroll via GSAP ScrollTrigger (configurable speed). Mobile/reduced-motion → no-op.
+- `src/components/HiddenGemsSection.tsx` — add vignette/grain, GSAP reveal on banner and grid, swap CTA to glass-sweep pill, idle float on hover.
+- `src/components/FullWidthImageSection.tsx` — wrap image in `ParallaxLayer`, add clip-path reveal for heading/CTA, refine cursor spotlight intensity, glass CTA.
+- `src/components/CategoryShowcase.tsx` — wrap tiles in `Tilt3D`, add hover expansion, glass CTA, GSAP staggered reveal.
+- `src/components/LuxuryBrands.tsx` — glass card tiles with gold hairline + sweep, scroll stagger, animated underline on heading.
+- `src/components/PinterestInspiredSection.tsx` — per-column parallax via `ParallaxLayer`, varied `Tilt3D` depth, glass chips.
+- `src/components/LuxuryStoreLocator.tsx` — `Tilt3D` cards, glass info panel, gold hairline, clip-path reveal.
+- `index.html` — add Cormorant Garamond `<link>` (used only for new eyebrow class).
 
-- Leave the temporary `?debug=1` JSON block in place until you confirm the fix. Will remove it in a follow-up.
+Dependencies: install `gsap` if not already present (ScrollTrigger ships with it). `framer-motion`, `lenis` already installed.
 
-## Files to modify
+## Guardrails
+- No new pages, routes, or navigation.
+- No changes to data sources, products, Pinterest API, or links.
+- No fullscreen WebGL, no Three.js scenes, no orbiting/abstract objects, no exhibition storytelling.
+- All effects respect `prefers-reduced-motion` and degrade gracefully on mobile (parallax disabled, tilt reduced).
+- No semantic color token changes — gold accents are utility-scoped CSS vars to avoid breaking dark mode and other pages.
 
-- `src/pages/ProductDetail.tsx`
-- `src/pages/Collections.tsx`
-- `src/components/ProductDetailsAccordion.tsx`
+## Technical notes
+- GSAP ScrollTrigger registered once in `useGsapReveal`. ScrollTrigger and Lenis are wired together via a small effect that calls `ScrollTrigger.update` from Lenis' scroll callback (added inside `useLenis` or the reveal hook).
+- `Tilt3D` is reused; no new tilt engine.
+- All overlays use `pointer-events: none` and `z-index` inside the section's stacking context so clicks/links remain intact.
+- Idle float and grain animations pause when section is offscreen via ScrollTrigger toggleActions to save CPU.
 
 ## Out of scope
-
-- Approval-workflow changes for `submitted` → `live` (separate task).
-- Touching the external `pyesltzkemtranachpne` API (different project).
-
-## How to verify after build
-
-1. Open `/collections` — your seller-added items (`ABC`, `tshirt`, etc.) now appear.
-2. Click one → land on `/product/<id>?debug=1`.
-3. The JSON block at the top shows `"description": "acjwsc"` (or whatever you saved).
-4. Scroll to the Product Description accordion → it shows the real text, not the fallback.
+- Hero, header, footer, designers, trust badges, gift card.
+- Any backend, RLS, or edge function changes.
+- Replacing the light theme or current typography system-wide.

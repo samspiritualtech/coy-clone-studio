@@ -1,5 +1,8 @@
+import { useRef } from "react";
 import { Link } from "react-router-dom";
 import { Tilt3D } from "@/components/luxury3d/Tilt3D";
+import { ParallaxLayer } from "@/components/luxury3d/ParallaxLayer";
+import { useGsapReveal } from "@/hooks/useGsapReveal";
 
 
 const brands = [
@@ -36,30 +39,45 @@ const brands = [
 ];
 
 export const HiddenGemsSection = () => {
+  const sectionRef = useRef<HTMLElement>(null);
+  useGsapReveal(sectionRef, { selector: "[data-reveal]", stagger: 0.1 });
+
   return (
-    <section className="py-12 md:py-20 px-4 md:px-8 lg:px-16" style={{ backgroundColor: "#2A0A14" }}>
+    <section
+      ref={sectionRef}
+      className="relative py-12 md:py-20 px-4 md:px-8 lg:px-16 overflow-hidden isolate"
+      style={{ backgroundColor: "#2A0A14" }}
+    >
+      {/* Cinematic overlays */}
+      <div className="luxury-vignette" aria-hidden />
+      <div className="luxury-grain" aria-hidden />
+
       {/* Section Header */}
-      <div className="text-center mb-10 md:mb-14">
-        <p className="text-[#C9A96E] text-xs md:text-sm uppercase tracking-[0.3em] mb-3 font-light">
+      <div className="relative z-10 text-center mb-10 md:mb-14">
+        <p data-reveal className="luxury-eyebrow-gold text-xs md:text-sm mb-4 justify-center">
           Instagram Brands
         </p>
-        <h2 className="text-white text-3xl md:text-5xl font-serif font-light tracking-wide">
+        <h2 data-reveal className="text-white text-3xl md:text-5xl font-serif font-light tracking-wide">
           Hidden Gems
         </h2>
       </div>
 
+
       {/* Split Layout */}
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 lg:gap-12">
+      <div className="relative z-10 max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 lg:gap-12">
         {/* Left - Large Banner */}
-        <Tilt3D className="lg:w-1/2" max={4} scale={1.01}>
-          <Link to="/collections?category=instagram" className="relative rounded-2xl overflow-hidden group block luxury-depth luxury-spotlight">
-            <div style={{ aspectRatio: "3/4" }} className="relative">
-              <img
-                src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=900&q=80"
-                alt="Hidden Gems Collection"
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+        <Tilt3D className="lg:w-1/2" max={4} scale={1.01} style={{ opacity: 0 }}>
+          <div data-reveal>
+          <Link to="/collections?category=instagram" className="relative rounded-2xl overflow-hidden group block luxury-depth luxury-spotlight luxury-hairline-gold">
+            <div style={{ aspectRatio: "3/4" }} className="relative overflow-hidden">
+              <ParallaxLayer speed={40} className="absolute inset-0">
+                <img
+                  src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=900&q=80"
+                  alt="Hidden Gems Collection"
+                  className="w-full h-full object-cover scale-110 transition-transform duration-700 group-hover:scale-[1.18]"
+                />
+              </ParallaxLayer>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 z-10">
                 <h3 className="text-white text-4xl md:text-5xl font-serif font-light tracking-wide mb-3">
                   HIDDEN GEMS
@@ -67,22 +85,25 @@ export const HiddenGemsSection = () => {
                 <p className="text-white/80 text-sm md:text-base font-light max-w-sm leading-relaxed mb-5">
                   Niche, homegrown labels discovered from Instagram creators.
                 </p>
-                <span className="inline-block px-6 py-2 text-xs uppercase tracking-[0.2em] text-white/90 luxury-glass rounded-full transition-all duration-300 group-hover:bg-white/15">
+                <span className="luxury-cta-glass luxury-sweep">
                   Explore Instagram
                 </span>
               </div>
             </div>
           </Link>
+          </div>
         </Tilt3D>
+
 
 
         {/* Right - Brand Cards Grid */}
         <div className="lg:w-1/2 grid grid-cols-2 gap-4 md:gap-6 content-start">
           {brands.map((brand) => (
-            <Tilt3D key={brand.slug} max={8} scale={1.02}>
+            <Tilt3D key={brand.slug} max={8} scale={1.02} style={{ opacity: 0 }}>
+              <div data-reveal>
               <Link
                 to={`/collections?brand=${brand.slug}`}
-                className="group block luxury-spotlight rounded-xl overflow-hidden luxury-depth"
+                className="group block luxury-spotlight rounded-xl overflow-hidden luxury-depth luxury-hairline-gold hover:luxury-float-idle"
               >
                 <div className="rounded-xl overflow-hidden">
                   <div className="aspect-[3/4] overflow-hidden">
@@ -100,6 +121,7 @@ export const HiddenGemsSection = () => {
                   </div>
                 </div>
               </Link>
+              </div>
             </Tilt3D>
           ))}
         </div>
