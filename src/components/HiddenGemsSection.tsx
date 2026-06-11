@@ -99,10 +99,11 @@ export const HiddenGemsSection = () => {
         {/* Right - Brand Cards Grid */}
         <div className="lg:w-1/2 grid grid-cols-2 gap-4 md:gap-6 content-start">
           {brands.map((brand) => (
-            <Tilt3D key={brand.slug} max={8} scale={1.02}>
+            <Tilt3D key={brand.slug} max={8} scale={1.02} style={{ opacity: 0 }}>
+              <div data-reveal>
               <Link
                 to={`/collections?brand=${brand.slug}`}
-                className="group block luxury-spotlight rounded-xl overflow-hidden luxury-depth"
+                className="group block luxury-spotlight rounded-xl overflow-hidden luxury-depth luxury-hairline-gold hover:luxury-float-idle"
               >
                 <div className="rounded-xl overflow-hidden">
                   <div className="aspect-[3/4] overflow-hidden">
@@ -120,6 +121,7 @@ export const HiddenGemsSection = () => {
                   </div>
                 </div>
               </Link>
+              </div>
             </Tilt3D>
           ))}
         </div>
