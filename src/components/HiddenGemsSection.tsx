@@ -64,7 +64,36 @@ export const HiddenGemsSection = () => {
 
 
       {/* Split Layout */}
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 lg:gap-12">
+      <div className="relative z-10 max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 lg:gap-12">
+        {/* Left - Large Banner */}
+        <Tilt3D className="lg:w-1/2" max={4} scale={1.01} style={{ opacity: 0 }}>
+          <div data-reveal>
+          <Link to="/collections?category=instagram" className="relative rounded-2xl overflow-hidden group block luxury-depth luxury-spotlight luxury-hairline-gold">
+            <div style={{ aspectRatio: "3/4" }} className="relative overflow-hidden">
+              <ParallaxLayer speed={40} className="absolute inset-0">
+                <img
+                  src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=900&q=80"
+                  alt="Hidden Gems Collection"
+                  className="w-full h-full object-cover scale-110 transition-transform duration-700 group-hover:scale-[1.18]"
+                />
+              </ParallaxLayer>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 z-10">
+                <h3 className="text-white text-4xl md:text-5xl font-serif font-light tracking-wide mb-3">
+                  HIDDEN GEMS
+                </h3>
+                <p className="text-white/80 text-sm md:text-base font-light max-w-sm leading-relaxed mb-5">
+                  Niche, homegrown labels discovered from Instagram creators.
+                </p>
+                <span className="luxury-cta-glass luxury-sweep">
+                  Explore Instagram
+                </span>
+              </div>
+            </div>
+          </Link>
+          </div>
+        </Tilt3D>
+
         {/* Left - Large Banner */}
         <Tilt3D className="lg:w-1/2" max={4} scale={1.01}>
           <Link to="/collections?category=instagram" className="relative rounded-2xl overflow-hidden group block luxury-depth luxury-spotlight">
