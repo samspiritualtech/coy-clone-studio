@@ -94,30 +94,6 @@ export const HiddenGemsSection = () => {
           </div>
         </Tilt3D>
 
-        {/* Left - Large Banner */}
-        <Tilt3D className="lg:w-1/2" max={4} scale={1.01}>
-          <Link to="/collections?category=instagram" className="relative rounded-2xl overflow-hidden group block luxury-depth luxury-spotlight">
-            <div style={{ aspectRatio: "3/4" }} className="relative">
-              <img
-                src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=900&q=80"
-                alt="Hidden Gems Collection"
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 z-10">
-                <h3 className="text-white text-4xl md:text-5xl font-serif font-light tracking-wide mb-3">
-                  HIDDEN GEMS
-                </h3>
-                <p className="text-white/80 text-sm md:text-base font-light max-w-sm leading-relaxed mb-5">
-                  Niche, homegrown labels discovered from Instagram creators.
-                </p>
-                <span className="inline-block px-6 py-2 text-xs uppercase tracking-[0.2em] text-white/90 luxury-glass rounded-full transition-all duration-300 group-hover:bg-white/15">
-                  Explore Instagram
-                </span>
-              </div>
-            </div>
-          </Link>
-        </Tilt3D>
 
 
         {/* Right - Brand Cards Grid */}
