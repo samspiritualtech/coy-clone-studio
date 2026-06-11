@@ -4,6 +4,8 @@ import { SaveToPinterestButton } from "./SaveToPinterestButton";
 import { OptimizedImage } from "./OptimizedImage";
 import { ConnectPinterestButton } from "./ConnectPinterestButton";
 import { UserPinterestBoards } from "./UserPinterestBoards";
+import { Tilt3D } from "@/components/luxury3d/Tilt3D";
+
 
 const curatedProducts = products
   .filter((p) => p.images?.[0]?.startsWith("http"))
