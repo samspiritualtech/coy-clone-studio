@@ -29,6 +29,7 @@ import Profile from "@/pages/Profile";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import TermsOfUse from "@/pages/TermsOfUse";
 import PinterestCallback from "@/pages/PinterestCallback";
+import Contact from "@/pages/Contact";
 
 const CustomerApp = () => {
   return (
