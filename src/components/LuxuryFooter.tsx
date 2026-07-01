@@ -78,7 +78,7 @@ export const LuxuryFooter = () => {
             <h4 className="text-xs uppercase tracking-[0.2em] mb-6">Help</h4>
             <ul className="space-y-3">
               {[
-                { label: "Contact Us", to: "/" },
+                { label: "Contact Us", to: "/contact" },
                 { label: "Shipping", to: "/" },
                 { label: "Returns", to: "/" },
                 { label: "Size Guide", to: "/" },
