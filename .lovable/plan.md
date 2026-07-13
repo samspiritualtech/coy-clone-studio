@@ -1,44 +1,46 @@
-## Scope
+## What the "New Arrivals" carousel actually is
 
-Only the Hidden Gems section on the homepage plus the shared `Tilt3D` hover polish. No layout, typography, color, copy, or section additions/removals.
+`AzaDesignerCarousel` (rendered via `DesignersSpotlight` on the homepage) — its heading is literally "New Arrivals". Cards come from the `designers` table's `profile_image` column. The 9 cards to refresh: Roshi, Punit Balana, Gauri & Nainika, Aseem Kapoor, Rajiramniq, Anita Dongre, Tarun Tahiliani, Anamika Khanna, KA-Sha. Current images are stale Unsplash URLs plus one broken `/roshi/product-1.jpg` repo path.
 
-## 1. Regenerate Hidden Gems imagery
+Note: the uploaded screenshot shows the Hidden Gems section, but the copy names designer brands and asks to "keep the existing layout" of a carousel — that unambiguously matches the New Arrivals designer carousel, not Hidden Gems. Hidden Gems will not be touched.
 
-Generate 5 new premium editorial images with consistent warm-neutral luxury color grading (soft golden light, ivory/champagne/caramel palette, magazine-quality):
+## 1. Generate 9 premium editorial images
 
-- `src/assets/hidden-gems-hero.jpg` (1200×1600, standard tier) — elegant female model, designer couture, editorial magazine mood. Replaces the current Unsplash `photo-1469334031218…` URL used in the large left card.
-- `src/assets/chanderi-shine.jpg` (900×1200) — regenerate: chanderi silk detail on model, warm champagne light.
-- `src/assets/insta-loved.jpg` (900×1200) — regenerate: contemporary luxury kurta, warm neutral grading.
-- `src/assets/indie-vogue.jpg` (900×1200) — regenerate: indie couture editorial, warm tones.
-- `src/assets/urban-loom.jpg` (900×1200) — regenerate: handloom modern silhouette, warm campaign lighting.
+Standard tier, portrait 900×1200, warm neutral / champagne / caramel grading, editorial magazine mood, generic prompts (no brand names — imagegen safety rejects them). Each prompt tuned to the designer's specialty:
 
-`saree-society.jpg` and the last Velvet Threads Unsplash card are outside the user's list — leave both untouched.
+- Roshi — modern minimalist womenswear
+- Punit Balana — printed contemporary Indian couture
+- Gauri & Nainika — ethereal evening gown
+- Aseem Kapoor — refined luxury menswear
+- Rajiramniq — jewel-tone bridal lehenga
+- Anita Dongre — pastel floral resort couture
+- Tarun Tahiliani — draped ivory couture
+- Anamika Khanna — architectural avant-garde silhouette
+- KA-Sha — textured artisanal handloom
 
-## 2. Wire images into `src/components/HiddenGemsSection.tsx`
+Files saved to `src/assets/designers/<slug>.jpg`.
 
-- Import the new `hiddenGemsHero` asset and swap the hard-coded Unsplash URL on line 55 for it.
-- The four regenerated brand assets keep the same import paths, so no code change is needed for the grid; the new files replace the old ones.
-- Add `loading="lazy"` and `decoding="async"` to the hero `<img>` (grid images already have `loading="lazy"`; add `decoding="async"` for consistency).
+## 2. Serve them at stable URLs the DB can reference
 
-## 3. Premium 3D hover polish (shared)
+Run `lovable-assets create --file src/assets/designers/<slug>.jpg` for each; write the returned `.asset.json` alongside; delete the raw `.jpg`. This yields `/__l5e/assets-v1/…/<slug>.jpg` CDN URLs suitable for the `designers.profile_image` string column.
 
-Edit `src/index.css` `.luxury-tilt-inner` / `.luxury-tilt-root` rules so every card using `Tilt3D` (Hidden Gems left + grid, Category Showcase, Designers Spotlight, etc.) gets:
+## 3. Update the DB
 
-- `transform: perspective(1200px) rotateX(var(--rx,0)) rotateY(var(--ry,0)) translateY(var(--ty,0)) scale(var(--s,1));`
-- On hover: `--ty: -10px;` and a softer luxury shadow (`0 30px 60px -20px rgba(20,14,6,0.45)`).
-- `transition: transform 350ms cubic-bezier(0.16,1,0.3,1), box-shadow 350ms;`
-- `will-change: transform;` for GPU acceleration.
-- Inner `<img>` inside `.museum-card` gets a `group-hover:scale-[1.08]` equivalent via CSS (`.luxury-tilt-root:hover .museum-card img { transform: scale(1.08); }`) with `transition: transform 350ms`.
-- Keep the existing glare layer as the "subtle glass reflection".
+Single migration updating `profile_image` for each of the 9 designers by `slug` to its new CDN URL. No schema changes, no RLS/grants touched.
 
-No changes to `Tilt3D.tsx` logic — only CSS tokens.
+## 4. Premium hover on the card (component only)
 
-## 4. Verification
+Edit `src/components/AzaDesignerCarousel.tsx` card wrapper:
 
-- Ripgrep to confirm no other file imports the regenerated asset paths in a way that breaks.
-- Load `/` via Playwright, screenshot Hidden Gems, confirm no console/network errors and images render.
+- Add `perspective` container + `[transform-style:preserve-3d]` on the card.
+- On hover: `translateY(-10px)`, `rotateY(5deg)`, `shadow-[0_30px_60px_-20px_rgba(20,14,6,0.45)]`, `transition-[transform,box-shadow] duration-[350ms] ease-[cubic-bezier(0.16,1,0.3,1)]`, `will-change-transform`.
+- Bump the image hover from `scale-105` → `scale-[1.08]` with `duration-[500ms]`.
+- Add a subtle "glass reflection" overlay: absolute-positioned div with `bg-gradient-to-tr from-white/0 via-white/10 to-white/0`, `opacity-0 group-hover:opacity-100`, `mix-blend-screen`, `pointer-events-none`, `transition-opacity duration-300`.
+
+No changes to card size, aspect, carousel opts, arrows, typography, spacing, or responsiveness.
 
 ## Files touched
 
-- New/replaced: `src/assets/hidden-gems-hero.jpg`, `chanderi-shine.jpg`, `insta-loved.jpg`, `indie-vogue.jpg`, `urban-loom.jpg`
-- Edited: `src/components/HiddenGemsSection.tsx`, `src/index.css`
+- New: `src/assets/designers/{roshi,punit-balana,gauri-nainika,aseem-kapoor,rajiramniq,anita-dongre,tarun-tahiliani,anamika-khanna,ka-sha}.jpg.asset.json` (9)
+- Edited: `src/components/AzaDesignerCarousel.tsx`
+- New migration: updates `designers.profile_image` for the 9 slugs
