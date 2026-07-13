@@ -8,7 +8,7 @@ import instaLoved from "@/assets/insta-loved.jpg";
 import indieVogue from "@/assets/indie-vogue.jpg";
 import urbanLoom from "@/assets/urban-loom.jpg";
 import sareeSociety from "@/assets/saree-society.jpg";
-import hiddenGemsHero from "@/assets/hidden-gems-hero.jpg.asset.json";
+import hiddenGemsHero from "@/assets/hidden-gems-hero.jpg";
 
 const brands = [
   { name: "Chanderi Shine", image: chanderiShine, slug: "chanderi-shine" },
@@ -66,7 +66,7 @@ export const HiddenGemsSection = () => {
               <div style={{ aspectRatio: "3/4" }} className="relative overflow-hidden">
                 <ParallaxLayer speed={100} className="absolute inset-0">
                   <img
-                    src={hiddenGemsHero.url}
+                    src={hiddenGemsHero}
                     alt="Hidden Gems Collection"
                     loading="lazy"
                     decoding="async"
