@@ -1,5 +1,6 @@
 import { FullWidthImageSection } from "./FullWidthImageSection";
 import { Link } from "react-router-dom";
+import topsHero from "@/assets/tops-hero.jpg";
 
 const categories = [
   {
@@ -29,7 +30,7 @@ const categories = [
     subtitle: "Refined basics to elevated statements",
     ctaText: "Shop Tops",
     ctaLink: "/collections?category=tops",
-    backgroundImage: "https://images.unsplash.com/photo-1583391265196-53c5e5e92b0d?w=1920&q=80",
+    backgroundImage: topsHero,
     height: "50vh" as const,
   },
   {
