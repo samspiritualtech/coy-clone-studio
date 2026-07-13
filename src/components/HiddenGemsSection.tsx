@@ -85,7 +85,7 @@ export const HiddenGemsSection = () => {
             <Tilt3D key={brand.slug} max={9} scale={1.03} style={{ opacity: 0 }}>
               <div data-reveal>
                 <Link
-                  to={`/collections?brand=${brand.slug}`}
+                  to={`/collections/${brand.slug}`}
                   className="group block museum-card museum-spotlight"
                 >
                   <div className="aspect-[3/4] overflow-hidden">
