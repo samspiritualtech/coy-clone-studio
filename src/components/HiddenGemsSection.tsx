@@ -4,13 +4,17 @@ import { Tilt3D } from "@/components/luxury3d/Tilt3D";
 import { ParallaxLayer } from "@/components/luxury3d/ParallaxLayer";
 import { useGsapReveal } from "@/hooks/useGsapReveal";
 import chanderiShine from "@/assets/chanderi-shine.jpg";
+import instaLoved from "@/assets/insta-loved.jpg";
+import indieVogue from "@/assets/indie-vogue.jpg";
+import urbanLoom from "@/assets/urban-loom.jpg";
+import sareeSociety from "@/assets/saree-society.jpg";
 
 const brands = [
   { name: "Chanderi Shine", image: chanderiShine, slug: "chanderi-shine" },
-  { name: "Insta Loved", image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=600&q=80", slug: "insta-loved" },
-  { name: "Indie Vogue", image: "https://images.unsplash.com/photo-1544022613-e87ca75a784a?w=600&q=80", slug: "indie-vogue" },
-  { name: "Urban Loom", image: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=600&q=80", slug: "urban-loom" },
-  { name: "Saree Society", image: "https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=600&q=80", slug: "saree-society" },
+  { name: "Insta Loved", image: instaLoved, slug: "insta-loved" },
+  { name: "Indie Vogue", image: indieVogue, slug: "indie-vogue" },
+  { name: "Urban Loom", image: urbanLoom, slug: "urban-loom" },
+  { name: "Saree Society", image: sareeSociety, slug: "saree-society" },
   { name: "Velvet Threads", image: "https://images.unsplash.com/photo-1611652022419-a9419f74343d?w=600&q=80", slug: "velvet-threads" },
 ];
 
