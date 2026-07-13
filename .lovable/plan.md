@@ -1,46 +1,50 @@
-## What the "New Arrivals" carousel actually is
+# Plan — Luxury refinement of Hidden Gems / OGURA Social
 
-`AzaDesignerCarousel` (rendered via `DesignersSpotlight` on the homepage) — its heading is literally "New Arrivals". Cards come from the `designers` table's `profile_image` column. The 9 cards to refresh: Roshi, Punit Balana, Gauri & Nainika, Aseem Kapoor, Rajiramniq, Anita Dongre, Tarun Tahiliani, Anamika Khanna, KA-Sha. Current images are stale Unsplash URLs plus one broken `/roshi/product-1.jpg` repo path.
+Rebuild only `src/components/HiddenGemsSection.tsx` to match the selected prototype (glass name plates + gilded frame), plus the mouse-follow 3D tilt and gold light sweep the request calls for. No other files, no new sections, no route/copy/link changes.
 
-Note: the uploaded screenshot shows the Hidden Gems section, but the copy names designer brands and asks to "keep the existing layout" of a carousel — that unambiguously matches the New Arrivals designer carousel, not Hidden Gems. Hidden Gems will not be touched.
+## Scope
 
-## 1. Generate 9 premium editorial images
+- File touched: `src/components/HiddenGemsSection.tsx` only.
+- Uses existing images already on disk: `hidden-gems-hero.jpg`, `chanderi-shine.jpg`, `insta-loved.jpg`, `indie-vogue.jpg`, `urban-loom.jpg`.
+- Existing routes preserved: left card → `/collections?category=instagram`; grid → `/collections/{slug}`.
+- Existing copy preserved verbatim: "OGURA SOCIAL", "HIDDEN GEMS", "Niche, homegrown labels discovered from Instagram creators", and the four card labels.
 
-Standard tier, portrait 900×1200, warm neutral / champagne / caramel grading, editorial magazine mood, generic prompts (no brand names — imagegen safety rejects them). Each prompt tuned to the designer's specialty:
+## Visual changes (from selected direction)
 
-- Roshi — modern minimalist womenswear
-- Punit Balana — printed contemporary Indian couture
-- Gauri & Nainika — ethereal evening gown
-- Aseem Kapoor — refined luxury menswear
-- Rajiramniq — jewel-tone bridal lehenga
-- Anita Dongre — pastel floral resort couture
-- Tarun Tahiliani — draped ivory couture
-- Anamika Khanna — architectural avant-garde silhouette
-- KA-Sha — textured artisanal handloom
+Left large card (col-span 3/5, aspect 3/4):
+- Ring `ring-1 ring-white/10` → `hover:ring-[#c9a56b]/40`, `shadow-2xl`.
+- Image scale 1.00 → 1.05 on hover (1000ms).
+- Overlays: bottom-to-top black gradient + radial vignette centered top.
+- Type stack (bottom padded): eyebrow `OGURA SOCIAL` (Montserrat, tracking [0.5em], #e9d4a3), display "HIDDEN / GEMS" (Cormorant Garamond, italic GEMS with soft gold glow), tagline in serif.
+- Whole type block lifts `-translate-y-4` on hover.
+- Inset gilded frame `absolute inset-4 border border-[#c9a56b]/10` fades in on hover.
 
-Files saved to `src/assets/designers/<slug>.jpg`.
+Right 2×2 grid (col-span 2/5, gap-6):
+- Each card aspect-[3/4], `ring-1 ring-white/5` → `hover:ring-[#c9a56b]/30`.
+- Image scale 1.00 → 1.10 (700ms).
+- Bottom label swap: default serif white label; on hover a glass plate (`backdrop-blur-md bg-white/5 border-l-2 border-[#c9a56b]`) with #e9d4a3 uppercase tracked label slides up and the default label fades out.
+- Preserve tagline "Niche, homegrown labels…" small hint text under the grid only if it currently exists (keep whatever chrome already lives outside the card grid untouched).
 
-## 2. Serve them at stable URLs the DB can reference
+## Interaction layer (added on top of prototype)
 
-Run `lovable-assets create --file src/assets/designers/<slug>.jpg` for each; write the returned `.asset.json` alongside; delete the raw `.jpg`. This yields `/__l5e/assets-v1/…/<slug>.jpg` CDN URLs suitable for the `designers.profile_image` string column.
+- Mouse-follow 3D tilt on all 5 cards: card wrapper gets `[perspective:1200px]`; inner `transform-gpu` element applies `rotateX` / `rotateY` derived from cursor position (max ±5° X, ±7° Y for grid; ±4° X, ±6° Y for hero), plus `translateY(-10px)` on hover for hero and `-12px` for grid, `scale(1.02)` / `scale(1.04)`, easing `cubic-bezier(0.22,1,0.36,1)` 500ms. Reset to 0 on mouse leave. Implement with a small local `useTiltHandlers` hook inside the file (no new dependency).
+- Gold light sweep on hover: absolutely positioned diagonal gradient div (`bg-gradient-to-tr from-transparent via-[#e9d4a3]/25 to-transparent`) translated from `-100%` to `100%` in 1.1s on group-hover, `mix-blend-screen`, `pointer-events-none`.
+- Subtle floating idle: existing `animate-fade-in` on section entrance preserved; add `animate-[float_6s_ease-in-out_infinite]` (already in `index.css`, was added in earlier turn) at very low amplitude on the hero card only.
+- `prefers-reduced-motion`: tilt/sweep/float disabled via `motion-safe:` prefixes.
 
-## 3. Update the DB
+## Colors and tokens
 
-Single migration updating `profile_image` for each of the 9 designers by `slug` to its new CDN URL. No schema changes, no RLS/grants touched.
+- Gold accents use `#c9a56b` / `#e9d4a3` inline hex to match the selected prototype exactly (as instructed by redesign skill: copy direction tokens verbatim). These sit alongside the existing brand gold — no token file changes.
+- Surface behind the section stays the current bronze/mahogany background (no page-level color change).
 
-## 4. Premium hover on the card (component only)
+## Performance / a11y
 
-Edit `src/components/AzaDesignerCarousel.tsx` card wrapper:
+- All motion via `transform` and `opacity` on `will-change-transform` layers; no layout-affecting properties animated → no CLS.
+- Images keep existing width/height/`loading="lazy"` attributes.
+- Links keep their `aria-label`s and text; cards remain single `<a>` targets.
 
-- Add `perspective` container + `[transform-style:preserve-3d]` on the card.
-- On hover: `translateY(-10px)`, `rotateY(5deg)`, `shadow-[0_30px_60px_-20px_rgba(20,14,6,0.45)]`, `transition-[transform,box-shadow] duration-[350ms] ease-[cubic-bezier(0.16,1,0.3,1)]`, `will-change-transform`.
-- Bump the image hover from `scale-105` → `scale-[1.08]` with `duration-[500ms]`.
-- Add a subtle "glass reflection" overlay: absolute-positioned div with `bg-gradient-to-tr from-white/0 via-white/10 to-white/0`, `opacity-0 group-hover:opacity-100`, `mix-blend-screen`, `pointer-events-none`, `transition-opacity duration-300`.
+## Technical notes
 
-No changes to card size, aspect, carousel opts, arrows, typography, spacing, or responsiveness.
-
-## Files touched
-
-- New: `src/assets/designers/{roshi,punit-balana,gauri-nainika,aseem-kapoor,rajiramniq,anita-dongre,tarun-tahiliani,anamika-khanna,ka-sha}.jpg.asset.json` (9)
-- Edited: `src/components/AzaDesignerCarousel.tsx`
-- New migration: updates `designers.profile_image` for the 9 slugs
+- File is a single client component; tilt state kept in refs + `requestAnimationFrame` throttle so re-renders don't fire per mouse move.
+- No new packages, no route changes, no DB or edge function changes.
+- No changes to `New Arrivals`, header, footer, or any other section.
