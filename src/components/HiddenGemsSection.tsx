@@ -8,7 +8,7 @@ import instaLoved from "@/assets/insta-loved.jpg";
 import indieVogue from "@/assets/indie-vogue.jpg";
 import urbanLoom from "@/assets/urban-loom.jpg";
 import sareeSociety from "@/assets/saree-society.jpg";
-import hiddenGemsHero from "@/assets/hidden-gems-hero.jpg";
+import hiddenGemsHero from "@/assets/hidden-gems-hero.jpg.asset.json";
 
 const brands = [
   { name: "Chanderi Shine", image: chanderiShine, slug: "chanderi-shine" },
