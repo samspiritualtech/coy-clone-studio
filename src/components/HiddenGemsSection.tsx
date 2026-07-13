@@ -8,6 +8,7 @@ import instaLoved from "@/assets/insta-loved.jpg";
 import indieVogue from "@/assets/indie-vogue.jpg";
 import urbanLoom from "@/assets/urban-loom.jpg";
 import sareeSociety from "@/assets/saree-society.jpg";
+import hiddenGemsHero from "@/assets/hidden-gems-hero.jpg";
 
 const brands = [
   { name: "Chanderi Shine", image: chanderiShine, slug: "chanderi-shine" },
@@ -52,10 +53,13 @@ export const HiddenGemsSection = () => {
               <div style={{ aspectRatio: "3/4" }} className="relative overflow-hidden">
                 <ParallaxLayer speed={100} className="absolute inset-0">
                   <img
-                    src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=900&q=80"
+                    src={hiddenGemsHero}
                     alt="Hidden Gems Collection"
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover scale-110 transition-transform duration-[1200ms] group-hover:scale-[1.18]"
                   />
+
                 </ParallaxLayer>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-[2]" />
                 <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 z-10">
