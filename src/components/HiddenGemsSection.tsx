@@ -3,9 +3,10 @@ import { Link } from "react-router-dom";
 import { Tilt3D } from "@/components/luxury3d/Tilt3D";
 import { ParallaxLayer } from "@/components/luxury3d/ParallaxLayer";
 import { useGsapReveal } from "@/hooks/useGsapReveal";
+import chanderiShine from "@/assets/chanderi-shine.jpg";
 
 const brands = [
-  { name: "Chanderi Shine", image: "https://images.unsplash.com/photo-1583391265196-53c5e5e92b0d?w=600&q=80", slug: "chanderi-shine" },
+  { name: "Chanderi Shine", image: chanderiShine, slug: "chanderi-shine" },
   { name: "Insta Loved", image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=600&q=80", slug: "insta-loved" },
   { name: "Indie Vogue", image: "https://images.unsplash.com/photo-1544022613-e87ca75a784a?w=600&q=80", slug: "indie-vogue" },
   { name: "Urban Loom", image: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=600&q=80", slug: "urban-loom" },
