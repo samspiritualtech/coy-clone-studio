@@ -3,6 +3,9 @@ import { Link } from "react-router-dom";
 import topsHero from "@/assets/tops-hero.jpg";
 import bottomsHero from "@/assets/bottoms-hero.jpg";
 import outerwearHero from "@/assets/outerwear-hero.jpg";
+import dressesHero from "@/assets/dresses-hero.jpg";
+import footwearHero from "@/assets/footwear-hero.jpg";
+import bagsHero from "@/assets/bags-hero.jpg";
 
 const categories = [
   {
@@ -22,7 +25,7 @@ const categories = [
     subtitle: "Elegance for every occasion",
     ctaText: "Explore",
     ctaLink: "/collections?category=dresses",
-    backgroundImage: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=1920&q=80",
+    backgroundImage: dressesHero,
     height: "60vh" as const,
   },
   {
@@ -62,7 +65,7 @@ const categories = [
     subtitle: "Complete your look from the ground up",
     ctaText: "Step In",
     ctaLink: "/collections?category=footwear",
-    backgroundImage: "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=1920&q=80",
+    backgroundImage: footwearHero,
     height: "50vh" as const,
   },
   {
@@ -82,7 +85,7 @@ const categories = [
     subtitle: "Luxury handbags & designer pieces",
     ctaText: "Shop Bags",
     ctaLink: "/category/bags-accessories",
-    backgroundImage: "/bags/collection-hero.jpg",
+    backgroundImage: bagsHero,
     height: "50vh" as const,
   },
 ];
