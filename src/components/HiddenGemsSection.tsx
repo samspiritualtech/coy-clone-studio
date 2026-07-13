@@ -66,7 +66,7 @@ export const HiddenGemsSection = () => {
               <div style={{ aspectRatio: "3/4" }} className="relative overflow-hidden">
                 <ParallaxLayer speed={100} className="absolute inset-0">
                   <img
-                    src={hiddenGemsHero.url}
+                    src={hiddenGemsHero}
                     alt="Hidden Gems Collection"
                     loading="lazy"
                     decoding="async"
