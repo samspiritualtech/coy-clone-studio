@@ -1,34 +1,33 @@
 ## Changes
 
-### 1. Remove "A wall that breathes" section
-- In `src/pages/Index.tsx`, delete the `<PinterestInspiredSection />` line inside the museum wrapper.
-- Remove the now-unused `import { PinterestInspiredSection }` at the top.
-- No spacing changes needed — the museum wrapper's children stack naturally, so the next section (`LuxuryTrustBadges`) simply moves up with no leftover gap.
-- Leave `PinterestInspiredSection.tsx` and Pinterest supporting files on disk (still used elsewhere, e.g. product cards' Save-to-Pinterest button); only stop rendering the homepage section.
+### 1. Generate 6 premium editorial images
+Use `imagegen--generate_image` (`standard` tier) to produce cohesive luxury fashion photography that fits the dark editorial theme. Save to `src/assets/`:
 
-### 2. "Tops" section — add premium background image
-Root cause: the current `backgroundImage` for the Tops tile in `src/components/CategoryShowcase.tsx` points at Unsplash photo `1583391265196-53c5e5e92b0d`, which now returns **HTTP 404**. That's why the Tops section (and the Chanderi Shine card, which uses the same URL) looks empty/dark.
+| Slug | File | Dimensions | Prompt focus |
+| --- | --- | --- | --- |
+| bottoms | `src/assets/bottoms-hero.jpg` | 1920×1200 | Tailored high-waisted silk trousers, warm neutral palette, cinematic studio |
+| outerwear | `src/assets/outerwear-hero.jpg` | 1920×1200 | Structured wool coat, editorial low-key lighting, warm brown backdrop |
+| insta-loved | `src/assets/insta-loved.jpg` | 600×800 | Contemporary Indian designer kurta, soft moody light, warm tones |
+| indie-vogue | `src/assets/indie-vogue.jpg` | 600×800 | Avant-garde Indian fusion couture, cinematic side-lit portrait |
+| urban-loom | `src/assets/urban-loom.jpg` | 600×800 | Handloom weave modern silhouette, warm gold light |
+| saree-society | `src/assets/saree-society.jpg` | 600×800 | Elegant heritage silk saree, refined studio lighting, warm brown backdrop |
 
-- Generate a new luxury editorial image of women's tops (silk blouse, soft studio lighting, warm neutral palette) via `imagegen--generate_image` at `src/assets/tops-hero.jpg` (1920×1200, `premium` tier for print-grade fidelity).
-- Update the `tops` entry in `src/components/CategoryShowcase.tsx` to import that asset and use it as `backgroundImage`.
-- Keep the existing `FullWidthImageSection` component untouched — it already renders the image via `background-size: cover; background-position: center` and applies a `medium` gradient overlay for text readability. Label ("ESSENTIALS"), title ("Tops"), subtitle, CTA button, height (`50vh`), spacing, typography, animations and responsiveness remain identical.
+All cards already use `object-cover` and preserved aspect ratios — no styling changes.
 
-### 3. Fix broken "Chanderi Shine" card
-- Generate a matching editorial image of a woman in a chanderi silk saree/kurta (soft gold light, luxury studio) at `src/assets/chanderi-shine.jpg` (600×800, `standard` tier).
-- Update the `Chanderi Shine` entry in `src/components/HiddenGemsSection.tsx` to import and use the new asset.
-- The card already uses `object-cover`, same `aspect-[3/4]`, same border radius, and same hover scale animation as the other 5 brand cards — no styling changes.
+### 2. Wire imports & make cards navigate to `/collections/<slug>`
+The route `/collections/:category` already exists in `src/apps/CustomerApp.tsx` (renders `Collections`) — no new pages needed. Update link targets:
 
-### 4. Validation
-- Run the dev preview via Playwright and screenshot the homepage top-to-bottom to confirm:
-  - Pinterest section is gone with no whitespace gap.
-  - Tops tile shows the new background with readable text overlay.
-  - Chanderi Shine card shows the new image with no broken-icon.
-- Check console logs and network requests for 404s/errors on the homepage.
-- Confirm no other section changed (visual diff by scrolling through screenshots).
+- **`src/components/CategoryShowcase.tsx`** — replace `backgroundImage` for the `bottoms` and `outerwear` entries with the new imported assets; change their `ctaLink` from `/collections?category=<slug>` to `/collections/<slug>`. The `FullWidthImageSection` already wraps the whole tile in a clickable link, so the whole card stays clickable.
+- **`src/components/HiddenGemsSection.tsx`** — replace the `image` fields for Insta Loved, Indie Vogue, Urban Loom, Saree Society with the new imported assets; change the `Link to={...}` from `` `/collections?brand=${brand.slug}` `` to `` `/collections/${brand.slug}` ``. The `<Link>` already wraps each card so it's fully clickable.
+
+Leave Chanderi Shine (just updated) and Velvet Threads untouched — user didn't list them.
+
+### 3. Validation
+- Run Playwright on `/`, screenshot the Hidden Gems and Bottoms/Outerwear tiles.
+- Check console/network for 404s.
+- Click one card to confirm it navigates to `/collections/<slug>` and the Collections page renders (existing page already handles unknown slugs by showing all products).
 
 ### Files touched
-- `src/pages/Index.tsx` — remove Pinterest import + render.
-- `src/components/CategoryShowcase.tsx` — update Tops `backgroundImage` to new asset.
-- `src/components/HiddenGemsSection.tsx` — update Chanderi Shine `image` to new asset.
-- `src/assets/tops-hero.jpg` — new (generated).
-- `src/assets/chanderi-shine.jpg` — new (generated).
+- `src/components/CategoryShowcase.tsx`
+- `src/components/HiddenGemsSection.tsx`
+- 6 new assets in `src/assets/`
