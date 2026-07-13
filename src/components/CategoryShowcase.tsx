@@ -1,6 +1,8 @@
 import { FullWidthImageSection } from "./FullWidthImageSection";
 import { Link } from "react-router-dom";
 import topsHero from "@/assets/tops-hero.jpg";
+import bottomsHero from "@/assets/bottoms-hero.jpg";
+import outerwearHero from "@/assets/outerwear-hero.jpg";
 
 const categories = [
   {
@@ -39,8 +41,8 @@ const categories = [
     title: "Bottoms",
     subtitle: "Tailored to perfection",
     ctaText: "View Collection",
-    ctaLink: "/collections?category=bottoms",
-    backgroundImage: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=1920&q=80",
+    ctaLink: "/collections/bottoms",
+    backgroundImage: bottomsHero,
     height: "50vh" as const,
   },
   {
@@ -49,8 +51,8 @@ const categories = [
     title: "Outerwear",
     subtitle: "Jackets and coats for every season",
     ctaText: "Layer Up",
-    ctaLink: "/collections?category=outerwear",
-    backgroundImage: "https://images.unsplash.com/photo-1544022613-e87ca75a784a?w=1920&q=80",
+    ctaLink: "/collections/outerwear",
+    backgroundImage: outerwearHero,
     height: "60vh" as const,
   },
   {
