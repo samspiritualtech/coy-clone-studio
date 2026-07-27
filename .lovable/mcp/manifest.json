@@ -1,0 +1,108 @@
+{
+  "version": 1,
+  "sdk_version": "0.24.0",
+  "path": "/functions/v1/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://yudzgkrjsstqbfrrrrly.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "ogura-mcp",
+      "version": "0.1.0",
+      "title": "OGURA"
+    },
+    "tools": [
+      {
+        "name": "search_products",
+        "title": "Search OGURA products",
+        "description": "Search live OGURA products by keyword, category, or price range. Returns a list of products with id, title, price, category, and description.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "description": "Keyword to match against product title or description."
+            },
+            "category": {
+              "type": "string",
+              "description": "Category slug or name to filter by."
+            },
+            "max_price": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "description": "Maximum price in INR."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "description": "Max number of results (default 20)."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_product",
+        "title": "Get an OGURA product",
+        "description": "Fetch full details for a single OGURA product by its id.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "product_id": {
+              "type": "string",
+              "format": "uuid",
+              "description": "The product's UUID."
+            }
+          },
+          "required": [
+            "product_id"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_my_orders",
+        "title": "List my OGURA orders",
+        "description": "List the signed-in OGURA customer's own orders, most recent first. Requires authentication.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "description": "Max number of orders to return (default 10)."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}

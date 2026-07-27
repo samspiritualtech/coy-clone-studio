@@ -10,7 +10,10 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const from = (location.state as any)?.from?.pathname || "/dashboard";
+  const searchParams = new URLSearchParams(location.search);
+  const nextParam = searchParams.get("next");
+  const isSameOriginPath = nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//");
+  const from = isSameOriginPath ? nextParam! : (location.state as any)?.from?.pathname || "/dashboard";
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -24,13 +27,13 @@ const Login = () => {
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-      if (isNewUser) {
+      if (isNewUser && !isSameOriginPath) {
         navigate("/onboarding", { replace: true });
       } else {
         navigate(from, { replace: true });
       }
     }
-  }, [isAuthenticated, isLoading, isNewUser, navigate, from]);
+  }, [isAuthenticated, isLoading, isNewUser, navigate, from, isSameOriginPath]);
 
   if (isLoading) {
     return (
