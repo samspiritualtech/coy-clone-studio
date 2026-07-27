@@ -27,13 +27,13 @@ const Login = () => {
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-      if (isNewUser) {
+      if (isNewUser && !isSameOriginPath) {
         navigate("/onboarding", { replace: true });
       } else {
         navigate(from, { replace: true });
       }
     }
-  }, [isAuthenticated, isLoading, isNewUser, navigate, from]);
+  }, [isAuthenticated, isLoading, isNewUser, navigate, from, isSameOriginPath]);
 
   if (isLoading) {
     return (
