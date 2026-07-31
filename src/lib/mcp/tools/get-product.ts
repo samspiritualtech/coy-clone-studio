@@ -1,18 +1,7 @@
-import { createClient } from "@supabase/supabase-js";
-import { defineTool, type ToolContext } from "@lovable.dev/mcp-js";
+import { defineTool } from "@lovable.dev/mcp-js";
 import { z } from "zod";
+import { supabaseOptionalUser } from "../supabase";
 
-function client(ctx: ToolContext) {
-  const token = ctx.getToken();
-  return createClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_PUBLISHABLE_KEY!,
-    {
-      global: token ? { headers: { Authorization: `Bearer ${token}` } } : {},
-      auth: { persistSession: false, autoRefreshToken: false },
-    },
-  );
-}
 
 export default defineTool({
   name: "get_product",

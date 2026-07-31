@@ -6,20 +6,8 @@
 import { auth, defineMcp } from "npm:@lovable.dev/mcp-js@0.24.0";
 
 // src/lib/mcp/tools/search-products.ts
-import { createClient } from "npm:@supabase/supabase-js@^2.76.1";
 import { defineTool } from "npm:@lovable.dev/mcp-js@0.24.0";
 import { z } from "npm:zod@^3.23.8";
-function client(ctx) {
-  const token = ctx.getToken();
-  return createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_PUBLISHABLE_KEY,
-    {
-      global: token ? { headers: { Authorization: `Bearer ${token}` } } : {},
-      auth: { persistSession: false, autoRefreshToken: false }
-    }
-  );
-}
 var search_products_default = defineTool({
   name: "search_products",
   title: "Search OGURA products",
@@ -49,20 +37,8 @@ var search_products_default = defineTool({
 });
 
 // src/lib/mcp/tools/get-product.ts
-import { createClient as createClient2 } from "npm:@supabase/supabase-js@^2.76.1";
 import { defineTool as defineTool2 } from "npm:@lovable.dev/mcp-js@0.24.0";
 import { z as z2 } from "npm:zod@^3.23.8";
-function client2(ctx) {
-  const token = ctx.getToken();
-  return createClient2(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_PUBLISHABLE_KEY,
-    {
-      global: token ? { headers: { Authorization: `Bearer ${token}` } } : {},
-      auth: { persistSession: false, autoRefreshToken: false }
-    }
-  );
-}
 var get_product_default = defineTool2({
   name: "get_product",
   title: "Get an OGURA product",
@@ -72,7 +48,7 @@ var get_product_default = defineTool2({
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async ({ product_id }, ctx) => {
-    const { data, error } = await client2(ctx).from("products").select("*").eq("id", product_id).maybeSingle();
+    const { data, error } = await client(ctx).from("products").select("*").eq("id", product_id).maybeSingle();
     if (error) return { content: [{ type: "text", text: error.message }], isError: true };
     if (!data) return { content: [{ type: "text", text: "Product not found." }], isError: true };
     return {
@@ -83,19 +59,8 @@ var get_product_default = defineTool2({
 });
 
 // src/lib/mcp/tools/list-my-orders.ts
-import { createClient as createClient3 } from "npm:@supabase/supabase-js@^2.76.1";
 import { defineTool as defineTool3 } from "npm:@lovable.dev/mcp-js@0.24.0";
 import { z as z3 } from "npm:zod@^3.23.8";
-function userClient(ctx) {
-  return createClient3(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_PUBLISHABLE_KEY,
-    {
-      global: { headers: { Authorization: `Bearer ${ctx.getToken()}` } },
-      auth: { persistSession: false, autoRefreshToken: false }
-    }
-  );
-}
 var list_my_orders_default = defineTool3({
   name: "list_my_orders",
   title: "List my OGURA orders",
