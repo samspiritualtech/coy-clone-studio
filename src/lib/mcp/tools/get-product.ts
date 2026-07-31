@@ -12,7 +12,7 @@ export default defineTool({
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async ({ product_id }, ctx) => {
-    const { data, error } = await client(ctx)
+    const { data, error } = await supabaseOptionalUser(ctx)
       .from("products")
       .select("*")
       .eq("id", product_id)

@@ -8,6 +8,65 @@ import { auth, defineMcp } from "npm:@lovable.dev/mcp-js@0.24.0";
 // src/lib/mcp/tools/search-products.ts
 import { defineTool } from "npm:@lovable.dev/mcp-js@0.24.0";
 import { z } from "npm:zod@^3.23.8";
+
+// src/lib/mcp/supabase.ts
+import { createClient } from "npm:@supabase/supabase-js@^2.76.1";
+function runtimeEnv(name) {
+  const runtime = globalThis;
+  return runtime.Deno?.env?.get?.(name) ?? runtime.process?.env?.[name];
+}
+function configuredEnv(names) {
+  for (const name of names) {
+    const value = runtimeEnv(name)?.trim();
+    if (value) return value;
+  }
+  return void 0;
+}
+function supabaseProjectUrl() {
+  const url = configuredEnv(["SUPABASE_URL", "VITE_SUPABASE_URL"]);
+  if (!url) throw new Error("SUPABASE_URL (or VITE_SUPABASE_URL) is required");
+  return url;
+}
+function supabasePublishableKey() {
+  const direct = configuredEnv([
+    "SUPABASE_PUBLISHABLE_KEY",
+    "VITE_SUPABASE_PUBLISHABLE_KEY"
+  ]);
+  if (direct) return direct;
+  const keyset = runtimeEnv("SUPABASE_PUBLISHABLE_KEYS");
+  if (keyset) {
+    try {
+      const parsed = JSON.parse(keyset);
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+        const keys = parsed;
+        const key = [keys.default, ...Object.values(keys)].find((v) => typeof v === "string" && v.trim().startsWith("sb_publishable_"))?.trim();
+        if (key) return key;
+      }
+    } catch {
+    }
+  }
+  const legacy = configuredEnv(["SUPABASE_ANON_KEY", "VITE_SUPABASE_ANON_KEY"]);
+  if (legacy) return legacy;
+  throw new Error("SUPABASE_PUBLISHABLE_KEY, SUPABASE_PUBLISHABLE_KEYS, or SUPABASE_ANON_KEY is required");
+}
+function supabaseAnon() {
+  return createClient(supabaseProjectUrl(), supabasePublishableKey(), {
+    auth: { persistSession: false, autoRefreshToken: false }
+  });
+}
+function supabaseForUser(ctx) {
+  const token = ctx.getToken();
+  if (!token) throw new Error("supabaseForUser requires a verified OAuth token");
+  return createClient(supabaseProjectUrl(), supabasePublishableKey(), {
+    global: { headers: { Authorization: `Bearer ${token}` } },
+    auth: { persistSession: false, autoRefreshToken: false }
+  });
+}
+function supabaseOptionalUser(ctx) {
+  return ctx.getToken() ? supabaseForUser(ctx) : supabaseAnon();
+}
+
+// src/lib/mcp/tools/search-products.ts
 var search_products_default = defineTool({
   name: "search_products",
   title: "Search OGURA products",
@@ -20,7 +79,7 @@ var search_products_default = defineTool({
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async ({ query, category, max_price, limit }, ctx) => {
-    const supabase = client(ctx);
+    const supabase = supabaseOptionalUser(ctx);
     let q = supabase.from("products").select("id, title, price, category, short_description, description, images").eq("status", "live").limit(limit ?? 20);
     if (query) q = q.or(`title.ilike.%${query}%,description.ilike.%${query}%`);
     if (category) q = q.eq("category", category);
@@ -48,7 +107,7 @@ var get_product_default = defineTool2({
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async ({ product_id }, ctx) => {
-    const { data, error } = await client(ctx).from("products").select("*").eq("id", product_id).maybeSingle();
+    const { data, error } = await supabaseOptionalUser(ctx).from("products").select("*").eq("id", product_id).maybeSingle();
     if (error) return { content: [{ type: "text", text: error.message }], isError: true };
     if (!data) return { content: [{ type: "text", text: "Product not found." }], isError: true };
     return {
@@ -76,7 +135,7 @@ var list_my_orders_default = defineTool3({
         isError: true
       };
     }
-    const { data, error } = await userClient(ctx).from("orders").select(
+    const { data, error } = await supabaseForUser(ctx).from("orders").select(
       "id, order_number, status, subtotal, shipping_fee, discount, total, tracking_id, created_at"
     ).eq("customer_id", ctx.getUserId()).order("created_at", { ascending: false }).limit(limit ?? 10);
     if (error) {

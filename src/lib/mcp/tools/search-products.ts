@@ -26,7 +26,7 @@ export default defineTool({
   },
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: false },
   handler: async ({ query, category, max_price, limit }, ctx) => {
-    const supabase = client(ctx);
+    const supabase = supabaseOptionalUser(ctx);
     let q = supabase
       .from("products")
       .select("id, title, price, category, short_description, description, images")

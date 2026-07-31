@@ -25,7 +25,7 @@ export default defineTool({
         isError: true,
       };
     }
-    const { data, error } = await userClient(ctx)
+    const { data, error } = await supabaseForUser(ctx)
       .from("orders")
       .select(
         "id, order_number, status, subtotal, shipping_fee, discount, total, tracking_id, created_at",
