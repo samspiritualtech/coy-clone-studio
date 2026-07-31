@@ -19,7 +19,7 @@ const contactSchema = z.object({
     .optional()
     .or(z.literal("")),
   message: z.string().trim().min(1, { message: "Message is required" }).max(1000),
-  agree: z.literal(true, { errorMap: () => ({ message: "Please accept the terms" }) }),
+  agree: z.literal(true, { message: "Please accept the terms" }),
 });
 
 const Contact = () => {
