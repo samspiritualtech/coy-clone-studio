@@ -13,7 +13,20 @@ const Login = () => {
   const searchParams = new URLSearchParams(location.search);
   const nextParam = searchParams.get("next");
   const isSameOriginPath = nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//");
-  const from = isSameOriginPath ? nextParam! : (location.state as any)?.from?.pathname || "/dashboard";
+
+  // Path saved before the Google OAuth round-trip (may return on the apex domain).
+  const storedPath = (() => {
+    try {
+      const p = sessionStorage.getItem("ogura_post_auth_path");
+      return p && p.startsWith("/") && !p.startsWith("//") && !p.startsWith("/login") ? p : null;
+    } catch {
+      return null;
+    }
+  })();
+
+  const from = isSameOriginPath
+    ? nextParam!
+    : (location.state as any)?.from?.pathname || storedPath || "/dashboard";
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -27,6 +40,11 @@ const Login = () => {
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
+      try {
+        sessionStorage.removeItem("ogura_post_auth_path");
+      } catch {
+        // ignore
+      }
       if (isNewUser && !isSameOriginPath) {
         navigate("/onboarding", { replace: true });
       } else {

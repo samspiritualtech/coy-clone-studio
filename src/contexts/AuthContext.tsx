@@ -18,6 +18,18 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const POST_AUTH_PATH_KEY = 'ogura_post_auth_path';
+
+/**
+ * Returns an origin that is guaranteed to be on the OAuth redirect allow-list.
+ * `www.` hosts are not allow-listed, so they are canonicalized to the apex host.
+ */
+const getCanonicalAuthOrigin = (): string => {
+  const { protocol, hostname, port } = window.location;
+  const canonicalHost = hostname.startsWith('www.') ? hostname.slice(4) : hostname;
+  return `${protocol}//${canonicalHost}${port ? `:${port}` : ''}`;
+};
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -104,8 +116,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signInWithGoogle = async (): Promise<{ success: boolean; error?: string }> => {
     try {
+      // Remember where the user was so we can return there after the round-trip.
+      try {
+        const intended = window.location.pathname + window.location.search;
+        if (intended.startsWith('/') && !intended.startsWith('//')) {
+          sessionStorage.setItem(POST_AUTH_PATH_KEY, intended);
+        }
+      } catch {
+        // sessionStorage unavailable (private mode) - non-fatal
+      }
+
       const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
+        redirect_uri: getCanonicalAuthOrigin(),
       });
 
       if (result.error) {
