@@ -1,19 +1,39 @@
-## Replace Hidden Gems large featured image only
+## Diagnosis (verified)
 
-Swap the current large featured image in the Hidden Gems / OGURA Social section for a new premium luxury editorial fashion photograph. Everything else in the section remains untouched.
+The backend OAuth redirect allow-list currently contains:
 
-### What will change
-- The large left card image (`src/assets/hidden-gems-hero.jpg`) will be replaced with a new high-resolution editorial image.
-- The import in `src/components/HiddenGemsSection.tsx` will point to the new asset.
+```text
+https://ogura.in/**
+https://admin.ogura.in/**
+https://id-preview*--d4269340-...lovable.app/**
+https://d4269340-...lovableproject.com/**
+https://preview--coy-clone-studio.lovable.app/**
+https://coy-clone-studio.lovable.app/**
+```
 
-### What stays exactly the same
-- Hidden Gems title, OGURA Social eyebrow, description, CTA.
-- Card size, layout, typography, border radius, hover animations, responsiveness.
-- All four right-side brand cards and their behavior.
+`https://www.ogura.in/**` is **not** in that list. `src/contexts/AuthContext.tsx` sends `redirect_uri: window.location.origin`, so on `www.ogura.in` the broker receives `https://www.ogura.in` and rejects it: "redirect_uri is not allowed". Everything else is fine — Google client ID / secret are Lovable-managed (no Google Cloud Console action needed), Supabase Site URL and `.env` values are correct, and the same flow works on `ogura.in` and on the previews.
 
-### Implementation steps
-1. Generate a new luxury editorial fashion image matching the existing warm palette (gold, brown, champagne, beige, black) and cinematic lighting.
-2. Upload the image as a Lovable asset and create `src/assets/hidden-gems-hero.jpg.asset.json`.
-3. Delete the old `src/assets/hidden-gems-hero.jpg` binary.
-4. Update `src/components/HiddenGemsSection.tsx` to import and use the new asset URL.
-5. Run the build to verify no errors and confirm the section renders correctly.
+## Code change
+
+`src/contexts/AuthContext.tsx` — canonicalize the OAuth origin instead of trusting `window.location.origin`:
+
+- Add a small helper that returns the allow-listed origin for the current host: if the hostname starts with `www.`, strip it (`www.ogura.in` → `https://ogura.in`); otherwise return `window.location.origin` unchanged (previews, `admin.ogura.in`, `coy-clone-studio.lovable.app`, localhost all pass through).
+- Save the intended in-app path (e.g. `sessionStorage`) before starting sign-in, and after the session hydrates navigate there — so a user who started on a deep link still lands where they expected.
+- Pass the canonical origin as `redirect_uri` (a public origin, never a protected route).
+
+Effect: signing in from `www.ogura.in` completes on `ogura.in`, which is the primary domain and already allow-listed. No other auth code changes.
+
+## Recommended action on your side (optional but preferred)
+
+Also add `www.ogura.in` as its own custom domain entry so the www host is allow-listed directly:
+
+1. Project Settings → Domains → Connect Domain
+2. Enter `www.ogura.in`
+3. Confirm DNS: `A` record, name `www`, value `185.158.133.1`
+4. Keep `ogura.in` as **Primary** so www redirects to it
+
+Nothing needs to be added in Google Cloud Console — Lovable's managed Google credentials handle the Google-side redirect URI.
+
+## Verification
+
+After the change: sign in from `www.ogura.in`, from `ogura.in`, and from the Lovable preview; each should reach Google and return signed in with no `invalid_request` screen.
