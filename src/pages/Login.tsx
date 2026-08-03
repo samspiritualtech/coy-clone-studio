@@ -40,6 +40,11 @@ const Login = () => {
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
+      try {
+        sessionStorage.removeItem("ogura_post_auth_path");
+      } catch {
+        // ignore
+      }
       if (isNewUser && !isSameOriginPath) {
         navigate("/onboarding", { replace: true });
       } else {
