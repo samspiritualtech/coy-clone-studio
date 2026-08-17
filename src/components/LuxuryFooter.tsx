@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Instagram, Facebook, Twitter, Youtube } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import oguraLogo from "@/assets/ogura-logo.png.asset.json";
 
 export const LuxuryFooter = () => {
   return (
