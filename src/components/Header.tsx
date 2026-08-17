@@ -8,6 +8,7 @@ import { MegaMenuMobile } from "@/components/MegaMenuMobile";
 import { HeaderLocationIndicator } from "@/components/HeaderLocationIndicator";
 import { AlgoliaSearchDropdown, AlgoliaMobileSearch } from "@/components/search";
 import { UserMenu } from "@/components/auth/UserMenu";
+import oguraLogo from "@/assets/ogura-logo.png.asset.json";
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
