@@ -30,6 +30,7 @@ import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import TermsOfUse from "@/pages/TermsOfUse";
 import PinterestCallback from "@/pages/PinterestCallback";
 import Contact from "@/pages/Contact";
+import Careers from "@/pages/Careers";
 import OAuthConsent from "@/pages/OAuthConsent";
 
 const CustomerApp = () => {
@@ -57,6 +58,7 @@ const CustomerApp = () => {
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfUse />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/careers" element={<Careers />} />
         <Route path="/auth/pinterest/callback" element={<PinterestCallback />} />
         <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
 

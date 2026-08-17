@@ -29,7 +29,7 @@ export const LuxuryHeader = () => {
     { label: "Brands", path: "/brands" },
     { label: "Designers", path: "/designers" },
     { label: "Occasions", path: "/occasions" },
-    { label: "New", path: "/collections" },
+    { label: "Careers", path: "/careers" },
     { label: "Stores", path: "/stores" },
   ];
 
