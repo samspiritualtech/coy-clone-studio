@@ -88,7 +88,7 @@ export const LuxuryHeader = () => {
             <img
               src={oguraLogo.url}
               alt="OGURA"
-              className="h-7 md:h-8 w-auto object-contain"
+              className="h-10 md:h-12 w-auto object-contain"
             />
           </Link>
 
