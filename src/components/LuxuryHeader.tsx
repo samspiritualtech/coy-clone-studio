@@ -9,6 +9,7 @@ import { MegaMenuMobile } from "@/components/MegaMenuMobile";
 import { AlgoliaSearchDropdown, AlgoliaMobileSearch } from "@/components/search";
 import { UserMenu } from "@/components/auth/UserMenu";
 import { cn } from "@/lib/utils";
+import oguraLogo from "@/assets/ogura-logo.png.asset.json";
 
 export const LuxuryHeader = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
