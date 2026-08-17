@@ -8,6 +8,7 @@ import { MegaMenuMobile } from "@/components/MegaMenuMobile";
 import { HeaderLocationIndicator } from "@/components/HeaderLocationIndicator";
 import { AlgoliaSearchDropdown, AlgoliaMobileSearch } from "@/components/search";
 import { UserMenu } from "@/components/auth/UserMenu";
+import oguraLogo from "@/assets/ogura-logo.png.asset.json";
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -37,7 +38,9 @@ export const Header = () => {
             </div>
           </div>
 
-          <Link to="/" className="text-2xl font-bold tracking-tight">OGURA</Link>
+          <Link to="/" className="flex items-center" aria-label="OGURA home">
+            <img src={oguraLogo.url} alt="OGURA" className="h-7 w-auto object-contain" />
+          </Link>
 
           <nav className="hidden md:flex items-center gap-6 static">
             <MegaMenu isScrolled={true} />

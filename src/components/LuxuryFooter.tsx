@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Instagram, Facebook, Twitter, Youtube } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import oguraLogo from "@/assets/ogura-logo.png.asset.json";
 
 export const LuxuryFooter = () => {
   return (
@@ -128,8 +129,8 @@ export const LuxuryFooter = () => {
       {/* Bottom Bar */}
       <div className="border-t border-background/10">
         <div className="container mx-auto px-4 py-6 flex flex-col md:flex-row justify-between items-center gap-4">
-          <Link to="/" className="text-xl font-light tracking-[0.3em] uppercase">
-            OGURA
+          <Link to="/" className="flex items-center" aria-label="OGURA home">
+            <img src={oguraLogo.url} alt="OGURA" className="h-6 w-auto object-contain" />
           </Link>
           <p className="text-xs text-background/40">
             © 2024 OGURA. All rights reserved.
