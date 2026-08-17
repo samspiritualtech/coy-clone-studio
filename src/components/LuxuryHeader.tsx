@@ -83,14 +83,12 @@ export const LuxuryHeader = () => {
             {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
 
-          <Link
-            to="/"
-            className={cn(
-              "text-2xl font-light tracking-[0.3em] uppercase transition-colors",
-              isScrolled ? "text-foreground" : "text-white"
-            )}
-          >
-            OGURA
+          <Link to="/" className="flex items-center" aria-label="OGURA home">
+            <img
+              src={oguraLogo.url}
+              alt="OGURA"
+              className="h-7 md:h-8 w-auto object-contain"
+            />
           </Link>
 
           <nav className="hidden md:flex items-center gap-8 static">
