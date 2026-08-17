@@ -1,39 +1,27 @@
-## Diagnosis (verified)
+# Careers Page + Careers Nav Tab
 
-The backend OAuth redirect allow-list currently contains:
+## What changes
 
-```text
-https://ogura.in/**
-https://admin.ogura.in/**
-https://id-preview*--d4269340-...lovable.app/**
-https://d4269340-...lovableproject.com/**
-https://preview--coy-clone-studio.lovable.app/**
-https://coy-clone-studio.lovable.app/**
-```
+1. **Navigation** — In the homepage header nav bar (currently Brands, Designers, Occasions, New, Stores), replace **New** with **Careers** pointing to `/careers`. Same styling, same position.
 
-`https://www.ogura.in/**` is **not** in that list. `src/contexts/AuthContext.tsx` sends `redirect_uri: window.location.origin`, so on `www.ogura.in` the broker receives `https://www.ogura.in` and rejects it: "redirect_uri is not allowed". Everything else is fine — Google client ID / secret are Lovable-managed (no Google Cloud Console action needed), Supabase Site URL and `.env` values are correct, and the same flow works on `ogura.in` and on the previews.
+2. **New `/careers` landing page** — Premium luxury editorial layout consistent with the OGURA aesthetic:
+   - Hero band: eyebrow "OGURA CAREERS", headline, short line about building India's luxury fashion marketplace.
+   - "Why OGURA" — 3-4 value cards (craft-led culture, ownership, designers & brands, growth).
+   - Open roles — a list of role cards (title, location, type) each with an "Apply" action that pre-fills an application to `careers@ogura.in` with the role name.
+   - Application form — Name, Email, Phone, Role of interest, Portfolio/LinkedIn URL (optional), Message. On submit it opens the user's mail client to `careers@ogura.in` with the details formatted in the body, matching how the Contact page works today.
+   - Direct contact line: `careers@ogura.in` as a clickable mailto for people who prefer to email a CV directly (attachments aren't possible from an in-page form).
+   - SEO: page title, meta description, single H1.
 
-## Code change
+3. **Footer link** — add "Careers" alongside the existing Contact link so the page is reachable from every page.
 
-`src/contexts/AuthContext.tsx` — canonicalize the OAuth origin instead of trusting `window.location.origin`:
+## Technical notes
 
-- Add a small helper that returns the allow-listed origin for the current host: if the hostname starts with `www.`, strip it (`www.ogura.in` → `https://ogura.in`); otherwise return `window.location.origin` unchanged (previews, `admin.ogura.in`, `coy-clone-studio.lovable.app`, localhost all pass through).
-- Save the intended in-app path (e.g. `sessionStorage`) before starting sign-in, and after the session hydrates navigate there — so a user who started on a deep link still lands where they expected.
-- Pass the canonical origin as `redirect_uri` (a public origin, never a protected route).
+- New file `src/pages/Careers.tsx`, route registered in `src/apps/CustomerApp.tsx` as `/careers` (public).
+- Nav item edited in `src/components/LuxuryHeader.tsx`; also add to the mobile menu if that header renders one.
+- Client-side validation with zod (`message` API, `error.issues`), toast feedback via `useToast` — same pattern as `src/pages/Contact.tsx`.
+- No database table and no backend function: submissions go out as `mailto:` like Contact. If you'd rather store applications in the backend (with resume file upload) that's a follow-up.
+- Uses existing design tokens only — no hardcoded colors.
 
-Effect: signing in from `www.ogura.in` completes on `ogura.in`, which is the primary domain and already allow-listed. No other auth code changes.
+## Assumption
 
-## Recommended action on your side (optional but preferred)
-
-Also add `www.ogura.in` as its own custom domain entry so the www host is allow-listed directly:
-
-1. Project Settings → Domains → Connect Domain
-2. Enter `www.ogura.in`
-3. Confirm DNS: `A` record, name `www`, value `185.158.133.1`
-4. Keep `ogura.in` as **Primary** so www redirects to it
-
-Nothing needs to be added in Google Cloud Console — Lovable's managed Google credentials handle the Google-side redirect URI.
-
-## Verification
-
-After the change: sign in from `www.ogura.in`, from `ogura.in`, and from the Lovable preview; each should reach Google and return signed in with no `invalid_request` screen.
+Open roles will be seeded with a small placeholder set (e.g. Fashion Merchandiser, Growth Marketer, Frontend Engineer, Studio Photographer, Seller Success). Send me your real list and I'll swap it in.
