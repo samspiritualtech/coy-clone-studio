@@ -39,7 +39,7 @@ export const Header = () => {
           </div>
 
           <Link to="/" className="flex items-center" aria-label="OGURA home">
-            <img src={oguraLogo.url} alt="OGURA" className="h-7 w-auto object-contain" />
+            <img src={oguraLogo.url} alt="OGURA" className="h-10 w-auto object-contain" />
           </Link>
 
           <nav className="hidden md:flex items-center gap-6 static">
