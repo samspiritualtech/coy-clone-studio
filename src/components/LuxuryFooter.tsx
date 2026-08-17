@@ -79,6 +79,7 @@ export const LuxuryFooter = () => {
             <ul className="space-y-3">
               {[
                 { label: "Contact Us", to: "/contact" },
+                { label: "Careers", to: "/careers" },
                 { label: "Shipping", to: "/" },
                 { label: "Returns", to: "/" },
                 { label: "Size Guide", to: "/" },
