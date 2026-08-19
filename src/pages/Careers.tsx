@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { z } from "zod";
-import { Mail, Sparkles, Users, TrendingUp, Gem, Rocket, Layers } from "lucide-react";
+import { Mail, Sparkles, Users, Gem, Rocket, Layers } from "lucide-react";
 import { CustomerLayout } from "@/layouts/CustomerLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,387 +31,513 @@ const applicationSchema = z.object({
 });
 
 type Role = {
-  n: number;
+  n: string;
   title: string;
-  type: string;
-  idealFor: string;
+  department: string;
+  experience?: string;
+  preferred?: string;
   about: string;
   doList: string[];
-  calloutLabel?: string;
-  callout?: string;
-  whoShouldApply: string;
+  needList: string[];
+  needLabel?: string;
+  qualifications?: string;
+  note?: string;
+  extraLabel?: string;
+  extra?: string;
 };
 
 type Group = {
   heading: string;
-  lead?: string;
-  leadTitle?: string;
   roles: Role[];
 };
 
 const groups: Group[] = [
   {
-    heading: "Fashion & Brand",
+    heading: "Fashion & Marketplace",
     roles: [
       {
-        n: 1,
+        n: "01",
         title: "Fashion Catalogue & Product Taxonomy Intern",
-        type: "Internship",
-        idealFor:
-          "NIFT, Pearl Academy, Fashion Management, Fashion Design, Fashion Communication, Textile Design",
+        department: "Fashion & Product",
+        experience: "0–1 year / students welcome",
+        preferred: "NIFT, Pearl Academy, or other fashion/design institutions",
         about:
-          "You will help OGURA understand, structure, and organise fashion products so customers can discover them easily through search, categories, filters, and recommendations.",
+          "You will help build the fashion knowledge layer that powers product discovery on OGURA. Working closely with the Product and Technology teams, you will make sure every product is correctly categorised, tagged, and structured so customers can find it through search, filters, and recommendations.",
         doList: [
-          "Analyse fashion brand catalogues",
-          "Identify the correct product categories and subcategories",
+          "Analyse fashion brand catalogues and product assortments",
+          "Identify the right product categories and subcategories",
           "Classify garments, accessories, and fashion products",
-          "Identify fabrics, materials, and techniques",
+          "Identify fabrics, materials, techniques, and construction details",
           "Identify silhouettes, fits, patterns, colours, and styles",
-          "Define product attributes and tags",
-          "Help build OGURA's fashion taxonomy",
-          "Review product information submitted by brands and flag anything missing or incorrect",
-          "Work with the Product and Technology teams on search and discovery",
-          "Improve product tagging for recommendations and personalised discovery",
+          "Create and maintain product attributes and tags",
+          "Help develop and refine OGURA's fashion taxonomy",
+          "Review catalogue information submitted by brands and flag anything missing, inconsistent, or incorrect",
+          "Help define search and filter attributes",
+          "Provide fashion-domain input for recommendation and discovery systems",
         ],
-        calloutLabel: "Example",
-        callout:
-          "Instead of simply tagging a product as Dress, you might classify it as: Women → Clothing → Dresses → Midi Dress with attributes: Cotton | Floral | A-Line | Casual | Summer | Short Sleeve",
-        whoShouldApply:
-          "Someone who understands fashion products and enjoys analysing, categorising, and organising information.",
+        needList: [
+          "Strong understanding of fashion products and categories",
+          "Knowledge of fabrics, silhouettes, and garment terminology",
+          "Understanding of fashion merchandising or product classification",
+          "Strong research, analytical, and organisational skills",
+          "Excellent attention to detail",
+          "Good written communication",
+          "Basic knowledge of Google Sheets or Excel",
+          "Interest in fashion technology and e-commerce",
+        ],
+        qualifications:
+          "Fashion Management, Fashion Design, Fashion Communication, Textile Design, Fashion Technology, or a related programme",
+        note:
+          "You're a great fit if you can look at any fashion product and instantly understand what it is, which category it belongs to, what attributes describe it, and how a customer would search for it.",
       },
       {
-        n: 2,
+        n: "02",
         title: "Fashion Brand Sourcing Intern",
-        type: "Internship",
-        idealFor:
-          "NIFT, Pearl Academy, Fashion Management, Fashion Communication, Marketing",
+        department: "Brand Partnerships",
+        experience: "0–1 year / students welcome",
+        preferred: "Fashion, Marketing, Business, or a related field",
         about:
-          "You will help OGURA discover promising fashion brands, designers, and boutique businesses.",
+          "You will help OGURA discover the emerging brands, independent designers, boutique stores, and homegrown labels that could become part of our ecosystem.",
         doList: [
-          "Research Instagram fashion brands",
-          "Discover independent designers and homegrown labels",
-          "Find boutique stores and emerging fashion businesses",
-          "Build qualified brand databases",
-          "Analyse brand positioning and product assortment",
-          "Identify brands suited to OGURA Marketplace",
-          "Spot gaps in OGURA's brand and category portfolio",
+          "Research emerging fashion brands, designers, and Instagram-first businesses",
+          "Identify boutique stores and independent labels",
+          "Build and maintain qualified brand databases",
+          "Research brand positioning, product assortment, and pricing",
+          "Identify brands that align with OGURA's marketplace, and spot gaps in our category and brand portfolio",
+          "Verify brand information before outreach",
           "Maintain structured sourcing records",
+          "Work with the Partnerships team to prioritise leads",
         ],
-        whoShouldApply:
-          "Someone who loves discovering new brands and understands the fashion ecosystem.",
+        needList: [
+          "Strong internet and social media research skills",
+          "Understanding of the fashion ecosystem",
+          "Good working knowledge of Instagram and LinkedIn",
+          "Strong attention to detail and an eye for promising brands",
+          "Good communication skills",
+          "Google Sheets or Excel proficiency",
+          "An analytical, organised approach",
+        ],
+        qualifications:
+          "Fashion Management, Fashion Communication, Fashion Marketing, BBA/MBA (Marketing), Business Development, or Entrepreneurship",
       },
       {
-        n: 3,
+        n: "03",
         title: "Brand Partnerships & Seller Onboarding Intern",
-        type: "Internship",
-        idealFor:
-          "Fashion Management, Fashion Communication, BBA, Marketing, Business Development",
+        department: "Brand Partnerships",
+        experience: "0–1 year / students welcome",
         about:
-          "You will help bring fashion brands and boutique stores onto OGURA Marketplace.",
+          "You will help onboard fashion brands, boutique stores, and independent designers onto OGURA Marketplace, guiding them from first conversation to a live storefront.",
         doList: [
-          "Reach out to fashion founders and boutique owners",
-          "Introduce OGURA and explain our marketplace proposition",
-          "Understand each brand's business and catalogue",
-          "Qualify potential sellers",
-          "Coordinate seller onboarding and catalogue submission",
-          "Collect brand and business information",
-          "Follow up until the seller is active",
-          "Build and maintain long-term seller relationships",
-          "Share seller feedback with the product team",
+          "Connect with fashion founders and boutique owners and introduce OGURA's proposition",
+          "Understand each brand's requirements and business model, and qualify potential sellers",
+          "Coordinate the onboarding process end to end",
+          "Collect brand, business, and catalogue information, and coordinate catalogue submission",
+          "Follow up with sellers throughout onboarding",
+          "Maintain seller records and CRM information",
+          "Surface seller challenges to the internal team",
+          "Support seller activation after onboarding",
         ],
-        whoShouldApply:
-          "A strong communicator who enjoys talking to founders and building relationships.",
+        needList: [
+          "Excellent verbal and written communication",
+          "Confidence speaking with founders and business owners",
+          "Relationship-building skills and basic sales or negotiation ability",
+          "Strong follow-up discipline",
+          "Good organisation and time management",
+          "Basic CRM or Google Sheets knowledge",
+          "Interest in fashion and e-commerce",
+        ],
+        qualifications:
+          "Fashion Management, Fashion Communication, BBA, Marketing, Business Development, or a related field",
       },
       {
-        n: 4,
+        n: "04",
         title: "Seller Success & Marketplace Operations Intern",
-        type: "Internship",
-        idealFor: "Fashion Management, BBA, Operations, E-commerce",
+        department: "Marketplace Operations",
         about:
-          "You will help existing OGURA sellers operate successfully on the marketplace.",
+          "You will help brands operate successfully on OGURA after onboarding, keeping their catalogues, inventory, and day-to-day processes running smoothly.",
         doList: [
-          "Track seller onboarding completion",
-          "Help sellers complete their catalogues and product information",
-          "Support sellers through marketplace processes",
-          "Track inventory and catalogue issues",
-          "Handle seller queries and monitor seller activation",
-          "Collect seller feedback and spot recurring problems",
-          "Work with the Product and Operations teams to improve the seller experience",
+          "Track seller onboarding completion and activation",
+          "Help sellers complete and update their catalogues",
+          "Coordinate product information and updates",
+          "Support sellers with marketplace processes and handle routine communication",
+          "Track catalogue and inventory issues",
+          "Collect seller feedback and identify recurring operational problems",
+          "Coordinate with the Product and Operations teams",
         ],
-        whoShouldApply:
-          "Someone organised and helpful who enjoys solving problems and supporting others.",
+        needList: [
+          "Strong organisational skills and attention to detail",
+          "Excellent communication and a seller-service mindset",
+          "Problem-solving ability and good follow-up skills",
+          "Google Sheets or Excel",
+          "Basic understanding of e-commerce",
+        ],
       },
     ],
   },
   {
     heading: "OGURA Launchpad",
-    leadTitle: "Build Your Fashion Brand with OGURA",
-    lead:
-      "OGURA Launchpad is built for aspiring and early-stage fashion founders who want to build, launch, and grow a fashion business. We work across brand strategy, product development, sourcing, branding, e-commerce, content, marketing, launch, and growth.",
     roles: [
       {
-        n: 5,
+        n: "05",
         title: "Fashion Founder Lead Generation & Outreach Intern",
-        type: "Internship",
-        idealFor:
-          "Fashion Management, Fashion Communication, Marketing, BBA, Business Development",
+        department: "OGURA Launchpad",
         about:
-          "You will find people who want to start, launch, or grow a fashion business. You will look for aspiring fashion founders, people planning their first brand, fashion students interested in entrepreneurship, designers launching their own labels, Instagram-first brands, boutique owners, and small fashion businesses looking for support.",
+          "OGURA Launchpad helps aspiring and early-stage founders build, launch, and grow fashion businesses. You will build the top of the Launchpad funnel by finding people who want to start or scale a fashion business.",
+        extraLabel: "Who you'll be looking for",
+        extra:
+          "Aspiring fashion founders, students planning fashion businesses, emerging designers, early-stage entrepreneurs, Instagram-first brands, boutique owners, and existing small fashion businesses looking for support.",
         doList: [
-          "Research potential founders and brands",
-          "Build qualified lead lists using Instagram and LinkedIn research",
-          "Run outreach over email, Instagram DM, and WhatsApp",
-          "Qualify leads and manage the CRM",
-          "Follow up consistently",
-          "Identify what stage each founder is at and which Launchpad service fits",
+          "Research potential fashion founders and businesses and build qualified lead lists",
+          "Conduct Instagram, LinkedIn, and web research to find contact information",
+          "Segment leads by business stage and requirements",
+          "Run personalised outreach across email, Instagram, and WhatsApp",
+          "Qualify leads and track follow-ups",
+          "Maintain CRM records",
+          "Identify potential Launchpad opportunities and pass qualified leads to the sales team",
         ],
-        whoShouldApply:
-          "Someone who enjoys research, spotting opportunities, and starting conversations.",
+        needList: [
+          "Excellent online research skills",
+          "Strong communication and the ability to write personalised messages",
+          "Basic sales and outreach skills",
+          "Understanding of social media",
+          "Good organisation and CRM discipline",
+          "Persistence, strong follow-up ability, and an eye for high-intent prospects",
+          "Interest in entrepreneurship and fashion",
+        ],
+        qualifications:
+          "Fashion Management, Fashion Communication, Marketing, BBA, Business Development, or Entrepreneurship",
       },
       {
-        n: 6,
+        n: "06",
         title: "Fashion Partnerships & Launchpad Sales Intern",
-        type: "Internship",
-        idealFor:
-          "Fashion Management, Fashion Marketing, BBA, Sales, Business Development",
+        department: "OGURA Launchpad",
         about:
-          "You will help OGURA Launchpad build partnerships and turn qualified founders into Launchpad customers. You may work with aspiring fashion founders, designers, boutique owners, existing brands, fashion coaches and consultants, fashion schools, industry professionals, and fashion creators.",
+          "You will help OGURA build partnerships and convert qualified prospects into Launchpad customers and ecosystem partners.",
         doList: [
-          "Run founder and partnership outreach",
-          "Hold discovery calls and pitch Launchpad",
-          "Understand founder requirements",
-          "Prepare partnership proposals",
-          "Handle basic objections and schedule meetings",
-          "Support lead conversion and follow-ups",
-          "Build relationships across the fashion ecosystem",
+          "Run founder and partner outreach, and speak with aspiring founders and existing businesses",
+          "Understand founder requirements and challenges, and present relevant Launchpad solutions",
+          "Schedule and support discovery calls",
+          "Prepare partnership proposals and follow up with prospects",
+          "Handle initial objections and questions",
+          "Coordinate with internal teams on proposals",
+          "Build relationships with fashion coaches, consultants, and industry partners",
+          "Support lead conversion and partnership development",
         ],
-        whoShouldApply:
-          "Someone confident in communication, interested in fashion, and comfortable with sales and partnerships.",
+        needList: [
+          "Strong communication and presentation skills",
+          "Confidence speaking with founders and a genuine sales mindset",
+          "Relationship management, persuasion, and negotiation ability",
+          "Strong follow-up discipline",
+          "Understanding of fashion and entrepreneurship",
+          "Good CRM and documentation habits",
+          "Ability to work independently",
+        ],
       },
       {
-        n: 7,
+        n: "07",
         title: "Fashion Brand Strategy & Research Intern",
-        type: "Internship",
-        idealFor: "NIFT, Pearl Academy, Fashion Management, Fashion Marketing",
+        department: "OGURA Launchpad",
+        preferred: "NIFT / Pearl Academy — Fashion Management / Fashion Marketing",
         about:
-          "You will help aspiring founders understand what brand they should build and where they can compete.",
+          "You will help aspiring founders decide what brand to build, who to build it for, and how to position it in the market.",
         doList: [
-          "Fashion market, customer, and competitor research",
-          "Category and trend research",
-          "Brand and price positioning",
-          "Target customer definition",
-          "Product assortment research",
-          "Market gap identification",
+          "Conduct fashion market and customer segment research",
+          "Analyse competitors, categories, and trends",
+          "Identify market gaps and analyse pricing and positioning",
+          "Research product assortments",
+          "Support brand positioning exercises and founder strategy sessions",
+          "Develop competitor and category reports",
+          "Translate research into clear, actionable recommendations",
         ],
-        calloutLabel: "The core question you will help answer",
-        callout: "What brand should we build, for whom, and why?",
-        whoShouldApply:
-          "Someone analytical who enjoys research and thinking about brands and markets.",
+        needList: [
+          "Fashion market knowledge and understanding of consumer behaviour",
+          "Strong research, competitive analysis, and strategic thinking skills",
+          "Presentation and written communication skills",
+          "Excel, Google Sheets, and PowerPoint",
+        ],
       },
       {
-        n: 8,
+        n: "08",
         title: "Fashion Sourcing & Product Development Intern",
-        type: "Internship",
-        idealFor:
-          "NIFT, Pearl Academy, Fashion Design, Fashion Management, Textile Design",
-        about: "You will help founders move from a fashion idea to an actual product.",
+        department: "OGURA Launchpad",
+        preferred:
+          "NIFT / Pearl Academy — Fashion Design / Fashion Management / Textile Design",
+        about: "You will help founders move from a product idea to a manufacturable fashion product.",
         doList: [
-          "Fabric, supplier, and manufacturer research",
-          "Sampling unit, artisan, and production partner research",
-          "MOQ, cost, and production timeline research",
-          "Product development coordination",
-          "Quality requirements",
-          "Supplier database development",
+          "Research fabrics and materials",
+          "Identify suppliers, manufacturers, sampling units, and production partners",
+          "Build and maintain supplier databases",
+          "Research MOQ and production requirements",
+          "Compare supplier capabilities, timelines, and estimated costs",
+          "Assist with product development coordination",
+          "Support quality and production research",
         ],
-        calloutLabel: "The core question you will help answer",
-        callout: "How do we turn this idea into a real product?",
-        whoShouldApply: "Someone interested in how fashion products are actually made.",
+        needList: [
+          "Knowledge of fabrics, materials, and garment production",
+          "Understanding of fashion product development",
+          "Strong research and supplier-research skills",
+          "Attention to detail",
+          "Communication and coordination skills",
+          "Excel or Google Sheets",
+        ],
       },
+    ],
+  },
+  {
+    heading: "Content & Editorial",
+    roles: [
       {
-        n: 9,
+        n: "09",
         title: "Fashion Content & Editorial Intern",
-        type: "Internship",
-        idealFor:
-          "NIFT Fashion Communication, Pearl Academy, Journalism, Content, Fashion Marketing",
+        department: "Content & Editorial",
         about:
-          "You will build the editorial and storytelling layer of OGURA and Launchpad.",
+          "You will help build a strong editorial and storytelling ecosystem around OGURA's brands, founders, and products.",
         doList: [
-          "Write brand stories, founder stories, and designer profiles",
-          "Create product stories, fashion editorials, and articles",
-          "Develop launch stories and OGURA editorial features",
-          "Create Instagram, website, and behind-the-scenes content",
-          "Coordinate with creators and photographers",
+          "Write brand stories, founder profiles, and product stories",
+          "Research and write fashion articles",
+          "Develop editorial concepts, website content, and social media content",
+          "Support OGURA editorial features",
+          "Coordinate with brands and founders for stories",
+          "Research fashion trends and topics",
+          "Support launch campaigns and editorial calendars",
         ],
-        whoShouldApply:
-          "Someone who loves fashion and can tell a good story in writing.",
+        needList: [
+          "Excellent writing and storytelling",
+          "Fashion awareness and editorial judgement",
+          "Research ability and creative thinking",
+          "Understanding of social media",
+          "Strong attention to detail",
+        ],
+        qualifications:
+          "Fashion Communication, Journalism, English, Marketing, Fashion Design, or a related field",
       },
       {
-        n: 10,
+        n: "10",
         title: "Influencer & Creator Partnerships Intern",
-        type: "Internship",
-        idealFor: "Fashion Communication, Marketing, Social Media",
+        department: "Marketing & Partnerships",
         about:
-          "You will help OGURA and Launchpad brands collaborate with the right creators.",
+          "You will help OGURA and Launchpad brands discover and collaborate with the right fashion creators.",
         doList: [
-          "Research fashion creators, influencers, and UGC creators",
-          "Find stylists and photographers",
-          "Build creator databases",
-          "Run outreach and coordinate partnerships",
-          "Coordinate campaigns and product collaborations",
-          "Support launch campaigns and track creator partnerships",
+          "Research fashion influencers and creators, including micro and niche creators",
+          "Build and maintain creator databases",
+          "Research UGC creators, stylists, and photographers",
+          "Run partnership outreach and coordinate collaborations",
+          "Support campaign execution and track partnerships",
+          "Maintain creator relationships",
         ],
-        whoShouldApply:
-          "Someone who follows fashion creators closely and enjoys building relationships.",
+        needList: [
+          "Strong social media knowledge and understanding of influencer marketing",
+          "Research, communication, and negotiation skills",
+          "Relationship management and organisation",
+          "Creative thinking",
+        ],
       },
     ],
   },
   {
-    heading: "Product, Technology & Growth",
+    heading: "Product & Growth",
     roles: [
       {
-        n: 11,
+        n: "11",
         title: "Product Management Intern",
-        type: "Internship",
-        idealFor: "Product Management, B.Tech, BBA, MBA, Entrepreneurship",
-        about:
-          "You will work with the product team to improve OGURA Marketplace and Launchpad.",
+        department: "Product",
+        about: "You will work with the Product team to improve OGURA Marketplace and Launchpad.",
         doList: [
-          "User, seller, and founder research",
-          "Write PRDs and map user journeys",
-          "Define feature requirements",
-          "Competitor analysis and product analytics",
-          "Work on search, discovery, and recommendations",
-          "Support marketplace features, Launchpad workflows, and product experiments",
+          "Conduct user and seller research and understand customer and founder problems",
+          "Help write PRDs and define user journeys",
+          "Conduct competitor research",
+          "Translate problems into product requirements",
+          "Analyse product data and support experiments",
+          "Work with Design and Engineering",
+          "Help improve marketplace search, discovery, and recommendations",
+          "Document product decisions",
         ],
-        whoShouldApply:
-          "Someone who likes understanding problems, breaking them down, and figuring out what should be built.",
+        needList: [
+          "Product thinking and problem-solving",
+          "User research and analytical skills",
+          "Good written communication",
+          "Basic understanding of product development",
+          "Google Sheets or Excel",
+          "Familiarity with Notion, Jira, or Linear is a plus",
+          "Ability to work cross-functionally",
+        ],
+        qualifications:
+          "Product Management, B.Tech, BBA, MBA, Entrepreneurship, or a related field",
       },
       {
-        n: 12,
+        n: "12",
         title: "Product Marketing & Growth Intern",
-        type: "Internship",
-        idealFor: "Marketing, Product Marketing, BBA, MBA, Growth",
-        about:
-          "You will help OGURA acquire customers, brands, and fashion founders.",
+        department: "Growth & Marketing",
+        about: "You will help OGURA acquire customers, fashion brands, and aspiring founders.",
         doList: [
-          "Go-to-market strategy and product positioning",
-          "Campaign planning and growth experiments",
-          "Acquisition funnels and landing pages",
-          "Messaging and conversion optimisation",
-          "Seller and founder acquisition",
-          "Marketing analytics and campaign analysis",
+          "Support go-to-market strategy and product positioning",
+          "Create acquisition campaigns and growth experiments",
+          "Conduct market research",
+          "Analyse acquisition funnels and campaign performance",
+          "Support landing-page optimisation",
+          "Develop marketing messaging",
+          "Support seller and Launchpad founder acquisition",
         ],
-        whoShouldApply:
-          "Someone creative and data-minded who enjoys growth and marketing.",
-      },
-      {
-        n: 13,
-        title: "AI Product / AI Engineering Intern",
-        type: "Internship",
-        idealFor: "B.Tech CSE, AI, Data Science, ML",
-        about:
-          "You will help build AI-powered fashion discovery and business tools.",
-        doList: [
-          "AI product tagging and catalogue enrichment",
-          "Fashion attribute extraction",
-          "AI recommendations and personalisation",
-          "Build AI agents and search intelligence",
-          "Automation and AI-powered workflows",
-          "Seller and founder tools",
+        needList: [
+          "Marketing fundamentals and a growth mindset",
+          "Data analysis and market research skills",
+          "Copywriting and communication skills",
+          "Creative thinking",
+          "Google Sheets or Excel",
+          "Familiarity with analytics tools is a plus",
         ],
-        whoShouldApply:
-          "Someone excited to apply AI to real fashion and commerce problems.",
-      },
-      {
-        n: 14,
-        title: "Full-Stack Software Engineering Intern",
-        type: "Internship",
-        idealFor: "B.Tech CSE, IT, Software Engineering",
-        about: "You will help build and improve OGURA's technology platform.",
-        doList: [
-          "Frontend and backend development",
-          "APIs and database systems",
-          "Marketplace features and seller dashboards",
-          "Launchpad systems and integrations",
-          "Performance optimisation, testing, and bug fixing",
-        ],
-        whoShouldApply: "Someone who loves building and wants to ship real products.",
-      },
-      {
-        n: 15,
-        title: "UI/UX Design Intern",
-        type: "Internship",
-        idealFor:
-          "NIFT Fashion Communication, Design, UI/UX, Interaction Design",
-        about:
-          "You will create better experiences for OGURA customers, sellers, and founders.",
-        doList: [
-          "Map user journeys and build wireframes",
-          "UI design and design systems",
-          "Marketplace experience, search, and product pages",
-          "Seller and Launchpad onboarding flows",
-          "Founder dashboards and mobile experiences",
-          "Usability research",
-        ],
-        whoShouldApply:
-          "Someone with an eye for design who cares about how things feel to use.",
       },
     ],
   },
   {
-    heading: "Operations & Execution",
+    heading: "Technology",
     roles: [
       {
-        n: 16,
-        title: "Project Management & Startup Operations Intern",
-        type: "Internship",
-        idealFor:
-          "BBA, MBA, B.Tech, Product Management, Operations, Entrepreneurship",
+        n: "13",
+        title: "AI Product / AI Engineering Intern",
+        department: "Technology / AI",
         about:
-          "You will become the execution layer that connects OGURA's different teams.",
+          "You will help build AI-powered capabilities for fashion discovery, product understanding, and business automation.",
         doList: [
-          "Task planning, project tracking, and sprint planning",
-          "Team coordination, task assignment, and deadline tracking",
-          "Follow-ups, dependency tracking, and identifying blockers",
-          "Coordinate between Product, Engineering, Marketing, and Brand",
-          "Track Launchpad projects and brand onboarding",
-          "Prepare weekly progress reports and documentation",
+          "Assist with AI-based product tagging and catalogue enrichment workflows",
+          "Work on fashion attribute extraction",
+          "Support recommendation systems and search intelligence",
+          "Assist with AI agents and automation",
+          "Build internal AI tools and experiment with LLM-based workflows",
+          "Collaborate with Product and Engineering",
         ],
-        calloutLabel: "The core question you will help answer",
-        callout: "Who is doing what, by when, and is it getting done?",
-        whoShouldApply:
-          "Someone organised, reliable, and good at keeping things moving.",
+        needList: [
+          "Python and/or other relevant languages",
+          "Fundamentals of AI/ML and LLM concepts",
+          "APIs and data handling",
+          "Basic database knowledge",
+          "Problem-solving and the ability to experiment and learn quickly",
+          "Genuine interest in AI applications",
+        ],
+        qualifications:
+          "B.Tech/B.E. in Computer Science, AI, Data Science, IT, or a related field",
+      },
+      {
+        n: "14",
+        title: "Full-Stack Software Engineering Intern",
+        department: "Engineering",
+        about:
+          "You will work with the engineering team to build and improve OGURA's Marketplace and Launchpad platforms.",
+        doList: [
+          "Develop frontend and backend features",
+          "Build and integrate APIs",
+          "Work with databases",
+          "Improve seller dashboards and build Launchpad workflows",
+          "Implement marketplace functionality",
+          "Fix bugs, write and maintain code, and test features",
+          "Improve application performance",
+        ],
+        needLabel: "What you'll need (depending on the project)",
+        needList: [
+          "HTML/CSS, JavaScript/TypeScript, React, Node.js",
+          "REST APIs and databases",
+          "Git/GitHub",
+          "Debugging and problem-solving",
+          "Experience with Supabase, Lovable, Shopify, or similar platforms is a plus",
+        ],
+      },
+      {
+        n: "15",
+        title: "UI/UX Design Intern",
+        department: "Design",
+        about:
+          "You will help design intuitive experiences for OGURA's customers, sellers, and fashion founders.",
+        doList: [
+          "Create user flows and wireframes",
+          "Design interfaces and improve product discovery",
+          "Design search and filtering experiences and improve product pages",
+          "Design seller onboarding and Launchpad workflows",
+          "Create founder dashboards",
+          "Conduct usability research",
+          "Maintain design consistency",
+        ],
+        needList: [
+          "Figma and strong UI/UX fundamentals",
+          "User-centred design, wireframing, and prototyping",
+          "Visual design and design systems knowledge",
+          "Strong attention to detail",
+          "Ability to explain your design decisions",
+        ],
+      },
+    ],
+  },
+  {
+    heading: "Operations",
+    roles: [
+      {
+        n: "16",
+        title: "Project Management & Startup Operations Intern",
+        department: "Operations",
+        about:
+          "You will help OGURA execute projects across Product, Engineering, Design, Marketing, Brand Partnerships, and Launchpad. This role is ideal for someone who enjoys organising people, tracking tasks, and making sure work actually gets done.",
+        doList: [
+          "Maintain project plans and task boards",
+          "Coordinate tasks across teams and track deadlines and deliverables",
+          "Assign and follow up on tasks where appropriate",
+          "Run project check-ins and track blockers and dependencies",
+          "Coordinate Product, Engineering, and Design",
+          "Track brand onboarding and Launchpad projects",
+          "Maintain project documentation and prepare weekly status reports",
+          "Escalate delays and make sure agreed actions are completed",
+        ],
+        needList: [
+          "Excellent organisation and strong communication",
+          "Follow-up discipline, time management, and an ownership mindset",
+          "Problem-solving and the ability to coordinate multiple people",
+          "Attention to detail",
+          "Proficiency with Notion, Jira, Trello, Asana, or similar tools",
+          "Google Sheets or Excel",
+        ],
+        note:
+          "You're a great fit if you naturally think: What needs to happen, who owns it, what's the deadline, and what's blocking it? Prior experience managing college projects, hackathons, student organisations, or startup teams is a strong advantage.",
       },
     ],
   },
 ];
 
-const whyJoin = [
+const expectations = [
   {
     icon: Rocket,
-    title: "Work on a real startup",
-    copy: "You will work on products, brands, and problems that are actually being built and launched.",
+    title: "Real ownership",
+    copy: "You'll work on real projects, not simulated internship assignments.",
   },
   {
     icon: Users,
-    title: "Work across teams",
-    copy: "Depending on your role, you may collaborate across Fashion, Product, Technology, Marketing, founders, and brands.",
-  },
-  {
-    icon: Gem,
-    title: "Build your portfolio",
-    copy: "You will work on real projects you can talk about in your portfolio, interviews, and future career.",
+    title: "Cross-functional exposure",
+    copy: "Depending on your role, you may collaborate across Fashion, Product, Technology, Marketing, Brands, Founders, and Creators.",
   },
   {
     icon: Layers,
-    title: "Learn how a startup works",
-    copy: "Get exposure to product management, fashion commerce, e-commerce, brand building, AI, marketing, partnerships, and operations.",
+    title: "A true startup environment",
+    copy: "OGURA is early-stage, so responsibilities evolve as the company grows. Interns who show strong ownership are given more.",
   },
   {
-    icon: Sparkles,
-    title: "Take ownership",
-    copy: "We encourage interns to suggest ideas, run experiments, and take responsibility for outcomes rather than simply completing assigned tasks.",
+    icon: Gem,
+    title: "A portfolio worth showing",
+    copy: "Your work can contribute to real products, brand launches, marketplace operations, research, and growth initiatives.",
   },
+];
+
+const eligibility = [
+  "Be pursuing a relevant degree or diploma, or be a recent graduate",
+  "Show genuine interest in the role they're applying for",
+  "Have strong communication and collaboration skills",
+  "Be comfortable working remotely and managing their work independently",
+  "Be willing to learn new tools and processes",
+  "Demonstrate ownership and accountability",
+];
+
+const workMode = [
+  "Reliable internet access",
+  "A laptop suitable for your role",
+  "Availability for scheduled team meetings",
+  "Comfort with online collaboration tools",
+  "The ability to manage your assigned work independently",
 ];
 
 const Careers = () => {
@@ -429,7 +555,7 @@ const Careers = () => {
   useEffect(() => {
     document.title = "Careers & Internships at OGURA | Fashion, Product, Tech";
     const desc =
-      "OGURA internships across fashion, brand, Launchpad, product, technology and operations. Explore 16 open roles and apply at careers@ogura.in.";
+      "Remote OGURA internships across fashion, marketplace, Launchpad, content, product, technology and operations. 16 open roles — apply at careers@ogura.in.";
     let meta = document.querySelector('meta[name="description"]');
     if (!meta) {
       meta = document.createElement("meta");
@@ -479,35 +605,46 @@ const Careers = () => {
             Careers at OGURA
           </p>
           <h1 className="text-4xl md:text-6xl font-light tracking-tight leading-[1.1] mb-8">
-            Build the Future of Fashion with Us
+            Build the Future of Fashion Commerce
           </h1>
           <div className="space-y-5 text-muted-foreground md:text-lg text-left">
             <p>
-              OGURA is building a new ecosystem for fashion discovery, independent brands,
-              boutique stores, and emerging fashion entrepreneurs. We bring together fashion,
-              technology, commerce, content, and brand building to help customers discover unique
-              fashion and help new founders build and grow their brands.
+              OGURA is building a fashion-tech ecosystem that connects independent brands, boutique
+              stores, designers, consumers, and aspiring fashion entrepreneurs in one place.
             </p>
             <p>
-              We are looking for curious and ambitious students and young professionals who want to
-              work on real problems, real brands, and real products.
+              We run two platforms. OGURA Marketplace powers fashion discovery and commerce. OGURA
+              Launchpad helps aspiring and early-stage founders build, launch, and grow their fashion
+              businesses.
             </p>
             <p>
-              At OGURA, interns do more than observe. You will work closely with our founders,
-              product team, technology team, fashion brands, and business partners, and you will own
-              real work from day one.
-            </p>
-            <p>
-              Most of the openings below are internships. Choose the role that best matches your
-              interests and strengths, and apply.
+              We are looking for ambitious students and early-career professionals who want to work on
+              real products, real brands, and real business problems.
             </p>
           </div>
+
+          <div className="flex flex-wrap justify-center gap-2 mt-10">
+            {["Remote", "Internship", "Flexible hours"].map((chip) => (
+              <span
+                key={chip}
+                className="text-[11px] uppercase tracking-[0.2em] px-4 py-2 rounded-full border border-border text-muted-foreground"
+              >
+                {chip}
+              </span>
+            ))}
+          </div>
+          <p className="text-sm text-muted-foreground mt-6 max-w-xl mx-auto">
+            <span className="text-foreground">Who can apply:</span> Students, recent graduates, and
+            early-career candidates with relevant skills and a genuine interest in their chosen
+            function.
+          </p>
+
           <div className="flex flex-wrap items-center justify-center gap-4 mt-10">
             <Button
               onClick={() => document.getElementById("roles")?.scrollIntoView({ behavior: "smooth" })}
               className="rounded-full h-12 px-8"
             >
-              View open roles
+              Explore roles
             </Button>
             <a
               href={`mailto:${CAREERS_EMAIL}`}
@@ -524,22 +661,12 @@ const Careers = () => {
       <section id="roles" className="container mx-auto px-4 py-16 md:py-24 max-w-4xl">
         <h2 className="text-2xl md:text-3xl font-light tracking-tight mb-3">Open roles</h2>
         <p className="text-sm text-muted-foreground mb-14">
-          Expand a role to read the details, then apply with the form below.
+          Explore a role → read the job description → apply.
         </p>
 
         {groups.map((group) => (
           <div key={group.heading} className="mb-16 last:mb-0">
             <p className="text-xs uppercase tracking-[0.3em] text-accent mb-4">{group.heading}</p>
-            {group.leadTitle && (
-              <h3 className="text-xl md:text-2xl font-light tracking-tight mb-3">
-                {group.leadTitle}
-              </h3>
-            )}
-            {group.lead && (
-              <p className="text-sm text-muted-foreground leading-relaxed mb-6 max-w-2xl">
-                {group.lead}
-              </p>
-            )}
 
             <Accordion type="single" collapsible className="border-t border-border">
               {group.roles.map((role) => (
@@ -547,43 +674,63 @@ const Careers = () => {
                   <AccordionTrigger className="text-left py-6 hover:no-underline">
                     <div>
                       <span className="text-lg font-light">
-                        {role.n}. {role.title}
+                        {role.n} — {role.title}
                       </span>
                       <p className="text-xs uppercase tracking-[0.15em] text-muted-foreground mt-2">
-                        {role.type} · Ideal for: {role.idealFor}
+                        {role.department} · Remote · Internship
+                        {role.experience ? ` · ${role.experience}` : ""}
                       </p>
                     </div>
                   </AccordionTrigger>
                   <AccordionContent>
                     <div className="space-y-6 pb-4 pr-2">
+                      {role.preferred && (
+                        <p className="text-xs text-muted-foreground">
+                          <span className="uppercase tracking-[0.15em]">Preferred background:</span>{" "}
+                          {role.preferred}
+                        </p>
+                      )}
                       <div>
                         <h4 className="text-sm font-medium mb-2">About the role</h4>
-                        <p className="text-sm text-muted-foreground leading-relaxed">
-                          {role.about}
-                        </p>
+                        <p className="text-sm text-muted-foreground leading-relaxed">{role.about}</p>
                       </div>
+                      {role.extra && (
+                        <div>
+                          <h4 className="text-sm font-medium mb-2">{role.extraLabel}</h4>
+                          <p className="text-sm text-muted-foreground leading-relaxed">
+                            {role.extra}
+                          </p>
+                        </div>
+                      )}
                       <div>
-                        <h4 className="text-sm font-medium mb-2">What you will do</h4>
+                        <h4 className="text-sm font-medium mb-2">What you'll do</h4>
                         <ul className="list-disc pl-5 space-y-1.5 text-sm text-muted-foreground">
                           {role.doList.map((item) => (
                             <li key={item}>{item}</li>
                           ))}
                         </ul>
                       </div>
-                      {role.callout && (
+                      <div>
+                        <h4 className="text-sm font-medium mb-2">
+                          {role.needLabel ?? "What you'll need"}
+                        </h4>
+                        <ul className="list-disc pl-5 space-y-1.5 text-sm text-muted-foreground">
+                          {role.needList.map((item) => (
+                            <li key={item}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      {role.qualifications && (
+                        <p className="text-sm text-muted-foreground">
+                          <span className="text-foreground">Preferred qualifications:</span>{" "}
+                          {role.qualifications}
+                        </p>
+                      )}
+                      {role.note && (
                         <div className="border-l-2 border-accent pl-4 py-1">
-                          <p className="text-xs uppercase tracking-[0.15em] text-muted-foreground mb-1">
-                            {role.calloutLabel}
-                          </p>
-                          <p className="text-sm italic">{role.callout}</p>
+                          <p className="text-sm italic text-muted-foreground">{role.note}</p>
                         </div>
                       )}
-                      <div>
-                        <h4 className="text-sm font-medium mb-2">Who should apply</h4>
-                        <p className="text-sm text-muted-foreground leading-relaxed">
-                          {role.whoShouldApply}
-                        </p>
-                      </div>
                       <Button
                         variant="outline"
                         className="rounded-full px-6"
@@ -603,58 +750,75 @@ const Careers = () => {
         ))}
       </section>
 
-      {/* Who we look for */}
+      {/* What you can expect */}
       <section className="border-y border-border bg-muted/30">
-        <div className="container mx-auto px-4 py-16 md:py-24 max-w-3xl">
-          <h2 className="text-2xl md:text-3xl font-light tracking-tight mb-6">
-            Who We Look For
+        <div className="container mx-auto px-4 py-16 md:py-24">
+          <h2 className="text-2xl md:text-3xl font-light tracking-tight text-center mb-12">
+            What You Can Expect at OGURA
           </h2>
-          <div className="space-y-4 text-muted-foreground leading-relaxed">
-            <p>
-              You do not need to have worked at a startup before. We value people who are curious,
-              proactive, and comfortable taking ownership. We look for good communicators and problem
-              solvers who are willing to learn and who enjoy working in a fast-moving environment,
-              with a genuine interest in fashion, technology, commerce, or startups.
-            </p>
-            <p>
-              We welcome students from NIFT, Pearl Academy, and other fashion, design, business,
-              technology, and management institutions.
-            </p>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+            {expectations.map((v) => (
+              <div
+                key={v.title}
+                className="p-7 rounded-lg border border-border bg-card hover:border-foreground/40 transition-colors"
+              >
+                <v.icon className="h-5 w-5 mb-5 text-accent" />
+                <h3 className="text-base font-medium mb-2">{v.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{v.copy}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Why join */}
+      {/* Eligibility + work mode */}
       <section className="container mx-auto px-4 py-16 md:py-24">
-        <h2 className="text-2xl md:text-3xl font-light tracking-tight text-center mb-12">
-          Why Join OGURA?
-        </h2>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          {whyJoin.map((v) => (
-            <div
-              key={v.title}
-              className="p-7 rounded-lg border border-border bg-card hover:border-foreground/40 transition-colors"
-            >
-              <v.icon className="h-5 w-5 mb-5 text-accent" />
-              <h3 className="text-base font-medium mb-2">{v.title}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{v.copy}</p>
-            </div>
-          ))}
+        <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
+          <div>
+            <h2 className="text-2xl md:text-3xl font-light tracking-tight mb-6">
+              General Eligibility
+            </h2>
+            <p className="text-sm text-muted-foreground mb-4">Candidates should:</p>
+            <ul className="list-disc pl-5 space-y-2 text-sm text-muted-foreground">
+              {eligibility.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+            <p className="text-sm text-muted-foreground mt-5">
+              Prior internship or startup experience is an advantage but not mandatory, unless stated
+              in the role.
+            </p>
+          </div>
+          <div>
+            <h2 className="text-2xl md:text-3xl font-light tracking-tight mb-6">
+              Work Mode: 100% Remote
+            </h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              All OGURA internships are fully remote. You'll need:
+            </p>
+            <ul className="list-disc pl-5 space-y-2 text-sm text-muted-foreground">
+              {workMode.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </div>
         </div>
       </section>
 
-      {/* Who should apply */}
+      {/* Hiring philosophy */}
       <section className="border-t border-border">
-        <div className="container mx-auto px-4 py-16 md:py-20 max-w-3xl">
+        <div className="container mx-auto px-4 py-16 md:py-20 max-w-3xl text-center">
+          <Sparkles className="h-5 w-5 mx-auto mb-6 text-accent" />
           <h2 className="text-2xl md:text-3xl font-light tracking-tight mb-6">
-            Who Should Apply?
+            Our Hiring Philosophy
           </h2>
           <p className="text-muted-foreground leading-relaxed">
-            Whether you are a fashion student who wants to understand technology, a marketing student
-            who wants to work with fashion brands, a product student who wants to build a
-            marketplace, a designer who wants to work with startups, an engineer interested in AI and
-            fashion, or a student curious about entrepreneurship, there may be a place for you at
-            OGURA. Choose the role that best matches your interests and strengths.
+            We don't hire on the basis of college, grades, or company names alone. We look for
+            curiosity, ownership, execution, communication, and the ability to learn.
+          </p>
+          <p className="text-muted-foreground leading-relaxed mt-4">
+            If you can solve problems, take responsibility, and learn quickly, we want to hear from
+            you.
           </p>
         </div>
       </section>
