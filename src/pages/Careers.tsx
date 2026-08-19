@@ -604,7 +604,7 @@ const Careers = () => {
           <p className="editorial-eyebrow text-brand mb-6">
             Careers at OGURA
           </p>
-          <h1 className="editorial-h1 text-5xl md:text-7xl lg:text-[5.25rem] mb-8">
+          <h1 className="editorial-h1 text-4xl md:text-6xl lg:text-[4.25rem] uppercase mb-8">
             Build the Future of{" "}
             <span className="text-brand-gradient font-normal">Fashion Commerce</span>
           </h1>
@@ -661,7 +661,7 @@ const Careers = () => {
 
       {/* Open roles */}
       <section id="roles" className="container mx-auto px-4 py-16 md:py-24 max-w-4xl">
-        <h2 className="editorial-h2 text-3xl md:text-[2.75rem] text-brand-gradient mb-3">Open roles</h2>
+        <h2 className="editorial-h2 text-2xl md:text-4xl text-brand-gradient mb-3">Open roles</h2>
         <p className="text-sm text-muted-foreground mb-14">
           Explore a role → read the job description → apply.
         </p>
@@ -675,7 +675,7 @@ const Careers = () => {
                 <AccordionItem key={role.n} value={`role-${role.n}`}>
                   <AccordionTrigger className="text-left py-6 hover:no-underline">
                     <div>
-                      <span className="editorial-h3 text-xl md:text-2xl">
+                      <span className="editorial-h3 text-base md:text-lg">
                         {role.n} — {role.title}
                       </span>
                       <p className="editorial-eyebrow text-[10px] text-muted-foreground mt-2">
@@ -755,7 +755,7 @@ const Careers = () => {
       {/* What you can expect */}
       <section className="border-y border-border bg-muted/30">
         <div className="container mx-auto px-4 py-16 md:py-24">
-          <h2 className="editorial-h2 text-3xl md:text-[2.75rem] text-brand-gradient text-center mb-12">
+          <h2 className="editorial-h2 text-2xl md:text-4xl text-brand-gradient text-center mb-12">
             What You Can Expect at OGURA
           </h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
@@ -765,7 +765,7 @@ const Careers = () => {
                 className="p-7 rounded-lg border border-border bg-card hover:border-foreground/40 transition-colors"
               >
                 <v.icon className="h-5 w-5 mb-5 text-brand" />
-                <h3 className="editorial-h3 text-xl mb-2">{v.title}</h3>
+                <h3 className="editorial-h3 text-base mb-2">{v.title}</h3>
                 <p className="editorial-body text-sm text-muted-foreground">{v.copy}</p>
               </div>
             ))}
@@ -777,7 +777,7 @@ const Careers = () => {
       <section className="container mx-auto px-4 py-16 md:py-24">
         <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
           <div>
-            <h2 className="editorial-h2 text-3xl md:text-[2.75rem] text-brand-gradient mb-6">
+            <h2 className="editorial-h2 text-2xl md:text-4xl text-brand-gradient mb-6">
               General Eligibility
             </h2>
             <p className="text-sm text-muted-foreground mb-4">Candidates should:</p>
@@ -792,7 +792,7 @@ const Careers = () => {
             </p>
           </div>
           <div>
-            <h2 className="editorial-h2 text-3xl md:text-[2.75rem] text-brand-gradient mb-6">
+            <h2 className="editorial-h2 text-2xl md:text-4xl text-brand-gradient mb-6">
               Work Mode: 100% Remote
             </h2>
             <p className="text-sm text-muted-foreground mb-4">
@@ -811,7 +811,7 @@ const Careers = () => {
       <section className="border-t border-border">
         <div className="container mx-auto px-4 py-16 md:py-20 max-w-3xl text-center">
           <Sparkles className="h-5 w-5 mx-auto mb-6 text-brand" />
-          <h2 className="editorial-h2 text-3xl md:text-[2.75rem] text-brand-gradient mb-6">
+          <h2 className="editorial-h2 text-2xl md:text-4xl text-brand-gradient mb-6">
             Our Hiring Philosophy
           </h2>
           <p className="editorial-body text-muted-foreground">
@@ -828,7 +828,7 @@ const Careers = () => {
       {/* Application form */}
       <section id="apply" className="container mx-auto px-4 pb-16 md:pb-24">
         <div className="max-w-2xl mx-auto">
-          <h2 className="editorial-h2 text-3xl md:text-[2.75rem] text-brand-gradient mb-3">Apply Now</h2>
+          <h2 className="editorial-h2 text-2xl md:text-4xl text-brand-gradient mb-3">Apply Now</h2>
           <p className="text-sm text-muted-foreground mb-8">
             Fill this in and we will open your mail client with the details — attach your CV or
             portfolio before sending. You can also email us directly at{" "}
