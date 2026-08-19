@@ -598,3 +598,25 @@ All colors MUST be HSL.
   .museum-orbit::after  { width: 110vmin; height: 110vmin; border-color: rgba(201, 165, 107, 0.08); }
 }
 
+
+/* ---- OGURA brand (logo) accents ---- */
+@layer utilities {
+  .text-brand {
+    color: hsl(var(--ogura-pink));
+  }
+  .border-brand {
+    border-color: hsl(var(--ogura-pink));
+  }
+  .bg-brand-soft {
+    background-color: hsl(var(--ogura-pink) / 0.08);
+  }
+  .brand-rule {
+    background: var(--gradient-ogura);
+  }
+  .text-brand-gradient {
+    background: var(--gradient-ogura);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}

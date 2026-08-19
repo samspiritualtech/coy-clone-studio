@@ -648,7 +648,7 @@ const Careers = () => {
             </Button>
             <a
               href={`mailto:${CAREERS_EMAIL}`}
-              className="inline-flex items-center gap-2 text-sm underline underline-offset-4 hover:text-accent transition-colors"
+              className="inline-flex items-center gap-2 text-sm underline underline-offset-4 hover:text-brand transition-colors"
             >
               <Mail className="h-4 w-4" />
               {CAREERS_EMAIL}
@@ -666,7 +666,7 @@ const Careers = () => {
 
         {groups.map((group) => (
           <div key={group.heading} className="mb-16 last:mb-0">
-            <p className="text-xs uppercase tracking-[0.3em] text-accent mb-4">{group.heading}</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-brand mb-4">{group.heading}</p>
 
             <Accordion type="single" collapsible className="border-t border-border">
               {group.roles.map((role) => (
@@ -727,7 +727,7 @@ const Careers = () => {
                         </p>
                       )}
                       {role.note && (
-                        <div className="border-l-2 border-accent pl-4 py-1">
+                        <div className="border-l-2 border-brand pl-4 py-1">
                           <p className="text-sm italic text-muted-foreground">{role.note}</p>
                         </div>
                       )}
@@ -762,7 +762,7 @@ const Careers = () => {
                 key={v.title}
                 className="p-7 rounded-lg border border-border bg-card hover:border-foreground/40 transition-colors"
               >
-                <v.icon className="h-5 w-5 mb-5 text-accent" />
+                <v.icon className="h-5 w-5 mb-5 text-brand" />
                 <h3 className="text-base font-medium mb-2">{v.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{v.copy}</p>
               </div>
@@ -808,7 +808,7 @@ const Careers = () => {
       {/* Hiring philosophy */}
       <section className="border-t border-border">
         <div className="container mx-auto px-4 py-16 md:py-20 max-w-3xl text-center">
-          <Sparkles className="h-5 w-5 mx-auto mb-6 text-accent" />
+          <Sparkles className="h-5 w-5 mx-auto mb-6 text-brand" />
           <h2 className="text-2xl md:text-3xl font-light tracking-tight mb-6">
             Our Hiring Philosophy
           </h2>
