@@ -46,6 +46,13 @@ All colors MUST be HSL.
 
     /* OGURA brand colors */
     --ogura-red: 0 84% 60%;
+    --ogura-pink: 342 68% 52%;
+    --ogura-pink-light: 342 74% 62%;
+    --gradient-ogura: linear-gradient(
+      100deg,
+      hsl(var(--ogura-pink)) 0%,
+      hsl(var(--ogura-pink-light)) 100%
+    );
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
