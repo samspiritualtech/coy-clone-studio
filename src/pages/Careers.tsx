@@ -601,12 +601,14 @@ const Careers = () => {
       {/* Hero */}
       <section className="relative border-b border-border bg-card">
         <div className="container mx-auto px-4 py-20 md:py-28 max-w-3xl text-center">
-          <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground mb-6">
+          <p className="text-xs uppercase tracking-[0.35em] text-brand mb-6">
             Careers at OGURA
           </p>
           <h1 className="text-4xl md:text-6xl font-light tracking-tight leading-[1.1] mb-8">
-            Build the Future of Fashion Commerce
+            Build the Future of{" "}
+            <span className="text-brand-gradient font-normal">Fashion Commerce</span>
           </h1>
+          <div className="mx-auto mb-8 h-px w-24 brand-rule" />
           <div className="space-y-5 text-muted-foreground md:text-lg text-left">
             <p>
               OGURA is building a fashion-tech ecosystem that connects independent brands, boutique
@@ -627,7 +629,7 @@ const Careers = () => {
             {["Remote", "Internship", "Flexible hours"].map((chip) => (
               <span
                 key={chip}
-                className="text-[11px] uppercase tracking-[0.2em] px-4 py-2 rounded-full border border-border text-muted-foreground"
+                className="text-[11px] uppercase tracking-[0.2em] px-4 py-2 rounded-full border border-brand/40 bg-brand-soft text-brand"
               >
                 {chip}
               </span>
@@ -648,7 +650,7 @@ const Careers = () => {
             </Button>
             <a
               href={`mailto:${CAREERS_EMAIL}`}
-              className="inline-flex items-center gap-2 text-sm underline underline-offset-4 hover:text-accent transition-colors"
+              className="inline-flex items-center gap-2 text-sm underline underline-offset-4 hover:text-brand transition-colors"
             >
               <Mail className="h-4 w-4" />
               {CAREERS_EMAIL}
@@ -659,14 +661,14 @@ const Careers = () => {
 
       {/* Open roles */}
       <section id="roles" className="container mx-auto px-4 py-16 md:py-24 max-w-4xl">
-        <h2 className="text-2xl md:text-3xl font-light tracking-tight mb-3">Open roles</h2>
+        <h2 className="text-2xl md:text-3xl font-light tracking-tight text-brand-gradient mb-3">Open roles</h2>
         <p className="text-sm text-muted-foreground mb-14">
           Explore a role → read the job description → apply.
         </p>
 
         {groups.map((group) => (
           <div key={group.heading} className="mb-16 last:mb-0">
-            <p className="text-xs uppercase tracking-[0.3em] text-accent mb-4">{group.heading}</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-brand mb-4">{group.heading}</p>
 
             <Accordion type="single" collapsible className="border-t border-border">
               {group.roles.map((role) => (
@@ -727,7 +729,7 @@ const Careers = () => {
                         </p>
                       )}
                       {role.note && (
-                        <div className="border-l-2 border-accent pl-4 py-1">
+                        <div className="border-l-2 border-brand pl-4 py-1">
                           <p className="text-sm italic text-muted-foreground">{role.note}</p>
                         </div>
                       )}
@@ -753,7 +755,7 @@ const Careers = () => {
       {/* What you can expect */}
       <section className="border-y border-border bg-muted/30">
         <div className="container mx-auto px-4 py-16 md:py-24">
-          <h2 className="text-2xl md:text-3xl font-light tracking-tight text-center mb-12">
+          <h2 className="text-2xl md:text-3xl font-light tracking-tight text-brand-gradient text-center mb-12">
             What You Can Expect at OGURA
           </h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
@@ -762,7 +764,7 @@ const Careers = () => {
                 key={v.title}
                 className="p-7 rounded-lg border border-border bg-card hover:border-foreground/40 transition-colors"
               >
-                <v.icon className="h-5 w-5 mb-5 text-accent" />
+                <v.icon className="h-5 w-5 mb-5 text-brand" />
                 <h3 className="text-base font-medium mb-2">{v.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{v.copy}</p>
               </div>
@@ -775,7 +777,7 @@ const Careers = () => {
       <section className="container mx-auto px-4 py-16 md:py-24">
         <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
           <div>
-            <h2 className="text-2xl md:text-3xl font-light tracking-tight mb-6">
+            <h2 className="text-2xl md:text-3xl font-light tracking-tight text-brand-gradient mb-6">
               General Eligibility
             </h2>
             <p className="text-sm text-muted-foreground mb-4">Candidates should:</p>
@@ -790,7 +792,7 @@ const Careers = () => {
             </p>
           </div>
           <div>
-            <h2 className="text-2xl md:text-3xl font-light tracking-tight mb-6">
+            <h2 className="text-2xl md:text-3xl font-light tracking-tight text-brand-gradient mb-6">
               Work Mode: 100% Remote
             </h2>
             <p className="text-sm text-muted-foreground mb-4">
@@ -808,8 +810,8 @@ const Careers = () => {
       {/* Hiring philosophy */}
       <section className="border-t border-border">
         <div className="container mx-auto px-4 py-16 md:py-20 max-w-3xl text-center">
-          <Sparkles className="h-5 w-5 mx-auto mb-6 text-accent" />
-          <h2 className="text-2xl md:text-3xl font-light tracking-tight mb-6">
+          <Sparkles className="h-5 w-5 mx-auto mb-6 text-brand" />
+          <h2 className="text-2xl md:text-3xl font-light tracking-tight text-brand-gradient mb-6">
             Our Hiring Philosophy
           </h2>
           <p className="text-muted-foreground leading-relaxed">
@@ -826,7 +828,7 @@ const Careers = () => {
       {/* Application form */}
       <section id="apply" className="container mx-auto px-4 pb-16 md:pb-24">
         <div className="max-w-2xl mx-auto">
-          <h2 className="text-2xl md:text-3xl font-light tracking-tight mb-3">Apply Now</h2>
+          <h2 className="text-2xl md:text-3xl font-light tracking-tight text-brand-gradient mb-3">Apply Now</h2>
           <p className="text-sm text-muted-foreground mb-8">
             Fill this in and we will open your mail client with the details — attach your CV or
             portfolio before sending. You can also email us directly at{" "}
