@@ -601,15 +601,15 @@ const Careers = () => {
       {/* Hero */}
       <section className="relative border-b border-border bg-card">
         <div className="container mx-auto px-4 py-20 md:py-28 max-w-3xl text-center">
-          <p className="text-xs uppercase tracking-[0.35em] text-brand mb-6">
+          <p className="editorial-eyebrow text-brand mb-6">
             Careers at OGURA
           </p>
-          <h1 className="text-4xl md:text-6xl font-light tracking-tight leading-[1.1] mb-8">
+          <h1 className="editorial-h1 text-5xl md:text-7xl lg:text-[5.25rem] mb-8">
             Build the Future of{" "}
             <span className="text-brand-gradient font-normal">Fashion Commerce</span>
           </h1>
           <div className="mx-auto mb-8 h-px w-24 brand-rule" />
-          <div className="space-y-5 text-muted-foreground md:text-lg text-left">
+          <div className="editorial-body space-y-5 text-muted-foreground text-base md:text-[1.0625rem] text-left">
             <p>
               OGURA is building a fashion-tech ecosystem that connects independent brands, boutique
               stores, designers, consumers, and aspiring fashion entrepreneurs in one place.
@@ -629,7 +629,7 @@ const Careers = () => {
             {["Remote", "Internship", "Flexible hours"].map((chip) => (
               <span
                 key={chip}
-                className="text-[11px] uppercase tracking-[0.2em] px-4 py-2 rounded-full border border-brand/40 bg-brand-soft text-brand"
+                className="editorial-eyebrow text-[10px] px-4 py-2 rounded-full border border-brand/40 bg-brand-soft text-brand"
               >
                 {chip}
               </span>
@@ -644,7 +644,7 @@ const Careers = () => {
           <div className="flex flex-wrap items-center justify-center gap-4 mt-10">
             <Button
               onClick={() => document.getElementById("roles")?.scrollIntoView({ behavior: "smooth" })}
-              className="rounded-full h-12 px-8"
+              className="rounded-full h-12 px-8 editorial-label text-xs uppercase"
             >
               Explore roles
             </Button>
@@ -661,24 +661,24 @@ const Careers = () => {
 
       {/* Open roles */}
       <section id="roles" className="container mx-auto px-4 py-16 md:py-24 max-w-4xl">
-        <h2 className="text-2xl md:text-3xl font-light tracking-tight text-brand-gradient mb-3">Open roles</h2>
+        <h2 className="editorial-h2 text-3xl md:text-[2.75rem] text-brand-gradient mb-3">Open roles</h2>
         <p className="text-sm text-muted-foreground mb-14">
           Explore a role → read the job description → apply.
         </p>
 
         {groups.map((group) => (
           <div key={group.heading} className="mb-16 last:mb-0">
-            <p className="text-xs uppercase tracking-[0.3em] text-brand mb-4">{group.heading}</p>
+            <p className="editorial-eyebrow text-brand mb-4">{group.heading}</p>
 
             <Accordion type="single" collapsible className="border-t border-border">
               {group.roles.map((role) => (
                 <AccordionItem key={role.n} value={`role-${role.n}`}>
                   <AccordionTrigger className="text-left py-6 hover:no-underline">
                     <div>
-                      <span className="text-lg font-light">
+                      <span className="editorial-h3 text-xl md:text-2xl">
                         {role.n} — {role.title}
                       </span>
-                      <p className="text-xs uppercase tracking-[0.15em] text-muted-foreground mt-2">
+                      <p className="editorial-eyebrow text-[10px] text-muted-foreground mt-2">
                         {role.department} · Remote · Internship
                         {role.experience ? ` · ${role.experience}` : ""}
                       </p>
@@ -693,30 +693,30 @@ const Careers = () => {
                         </p>
                       )}
                       <div>
-                        <h4 className="text-sm font-medium mb-2">About the role</h4>
-                        <p className="text-sm text-muted-foreground leading-relaxed">{role.about}</p>
+                        <h4 className="editorial-label text-[0.8125rem] uppercase text-foreground mb-2">About the role</h4>
+                        <p className="editorial-body text-sm text-muted-foreground">{role.about}</p>
                       </div>
                       {role.extra && (
                         <div>
-                          <h4 className="text-sm font-medium mb-2">{role.extraLabel}</h4>
-                          <p className="text-sm text-muted-foreground leading-relaxed">
+                          <h4 className="editorial-label text-[0.8125rem] uppercase text-foreground mb-2">{role.extraLabel}</h4>
+                          <p className="editorial-body text-sm text-muted-foreground">
                             {role.extra}
                           </p>
                         </div>
                       )}
                       <div>
-                        <h4 className="text-sm font-medium mb-2">What you'll do</h4>
-                        <ul className="list-disc pl-5 space-y-1.5 text-sm text-muted-foreground">
+                        <h4 className="editorial-label text-[0.8125rem] uppercase text-foreground mb-2">What you'll do</h4>
+                        <ul className="list-disc pl-5 space-y-2 text-sm text-muted-foreground editorial-body">
                           {role.doList.map((item) => (
                             <li key={item}>{item}</li>
                           ))}
                         </ul>
                       </div>
                       <div>
-                        <h4 className="text-sm font-medium mb-2">
+                        <h4 className="editorial-label text-[0.8125rem] uppercase text-foreground mb-2">
                           {role.needLabel ?? "What you'll need"}
                         </h4>
-                        <ul className="list-disc pl-5 space-y-1.5 text-sm text-muted-foreground">
+                        <ul className="list-disc pl-5 space-y-2 text-sm text-muted-foreground editorial-body">
                           {role.needList.map((item) => (
                             <li key={item}>{item}</li>
                           ))}
@@ -755,7 +755,7 @@ const Careers = () => {
       {/* What you can expect */}
       <section className="border-y border-border bg-muted/30">
         <div className="container mx-auto px-4 py-16 md:py-24">
-          <h2 className="text-2xl md:text-3xl font-light tracking-tight text-brand-gradient text-center mb-12">
+          <h2 className="editorial-h2 text-3xl md:text-[2.75rem] text-brand-gradient text-center mb-12">
             What You Can Expect at OGURA
           </h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
@@ -765,8 +765,8 @@ const Careers = () => {
                 className="p-7 rounded-lg border border-border bg-card hover:border-foreground/40 transition-colors"
               >
                 <v.icon className="h-5 w-5 mb-5 text-brand" />
-                <h3 className="text-base font-medium mb-2">{v.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{v.copy}</p>
+                <h3 className="editorial-h3 text-xl mb-2">{v.title}</h3>
+                <p className="editorial-body text-sm text-muted-foreground">{v.copy}</p>
               </div>
             ))}
           </div>
@@ -777,7 +777,7 @@ const Careers = () => {
       <section className="container mx-auto px-4 py-16 md:py-24">
         <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
           <div>
-            <h2 className="text-2xl md:text-3xl font-light tracking-tight text-brand-gradient mb-6">
+            <h2 className="editorial-h2 text-3xl md:text-[2.75rem] text-brand-gradient mb-6">
               General Eligibility
             </h2>
             <p className="text-sm text-muted-foreground mb-4">Candidates should:</p>
@@ -792,7 +792,7 @@ const Careers = () => {
             </p>
           </div>
           <div>
-            <h2 className="text-2xl md:text-3xl font-light tracking-tight text-brand-gradient mb-6">
+            <h2 className="editorial-h2 text-3xl md:text-[2.75rem] text-brand-gradient mb-6">
               Work Mode: 100% Remote
             </h2>
             <p className="text-sm text-muted-foreground mb-4">
@@ -811,14 +811,14 @@ const Careers = () => {
       <section className="border-t border-border">
         <div className="container mx-auto px-4 py-16 md:py-20 max-w-3xl text-center">
           <Sparkles className="h-5 w-5 mx-auto mb-6 text-brand" />
-          <h2 className="text-2xl md:text-3xl font-light tracking-tight text-brand-gradient mb-6">
+          <h2 className="editorial-h2 text-3xl md:text-[2.75rem] text-brand-gradient mb-6">
             Our Hiring Philosophy
           </h2>
-          <p className="text-muted-foreground leading-relaxed">
+          <p className="editorial-body text-muted-foreground">
             We don't hire on the basis of college, grades, or company names alone. We look for
             curiosity, ownership, execution, communication, and the ability to learn.
           </p>
-          <p className="text-muted-foreground leading-relaxed mt-4">
+          <p className="editorial-body text-muted-foreground mt-4">
             If you can solve problems, take responsibility, and learn quickly, we want to hear from
             you.
           </p>
@@ -828,7 +828,7 @@ const Careers = () => {
       {/* Application form */}
       <section id="apply" className="container mx-auto px-4 pb-16 md:pb-24">
         <div className="max-w-2xl mx-auto">
-          <h2 className="text-2xl md:text-3xl font-light tracking-tight text-brand-gradient mb-3">Apply Now</h2>
+          <h2 className="editorial-h2 text-3xl md:text-[2.75rem] text-brand-gradient mb-3">Apply Now</h2>
           <p className="text-sm text-muted-foreground mb-8">
             Fill this in and we will open your mail client with the details — attach your CV or
             portfolio before sending. You can also email us directly at{" "}
@@ -844,7 +844,7 @@ const Careers = () => {
           >
             <div className="grid sm:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm mb-2">
+                <label className="editorial-label block text-xs uppercase mb-2">
                   Full Name<span className="text-destructive">*</span>
                 </label>
                 <Input
@@ -857,7 +857,7 @@ const Careers = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm mb-2">
+                <label className="editorial-label block text-xs uppercase mb-2">
                   Email<span className="text-destructive">*</span>
                 </label>
                 <Input
@@ -871,7 +871,7 @@ const Careers = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm mb-2">Phone</label>
+                <label className="editorial-label block text-xs uppercase mb-2">Phone</label>
                 <Input
                   type="tel"
                   value={form.phone}
@@ -882,7 +882,7 @@ const Careers = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm mb-2">
+                <label className="editorial-label block text-xs uppercase mb-2">
                   Role of interest<span className="text-destructive">*</span>
                 </label>
                 <Input
@@ -896,7 +896,7 @@ const Careers = () => {
               </div>
             </div>
             <div>
-              <label className="block text-sm mb-2">Portfolio / LinkedIn</label>
+              <label className="editorial-label block text-xs uppercase mb-2">Portfolio / LinkedIn</label>
               <Input
                 value={form.portfolio}
                 onChange={(e) => setForm({ ...form, portfolio: e.target.value })}
@@ -906,7 +906,7 @@ const Careers = () => {
               />
             </div>
             <div>
-              <label className="block text-sm mb-2">
+              <label className="editorial-label block text-xs uppercase mb-2">
                 Tell us about you<span className="text-destructive">*</span>
               </label>
               <Textarea
@@ -918,7 +918,7 @@ const Careers = () => {
                 className="min-h-[150px]"
               />
             </div>
-            <Button type="submit" disabled={submitting} className="rounded-full h-12 px-8">
+            <Button type="submit" disabled={submitting} className="rounded-full h-12 px-8 editorial-label text-xs uppercase">
               {submitting ? "Preparing..." : "Submit Application"}
             </Button>
           </form>
