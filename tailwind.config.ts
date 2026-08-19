@@ -14,6 +14,10 @@ export default {
     },
     extend: {
       colors: {
+        brand: {
+          DEFAULT: "hsl(var(--ogura-pink))",
+          light: "hsl(var(--ogura-pink-light))",
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
