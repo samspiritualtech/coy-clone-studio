@@ -81,6 +81,8 @@ export default function ProductDetail() {
               Array.isArray((row as any).images) && (row as any).images.length
                 ? ((row as any).images as string[])
                 : ["/placeholder.svg"],
+            videoUrl: (row as any).video_url ?? undefined,
+
             brand: (row as any).brand ?? "Ogura",
             category: (row as any).category ?? "general",
             sizes: (row as any).sizes ?? ["S", "M", "L", "XL"],
