@@ -114,6 +114,8 @@ export default function ProductDetail() {
             price: Number(found.price) || 0,
             originalPrice: found.original_price ? Number(found.original_price) : undefined,
             images: found.image_urls ?? (found.image_url ? [found.image_url] : found.images ?? ["/placeholder.svg"]),
+            videoUrl: found.video_url ?? undefined,
+
             brand: found.brand ?? found.brand_name ?? "Brand",
             category: found.category ?? "general",
             sizes: found.sizes ?? ["S", "M", "L", "XL"],
