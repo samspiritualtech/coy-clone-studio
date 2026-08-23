@@ -322,7 +322,19 @@ export default function ProductDetail() {
               onSelectIndex={setActiveImageIndex}
               onViewSimilar={() => setShowSimilarModal(true)}
             />
+            {currentProduct.videoUrl && (
+              <div className="mt-4">
+                <video
+                  src={currentProduct.videoUrl}
+                  controls
+                  playsInline
+                  preload="metadata"
+                  className="w-full rounded-lg aspect-video"
+                />
+              </div>
+            )}
           </div>
+
 
           {/* Product Info - Right Side */}
           <div className="space-y-5">
