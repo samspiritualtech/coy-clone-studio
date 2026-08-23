@@ -81,6 +81,8 @@ export default function ProductDetail() {
               Array.isArray((row as any).images) && (row as any).images.length
                 ? ((row as any).images as string[])
                 : ["/placeholder.svg"],
+            videoUrl: (row as any).video_url ?? undefined,
+
             brand: (row as any).brand ?? "Ogura",
             category: (row as any).category ?? "general",
             sizes: (row as any).sizes ?? ["S", "M", "L", "XL"],
@@ -114,6 +116,8 @@ export default function ProductDetail() {
             price: Number(found.price) || 0,
             originalPrice: found.original_price ? Number(found.original_price) : undefined,
             images: found.image_urls ?? (found.image_url ? [found.image_url] : found.images ?? ["/placeholder.svg"]),
+            videoUrl: found.video_url ?? undefined,
+
             brand: found.brand ?? found.brand_name ?? "Brand",
             category: found.category ?? "general",
             sizes: found.sizes ?? ["S", "M", "L", "XL"],
@@ -322,7 +326,19 @@ export default function ProductDetail() {
               onSelectIndex={setActiveImageIndex}
               onViewSimilar={() => setShowSimilarModal(true)}
             />
+            {currentProduct.videoUrl && (
+              <div className="mt-4">
+                <video
+                  src={currentProduct.videoUrl}
+                  controls
+                  playsInline
+                  preload="metadata"
+                  className="w-full rounded-lg aspect-video"
+                />
+              </div>
+            )}
           </div>
+
 
           {/* Product Info - Right Side */}
           <div className="space-y-5">

@@ -2,6 +2,8 @@ import { LuxuryHeader } from "@/components/LuxuryHeader";
 import { LuxuryHero } from "@/components/LuxuryHero";
 
 import { Premium3DCategorySection } from "@/components/Premium3DCategorySection";
+import { SellerNewArrivals } from "@/components/SellerNewArrivals";
+
 import { HiddenGemsSection } from "@/components/HiddenGemsSection";
 import { CategoryShowcase } from "@/components/CategoryShowcase";
 import { DesignersSpotlight } from "@/components/DesignersSpotlight";
@@ -33,6 +35,9 @@ const Index = () => {
         <LuxuryHero />
 
         <Premium3DCategorySection />
+
+        <SellerNewArrivals />
+
 
         {/* ============================================================
             MUSEUM BAND — Atelier of Light
