@@ -34,6 +34,9 @@ const Index = () => {
 
         <Premium3DCategorySection />
 
+        <SellerNewArrivals />
+
+
         {/* ============================================================
             MUSEUM BAND — Atelier of Light
             Continuous cinematic atmosphere from Hidden Gems → Stores.
