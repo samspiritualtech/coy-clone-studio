@@ -8,7 +8,7 @@ const API_URL = "https://pyesltzkemtranachpne.supabase.co/functions/v1/products"
 const normalize = (raw: any): Product => ({
   id: String(raw?.id ?? ""),
   name: raw?.name ?? raw?.title ?? "Untitled",
-  brand: raw?.brand ?? raw?.brand_name ?? "Ogura",
+  brand: raw?.brand ?? raw?.brand_name ?? raw?.store?.name ?? "Ogura",
   price: Number(raw?.price) || 0,
   originalPrice: raw?.original_price ? Number(raw.original_price) : undefined,
   category: raw?.category ?? "dresses",
