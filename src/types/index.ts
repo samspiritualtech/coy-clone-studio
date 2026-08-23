@@ -14,6 +14,8 @@ export interface Product {
   originalPrice?: number;
   category: 'dresses' | 'tops' | 'bottoms' | 'outerwear' | 'footwear' | 'accessories' | 'bags';
   images: string[];
+  videoUrl?: string;
+
   sizes: string[];
   colors: Array<{ name: string; hex: string }>;
   colorVariants?: ColorVariant[];
