@@ -777,6 +777,41 @@ All colors MUST be HSL.
 /* Marquee strip: pink separators already; keep */
 .waitlist-page .text-brand.ml-10 { color: hsl(var(--wl-gold)); }
 
+/* Form inputs / selects: subtle depth + pink focus ring */
+.waitlist-page input,
+.waitlist-page [data-slot="select-trigger"],
+.waitlist-page button[role="combobox"] {
+  border-color: hsl(24 14% 12% / 0.14) !important;
+  box-shadow: 0 1px 2px -1px hsl(24 20% 12% / 0.10) !important;
+  border-radius: 0.85rem !important;
+  transition: border-color 200ms ease, box-shadow 200ms ease !important;
+}
+.waitlist-page input:focus,
+.waitlist-page [data-slot="select-trigger"]:focus,
+.waitlist-page button[role="combobox"]:focus,
+.waitlist-page input:focus-visible,
+.waitlist-page [data-slot="select-trigger"]:focus-visible {
+  border-color: hsl(var(--wl-pink) / 0.55) !important;
+  box-shadow:
+    0 0 0 3px hsl(var(--wl-pink) / 0.16),
+    0 4px 12px -6px hsl(var(--wl-pink) / 0.30) !important;
+  outline: none !important;
+}
+
+/* Selected pill chips: pink gradient fill */
+.waitlist-page .border-brand.bg-brand-soft {
+  background: linear-gradient(135deg, hsl(var(--wl-pink) / 0.16), hsl(var(--wl-gold) / 0.12)) !important;
+  border-color: hsl(var(--wl-pink) / 0.45) !important;
+  color: hsl(var(--wl-pink)) !important;
+  box-shadow: 0 6px 16px -10px hsl(var(--wl-pink) / 0.45) !important;
+}
+
+/* Numbered step circles: pink gradient */
+.waitlist-page .rounded-full.bg-brand-soft {
+  background: linear-gradient(135deg, hsl(var(--wl-pink) / 0.18), hsl(var(--wl-gold) / 0.14)) !important;
+  box-shadow: 0 6px 14px -8px hsl(var(--wl-pink) / 0.40) !important;
+}
+
 /* Mobile typography: bigger, tighter, more readable + colored accents */
 @media (max-width: 767px) {
   .waitlist-page .waitlist-serif { line-height: 1.1; letter-spacing: -0.02em; }
