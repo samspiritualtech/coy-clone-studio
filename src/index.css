@@ -906,6 +906,8 @@ All colors MUST be HSL.
   }
   /* Slightly larger cards with breathing room */
   .waitlist-page .wl-paper-card { border-radius: 1.25rem; }
+  .waitlist-page .wl-prose { padding: 1.25rem 1.1rem 1.35rem 1.35rem; }
+  .waitlist-page .wl-prose p:first-of-type::first-letter { font-size: 2.3em; }
 }
 
 /* Sticky mobile action bar — pink-tinted glass with shadow */
