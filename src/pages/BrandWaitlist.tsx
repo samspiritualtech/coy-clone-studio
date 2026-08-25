@@ -92,9 +92,9 @@ const BrandWaitlist = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background font-body">
+    <div className="waitlist-page min-h-screen font-body">
       {/* Nav */}
-      <header className="sticky top-0 z-50 bg-background/85 backdrop-blur-md border-b border-border/60">
+      <header className="sticky top-0 z-50 bg-[hsl(42_33%_97%_/_0.85)] backdrop-blur-md border-b border-border/60">
         <div className="container mx-auto px-6 max-w-6xl h-16 md:h-20 flex items-center justify-between">
           <img src={oguraLogo.url} alt="OGURA" className="h-8 md:h-10 w-auto object-contain" />
           <Button
@@ -193,16 +193,16 @@ const BrandWaitlist = () => {
         </WaitlistSection>
 
         {/* Vision & Mission */}
-        <WaitlistSection kicker="What we stand for" className="bg-muted/40">
+        <WaitlistSection kicker="What we stand for" className="wl-tint">
           <div className="grid md:grid-cols-2 gap-6 mb-10">
-            <div className="rounded-2xl border border-border bg-card p-8">
+            <div className="wl-paper-card p-8">
               <p className="editorial-eyebrow text-muted-foreground mb-4">Vision</p>
               <p className="waitlist-serif text-2xl md:text-3xl text-foreground leading-snug">
                 A fashion industry where original design competes on merit, not on the size of a brand's
                 marketing budget or its place on a mass platform.
               </p>
             </div>
-            <div className="rounded-2xl border border-border bg-card p-8">
+            <div className="wl-paper-card p-8">
               <p className="editorial-eyebrow text-muted-foreground mb-4">Mission</p>
               <p className="waitlist-serif text-2xl md:text-3xl text-foreground leading-snug">
                 To give India's independent, designer-led brands the trust, visibility, and infrastructure
@@ -240,7 +240,7 @@ const BrandWaitlist = () => {
         </WaitlistSection>
 
         {/* What is Ogura */}
-        <WaitlistSection kicker="What is Ogura" className="bg-muted/40">
+        <WaitlistSection kicker="What is Ogura" className="wl-tint">
           <p className="editorial-body text-base md:text-lg text-muted-foreground max-w-3xl mb-14">
             Ogura is a curated designerwear marketplace for original, independent fashion. We list only
             designer-led and celebrity-led brands with unique designs, the kind you will not find on
@@ -253,7 +253,7 @@ const BrandWaitlist = () => {
           </h3>
           <ul className="grid md:grid-cols-2 gap-4 max-w-4xl">
             {FIT.map((item) => (
-              <li key={item} className="flex gap-3 rounded-xl border border-border bg-card p-5">
+              <li key={item} className="flex gap-3 wl-paper-card p-5">
                 <Check className="w-5 h-5 text-brand shrink-0 mt-0.5" />
                 <span className="editorial-body text-sm md:text-base text-foreground">{item}</span>
               </li>
@@ -271,7 +271,7 @@ const BrandWaitlist = () => {
             {BENEFITS.map((b) => (
               <div
                 key={b.n}
-                className="rounded-2xl border border-border bg-card p-7 hover:border-brand/40 transition-colors duration-300"
+                className="wl-paper-card p-7 hover:border-brand/40 transition-colors duration-300"
               >
                 <p className="editorial-label text-brand text-sm mb-4">{b.n}</p>
                 <h3 className="editorial-h3 text-lg md:text-xl text-foreground mb-3">{b.title}</h3>
@@ -314,7 +314,7 @@ const BrandWaitlist = () => {
         <WaitlistSection
           kicker="Why join now"
           heading="The first 50 are treated as founding partners."
-          className="bg-muted/40"
+          className="wl-tint"
         >
           <p className="editorial-body text-base md:text-lg text-muted-foreground max-w-2xl mb-10">
             Not listings. Partners. Founding brands help shape what Ogura becomes, and are rewarded for
@@ -323,7 +323,7 @@ const BrandWaitlist = () => {
           <div className="grid lg:grid-cols-5 gap-6">
             <ul className="lg:col-span-3 space-y-3">
               {FOUNDING.map((item) => (
-                <li key={item} className="flex gap-3 rounded-xl border border-border bg-card p-5">
+                <li key={item} className="flex gap-3 wl-paper-card p-5">
                   <Check className="w-5 h-5 text-brand shrink-0 mt-0.5" />
                   <span className="editorial-body text-sm md:text-base text-foreground">{item}</span>
                 </li>
@@ -353,7 +353,7 @@ const BrandWaitlist = () => {
         <WaitlistSection kicker="How it works" heading="Joining takes minutes.">
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {STEPS.map((s) => (
-              <div key={s.n} className="rounded-2xl border border-border bg-card p-7">
+              <div key={s.n} className="wl-paper-card p-7">
                 <div className="w-9 h-9 rounded-full bg-brand-soft text-brand editorial-label flex items-center justify-center mb-5 text-sm">
                   {s.n}
                 </div>
@@ -369,7 +369,7 @@ const BrandWaitlist = () => {
           id="apply"
           kicker="Apply to join"
           heading="Become one of the first brands on Ogura."
-          className="bg-muted/40"
+          className="wl-tint"
           narrow
         >
           <p className="editorial-body text-base md:text-lg text-muted-foreground mb-10">
@@ -404,6 +404,18 @@ const BrandWaitlist = () => {
           </div>
         </section>
       </main>
+
+      {/* Sticky mobile CTA */}
+      <div className="wl-sticky-cta">
+        <a
+          href={`https://wa.me/917742698970?text=${encodeURIComponent("Hi Ogura, I'd like to apply to the waitlist.")}`}
+          target="_blank"
+          rel="noreferrer"
+          className="flex items-center justify-center gap-2 w-full h-12 rounded-full bg-foreground text-background editorial-label uppercase text-[11px] tracking-[0.16em]"
+        >
+          <MessageCircle className="w-4 h-4" /> Apply to waitlist
+        </a>
+      </div>
 
       {/* Footer */}
       <footer className="border-t border-border py-12">

@@ -687,3 +687,54 @@ All colors MUST be HSL.
   }
 }
 
+
+/* ---- Waitlist landing: "keynote paper" theme (mobile-first) ---- */
+.waitlist-page {
+  --wl-paper: 42 33% 97%;
+  --wl-paper-deep: 38 26% 93%;
+  --wl-ink: 24 12% 12%;
+  background-color: hsl(var(--wl-paper));
+  color: hsl(var(--wl-ink));
+  background-image:
+    radial-gradient(1200px 600px at 100% -10%, hsl(var(--ogura-pink) / 0.10), transparent 60%),
+    radial-gradient(900px 500px at -10% 20%, hsl(38 60% 60% / 0.10), transparent 60%);
+  background-attachment: fixed;
+}
+
+.waitlist-page .wl-paper-card {
+  background: linear-gradient(180deg, hsl(0 0% 100% / 0.92), hsl(var(--wl-paper-deep) / 0.75));
+  border: 1px solid hsl(24 14% 12% / 0.08);
+  box-shadow: 0 1px 0 hsl(0 0% 100% / 0.7) inset, 0 12px 28px -22px hsl(24 20% 12% / 0.35);
+  border-radius: 1rem;
+  backdrop-filter: blur(4px);
+}
+.waitlist-page .wl-paper-card:active { transform: scale(0.995); }
+
+.waitlist-page .wl-tint {
+  background: linear-gradient(180deg, hsl(var(--wl-paper-deep) / 0.9), hsl(var(--wl-paper) / 0.4));
+  border-top: 1px solid hsl(24 14% 12% / 0.06);
+  border-bottom: 1px solid hsl(24 14% 12% / 0.06);
+}
+
+/* Mobile typography: bigger, tighter, more readable */
+@media (max-width: 767px) {
+  .waitlist-page .waitlist-serif { line-height: 1.1; letter-spacing: -0.02em; }
+  .waitlist-page h1.waitlist-serif { font-size: clamp(2.35rem, 10.5vw, 3.1rem); }
+  .waitlist-page h2.waitlist-serif { font-size: clamp(1.85rem, 8vw, 2.4rem); }
+  .waitlist-page h3.waitlist-serif { font-size: clamp(1.6rem, 7vw, 2rem); }
+  .waitlist-page .editorial-body { font-size: 1.0625rem; line-height: 1.78; }
+  .waitlist-page .editorial-eyebrow { letter-spacing: 0.22em; font-size: 0.625rem; }
+  .waitlist-page section { padding-top: 3.25rem; padding-bottom: 3.25rem; }
+  /* room for the sticky CTA bar */
+  .waitlist-page main { padding-bottom: 5.5rem; }
+}
+
+/* Sticky mobile action bar */
+.wl-sticky-cta {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
+  padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
+  background: hsl(42 33% 97% / 0.9);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid hsl(24 14% 12% / 0.1);
+}
+@media (min-width: 768px) { .wl-sticky-cta { display: none; } }
