@@ -2,10 +2,13 @@ import { Button } from "@/components/ui/button";
 import { WaitlistSection } from "@/components/waitlist/WaitlistSection";
 import { WaitlistForm } from "@/components/waitlist/WaitlistForm";
 import oguraLogo from "@/assets/ogura-logo.png.asset.json";
-import brand1 from "@/assets/waitlist/brand-1.jpg";
-import brand2 from "@/assets/waitlist/brand-2.jpg";
-import brand3 from "@/assets/waitlist/brand-3.jpg";
-import aiStudio from "@/assets/waitlist/ai-studio.jpg";
+import brand1Asset from "@/assets/waitlist/wl-brand-1.png.asset.json";
+import brand2Asset from "@/assets/waitlist/wl-brand-2.png.asset.json";
+import aiStudioAsset from "@/assets/waitlist/wl-ai-studio.png.asset.json";
+
+const brand1 = brand1Asset.url;
+const brand2 = brand2Asset.url;
+const aiStudio = aiStudioAsset.url;
 import { Check, Sparkles, ArrowRight } from "lucide-react";
 import { useEffect } from "react";
 
@@ -110,7 +113,7 @@ const BrandWaitlist = () => {
             <span className="inline-block editorial-eyebrow text-brand border border-brand/30 bg-brand-soft rounded-full px-4 py-2 mb-8">
               Founding brands. Applications open.
             </span>
-            <h1 className="editorial-h1 text-[2.6rem] leading-[1.02] sm:text-6xl md:text-7xl text-foreground mb-7">
+            <h1 className="waitlist-serif text-[2.6rem] leading-[1.02] sm:text-6xl md:text-7xl text-foreground mb-7">
               The home for India's original designer brands.
             </h1>
             <p className="editorial-body text-base md:text-lg text-muted-foreground max-w-2xl mx-auto mb-10">
@@ -133,14 +136,12 @@ const BrandWaitlist = () => {
 
           {/* Brand imagery */}
           <div className="container mx-auto px-6 max-w-5xl pb-6">
-            <div className="grid grid-cols-3 gap-3 md:gap-5">
-              {[brand1, brand2, brand3].map((src, i) => (
+            <div className="grid grid-cols-2 gap-3 md:gap-5 max-w-3xl mx-auto">
+              {[brand1, brand2].map((src, i) => (
                 <div key={i} className="overflow-hidden rounded-xl md:rounded-2xl bg-muted aspect-[3/4]">
                   <img
                     src={src}
                     alt="Original design by an independent Indian designer label"
-                    width={912}
-                    height={1200}
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -194,14 +195,14 @@ const BrandWaitlist = () => {
           <div className="grid md:grid-cols-2 gap-6 mb-10">
             <div className="rounded-2xl border border-border bg-card p-8">
               <p className="editorial-eyebrow text-muted-foreground mb-4">Vision</p>
-              <p className="editorial-h3 text-xl md:text-2xl text-foreground leading-snug">
+              <p className="waitlist-serif text-2xl md:text-3xl text-foreground leading-snug">
                 A fashion industry where original design competes on merit, not on the size of a brand's
                 marketing budget or its place on a mass platform.
               </p>
             </div>
             <div className="rounded-2xl border border-border bg-card p-8">
               <p className="editorial-eyebrow text-muted-foreground mb-4">Mission</p>
-              <p className="editorial-h3 text-xl md:text-2xl text-foreground leading-snug">
+              <p className="waitlist-serif text-2xl md:text-3xl text-foreground leading-snug">
                 To give India's independent, designer-led brands the trust, visibility, and infrastructure
                 of a national platform, so the strength of their design is what wins the buyer, not the
                 size of their following.
@@ -229,7 +230,7 @@ const BrandWaitlist = () => {
             It is the reason Ogura exists.
           </p>
           <div className="border-l-2 border-brand pl-6">
-            <p className="editorial-h3 text-lg md:text-2xl text-foreground leading-snug">
+            <p className="waitlist-serif text-2xl md:text-3xl text-foreground leading-snug">
               In one line: Ogura gives independent brands the authority to convert the buyers they have
               already earned, but have been losing at the final step.
             </p>
@@ -245,7 +246,7 @@ const BrandWaitlist = () => {
             believing in the place, and the new buyers you have been losing finally feel confident enough
             to order.
           </p>
-          <h3 className="editorial-h2 text-2xl md:text-4xl text-foreground mb-8 max-w-2xl">
+          <h3 className="waitlist-serif text-3xl md:text-5xl text-foreground mb-8 max-w-2xl">
             Ogura is built for you if you fit one of these.
           </h3>
           <ul className="grid md:grid-cols-2 gap-4 max-w-4xl">
@@ -283,7 +284,7 @@ const BrandWaitlist = () => {
               <p className="editorial-label text-brand text-sm mb-4 flex items-center gap-2">
                 07 <Sparkles className="w-4 h-4" /> Featured
               </p>
-              <h3 className="editorial-h2 text-2xl md:text-3xl text-foreground mb-3">
+              <h3 className="waitlist-serif text-3xl md:text-4xl text-foreground mb-3">
                 Built-in AI Studio
               </h3>
               <p className="editorial-h3 text-base md:text-lg text-foreground/80 mb-5">
@@ -299,11 +300,9 @@ const BrandWaitlist = () => {
             <div className="bg-muted min-h-[260px]">
               <img
                 src={aiStudio}
-                alt="A flat garment image transformed into a studio photoshoot by Ogura AI Studio"
+                alt="Ogura Studio interface turning a flat garment image into a lifelike photoshoot"
                 loading="lazy"
-                width={1408}
-                height={912}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover object-top"
               />
             </div>
           </div>
@@ -329,7 +328,7 @@ const BrandWaitlist = () => {
               ))}
             </ul>
             <div className="lg:col-span-2 rounded-2xl bg-foreground text-background p-8 flex flex-col justify-center text-center">
-              <p className="editorial-h1 text-6xl md:text-7xl text-brand mb-2">50</p>
+              <p className="waitlist-serif text-6xl md:text-7xl text-brand mb-2">50</p>
               <p className="editorial-label uppercase text-[11px] tracking-[0.2em] mb-5 opacity-80">
                 Founding spots only
               </p>
@@ -387,7 +386,7 @@ const BrandWaitlist = () => {
             className="absolute inset-0 w-full h-full object-cover opacity-20"
           />
           <div className="relative container mx-auto px-6 max-w-3xl py-24 md:py-32 text-center">
-            <h2 className="editorial-h2 text-3xl md:text-5xl mb-6">
+            <h2 className="waitlist-serif text-4xl md:text-6xl mb-6">
               Your designs deserve to be seen, trusted, and bought.
             </h2>
             <p className="editorial-body text-base md:text-lg opacity-75 mb-10">
