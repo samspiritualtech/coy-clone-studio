@@ -245,13 +245,15 @@ const BrandWaitlist = () => {
 
         {/* What is Ogura */}
         <WaitlistSection kicker="What is Ogura" className="wl-tint">
-          <p className="editorial-body text-base md:text-lg text-muted-foreground max-w-3xl mb-14">
-            Ogura is a curated designerwear marketplace for original, independent fashion. We list only
-            designer-led and celebrity-led brands with unique designs, the kind you will not find on
-            Myntra or Nykaa. We choose every brand with care, so fashion-conscious buyers arrive already
-            believing in the place, and the new buyers you have been losing finally feel confident enough
-            to order.
-          </p>
+          <div className="wl-prose editorial-body text-base md:text-lg text-foreground/85 max-w-3xl mb-14">
+            <p>
+              Ogura is a <span className="wl-hl">curated designerwear marketplace</span> for original, independent fashion. We list only
+              designer-led and celebrity-led brands with unique designs, the kind you will not find on
+              Myntra or Nykaa. We choose every brand with care, so fashion-conscious buyers arrive already
+              believing in the place, and the new buyers you have been losing finally feel confident enough
+              to order.
+            </p>
+          </div>
           <h3 className="waitlist-serif text-3xl md:text-5xl text-foreground mb-8 max-w-2xl">
             Ogura is built for you if you fit one of these.
           </h3>
