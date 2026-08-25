@@ -688,35 +688,96 @@ All colors MUST be HSL.
 }
 
 
-/* ---- Waitlist landing: "keynote paper" theme (mobile-first) ---- */
+/* ---- Waitlist landing: premium "atelier paper" theme (mobile-first) ---- */
 .waitlist-page {
   --wl-paper: 42 33% 97%;
   --wl-paper-deep: 38 26% 93%;
   --wl-ink: 24 12% 12%;
+  --wl-pink: var(--ogura-pink);
+  --wl-gold: 38 70% 58%;
   background-color: hsl(var(--wl-paper));
   color: hsl(var(--wl-ink));
   background-image:
-    radial-gradient(1200px 600px at 100% -10%, hsl(var(--ogura-pink) / 0.10), transparent 60%),
-    radial-gradient(900px 500px at -10% 20%, hsl(38 60% 60% / 0.10), transparent 60%);
+    radial-gradient(1100px 620px at 100% -8%, hsl(var(--wl-pink) / 0.16), transparent 58%),
+    radial-gradient(900px 520px at -12% 18%, hsl(var(--wl-gold) / 0.14), transparent 60%),
+    radial-gradient(700px 700px at 50% 120%, hsl(var(--wl-pink) / 0.08), transparent 65%);
   background-attachment: fixed;
 }
 
-.waitlist-page .wl-paper-card {
-  background: linear-gradient(180deg, hsl(0 0% 100% / 0.92), hsl(var(--wl-paper-deep) / 0.75));
-  border: 1px solid hsl(24 14% 12% / 0.08);
-  box-shadow: 0 1px 0 hsl(0 0% 100% / 0.7) inset, 0 12px 28px -22px hsl(24 20% 12% / 0.35);
-  border-radius: 1rem;
-  backdrop-filter: blur(4px);
+/* Eyebrow: pink gradient text for a pop of color */
+.waitlist-page .editorial-eyebrow {
+  background: linear-gradient(90deg, hsl(var(--wl-pink)), hsl(var(--wl-gold)));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
-.waitlist-page .wl-paper-card:active { transform: scale(0.995); }
 
+/* Cards: richer layered shadows + subtle gradient ring + colored glow on hover */
+.waitlist-page .wl-paper-card {
+  position: relative;
+  background:
+    linear-gradient(180deg, hsl(0 0% 100% / 0.96), hsl(var(--wl-paper-deep) / 0.82));
+  border: 1px solid hsl(24 14% 12% / 0.07);
+  box-shadow:
+    0 1px 0 hsl(0 0% 100% / 0.85) inset,
+    0 2px 4px -2px hsl(24 20% 12% / 0.10),
+    0 18px 40px -28px hsl(24 30% 12% / 0.40);
+  border-radius: 1.25rem;
+  backdrop-filter: blur(6px);
+  transition: box-shadow 300ms ease, transform 300ms ease, border-color 300ms ease;
+}
+.waitlist-page .wl-paper-card::before {
+  content: "";
+  position: absolute; inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(160deg, hsl(var(--wl-pink) / 0.35), transparent 40%, hsl(var(--wl-gold) / 0.22));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.55;
+  pointer-events: none;
+}
+.waitlist-page .wl-paper-card:hover {
+  border-color: hsl(var(--wl-pink) / 0.30);
+  box-shadow:
+    0 1px 0 hsl(0 0% 100% / 0.85) inset,
+    0 4px 8px -3px hsl(24 20% 12% / 0.14),
+    0 28px 56px -30px hsl(var(--wl-pink) / 0.38);
+  transform: translateY(-2px);
+}
+.waitlist-page .wl-paper-card:active { transform: scale(0.992); }
+
+/* Tint sections: richer colored washes with gold/pink */
 .waitlist-page .wl-tint {
-  background: linear-gradient(180deg, hsl(var(--wl-paper-deep) / 0.9), hsl(var(--wl-paper) / 0.4));
+  background:
+    linear-gradient(180deg, hsl(var(--wl-paper-deep) / 0.92), hsl(var(--wl-paper) / 0.5)),
+    radial-gradient(600px 300px at 10% 0%, hsl(var(--wl-pink) / 0.07), transparent 60%),
+    radial-gradient(500px 300px at 90% 100%, hsl(var(--wl-gold) / 0.08), transparent 60%);
   border-top: 1px solid hsl(24 14% 12% / 0.06);
   border-bottom: 1px solid hsl(24 14% 12% / 0.06);
 }
 
-/* Mobile typography: bigger, tighter, more readable */
+/* Pink-tinted number badges inside benefit / step cards */
+.waitlist-page .wl-paper-card .editorial-label {
+  color: hsl(var(--wl-pink));
+}
+
+/* Hero badge: stronger pink tint */
+.waitlist-page .bg-brand-soft {
+  background-color: hsl(var(--wl-pink) / 0.10) !important;
+}
+.waitlist-page .text-brand {
+  color: hsl(var(--wl-pink)) !important;
+}
+.waitlist-page .border-brand\/30 {
+  border-color: hsl(var(--wl-pink) / 0.35) !important;
+}
+
+/* Marquee strip: pink separators already; keep */
+.waitlist-page .text-brand.ml-10 { color: hsl(var(--wl-gold)); }
+
+/* Mobile typography: bigger, tighter, more readable + colored accents */
 @media (max-width: 767px) {
   .waitlist-page .waitlist-serif { line-height: 1.1; letter-spacing: -0.02em; }
   .waitlist-page h1.waitlist-serif { font-size: clamp(2.35rem, 10.5vw, 3.1rem); }
@@ -727,14 +788,25 @@ All colors MUST be HSL.
   .waitlist-page section { padding-top: 3.25rem; padding-bottom: 3.25rem; }
   /* room for the sticky CTA bar */
   .waitlist-page main { padding-bottom: 5.5rem; }
+
+  /* Deeper, more dramatic shadows on mobile for tangible depth */
+  .waitlist-page .wl-paper-card {
+    box-shadow:
+      0 1px 0 hsl(0 0% 100% / 0.9) inset,
+      0 3px 6px -3px hsl(24 20% 12% / 0.12),
+      0 24px 48px -32px hsl(24 30% 12% / 0.45);
+  }
+  /* Slightly larger cards with breathing room */
+  .waitlist-page .wl-paper-card { border-radius: 1.25rem; }
 }
 
-/* Sticky mobile action bar */
+/* Sticky mobile action bar — pink-tinted glass with shadow */
 .wl-sticky-cta {
   position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
   padding: 0.75rem 1rem calc(0.75rem + env(safe-area-inset-bottom));
-  background: hsl(42 33% 97% / 0.9);
-  backdrop-filter: blur(12px);
-  border-top: 1px solid hsl(24 14% 12% / 0.1);
+  background: hsl(42 33% 97% / 0.88);
+  backdrop-filter: blur(14px);
+  border-top: 1px solid hsl(var(--wl-pink) / 0.18);
+  box-shadow: 0 -12px 30px -18px hsl(24 30% 12% / 0.35);
 }
 @media (min-width: 768px) { .wl-sticky-cta { display: none; } }
