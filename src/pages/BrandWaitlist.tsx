@@ -169,21 +169,21 @@ const BrandWaitlist = () => {
           heading="In India, most buyers drop off before checkout. This is why."
           narrow
         >
-          <div className="space-y-6 editorial-body text-base md:text-lg text-muted-foreground">
+          <div className="wl-prose editorial-body text-base md:text-lg text-foreground/85">
             <p>
               Across India, buyers routinely abandon Shopify stores and Instagram brand pages moments
               before paying. They see a design they want, they add it to cart, they message in DMs, and
               then they stop.
             </p>
             <p>
-              The reason is trust, not price and not product. Buyers have learned to feel safe on Myntra
+              The reason is <span className="wl-hl">trust, not price and not product</span>. Buyers have learned to feel safe on Myntra
               and Amazon, where a known name, visible reviews, easy returns, and guaranteed delivery
               remove all doubt from the decision to pay. An independent brand, however strong its design,
               does not yet carry that same weight. So the buyer hesitates at the one moment that matters
               most, and walks away.
             </p>
             <p>
-              This is not a one-time miss. It is a structural loss, repeated at scale. The brand has
+              This is not a one-time miss. It is a <span className="wl-hl">structural loss, repeated at scale</span>. The brand has
               already done the harder work, it earned genuine interest and brought the buyer to the page.
               It loses her anyway, because no single page can offer the certainty a national platform
               offers by default. This gap, between wanting a product and trusting enough to pay for it,
@@ -198,7 +198,7 @@ const BrandWaitlist = () => {
             <div className="wl-paper-card p-8">
               <p className="editorial-eyebrow text-muted-foreground mb-4">Vision</p>
               <p className="waitlist-serif text-2xl md:text-3xl text-foreground leading-snug">
-                A fashion industry where original design competes on merit, not on the size of a brand's
+                A fashion industry where <span className="wl-hl">original design competes on merit</span>, not on the size of a brand's
                 marketing budget or its place on a mass platform.
               </p>
             </div>
@@ -211,12 +211,14 @@ const BrandWaitlist = () => {
               </p>
             </div>
           </div>
-          <p className="editorial-body text-base md:text-lg text-muted-foreground max-w-3xl">
-            We built Ogura because talent alone does not win in Indian fashion today. Distribution does.
-            A designer with real originality can be outsold by a brand with none, simply because the buyer
-            trusted one page and not the other. We do not believe that is how a fashion market should
-            work, and we built Ogura to correct it.
-          </p>
+          <div className="wl-prose editorial-body text-base md:text-lg text-foreground/85">
+            <p>
+              We built Ogura because <span className="wl-hl">talent alone does not win in Indian fashion today</span>. Distribution does.
+              A designer with real originality can be outsold by a brand with none, simply because the buyer
+              trusted one page and not the other. We do not believe that is how a fashion market should
+              work, and we built Ogura to correct it.
+            </p>
+          </div>
         </WaitlistSection>
 
         {/* Why Ogura Exists */}
@@ -225,13 +227,15 @@ const BrandWaitlist = () => {
           heading="Ogura exists to give independent brands the trust they cannot build alone."
           narrow
         >
-          <p className="editorial-body text-base md:text-lg text-muted-foreground mb-8">
-            We do not simply list brands. We extend to each one the credibility that turns a hesitant,
-            first-time buyer into a paying customer, the same certainty she already grants Myntra or
-            Amazon. That credibility has never been available to an independent brand acting on its own.
-            It is the reason Ogura exists.
-          </p>
-          <div className="border-l-2 border-brand pl-6">
+          <div className="wl-prose editorial-body text-base md:text-lg text-foreground/85 mb-8">
+            <p>
+              We do not simply list brands. We extend to each one the credibility that turns a hesitant,
+              first-time buyer into a paying customer, the same certainty she already grants Myntra or
+              Amazon. That credibility has never been available to an independent brand acting on its own.
+              It is the reason Ogura exists.
+            </p>
+          </div>
+          <div className="wl-quote">
             <p className="waitlist-serif text-2xl md:text-3xl text-foreground leading-snug">
               In one line: Ogura gives independent brands the authority to convert the buyers they have
               already earned, but have been losing at the final step.
