@@ -399,7 +399,7 @@ const BrandWaitlist = () => {
               onClick={() => scrollTo("apply")}
               className="editorial-label uppercase text-xs h-12 px-8"
             >
-              Apply to join <ArrowRight className="w-4 h-4" />
+              Apply to waitlist <ArrowRight className="w-4 h-4" />
             </Button>
           </div>
         </section>
