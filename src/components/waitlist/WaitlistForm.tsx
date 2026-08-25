@@ -16,7 +16,7 @@ const CITIES = [
 const BRAND_AGES = ["Just starting", "Under 1 year", "1 to 3 years", "3+ years"];
 const CHANNELS = ["Instagram", "Own website", "Boutique or store", "Just starting out"];
 
-const WHATSAPP_NUMBER = "919897014111";
+const WHATSAPP_NUMBER = "917742698970";
 
 const schema = z.object({
   brand_name: z.string().trim().min(2, "Please enter your brand name").max(120),
