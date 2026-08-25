@@ -38,7 +38,7 @@ export const WaitlistSection = ({
           <p className={`editorial-eyebrow text-brand mb-5 ${center ? "" : ""}`}>{kicker}</p>
         )}
         {heading && (
-          <h2 className="editorial-h2 text-3xl md:text-5xl text-foreground mb-8 max-w-3xl"
+          <h2 className="waitlist-serif text-3xl md:text-5xl text-foreground mb-8 max-w-3xl"
               style={center ? { marginLeft: "auto", marginRight: "auto" } : undefined}>
             {heading}
           </h2>
