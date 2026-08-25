@@ -9,7 +9,7 @@ import aiStudioAsset from "@/assets/waitlist/wl-ai-studio.png.asset.json";
 const brand1 = brand1Asset.url;
 const brand2 = brand2Asset.url;
 const aiStudio = aiStudioAsset.url;
-import { Check, Sparkles, ArrowRight } from "lucide-react";
+import { Check, Sparkles, ArrowRight, MessageCircle } from "lucide-react";
 import { useEffect } from "react";
 
 const scrollTo = (id: string) => {
