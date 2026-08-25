@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      brand_waitlist_applications: {
+        Row: {
+          brand_age: string
+          brand_name: string
+          city: string
+          created_at: string
+          handle_or_website: string
+          id: string
+          monthly_orders: string | null
+          phone: string
+          sell_channels: string[]
+          what_you_make: string
+        }
+        Insert: {
+          brand_age: string
+          brand_name: string
+          city: string
+          created_at?: string
+          handle_or_website: string
+          id?: string
+          monthly_orders?: string | null
+          phone: string
+          sell_channels?: string[]
+          what_you_make: string
+        }
+        Update: {
+          brand_age?: string
+          brand_name?: string
+          city?: string
+          created_at?: string
+          handle_or_website?: string
+          id?: string
+          monthly_orders?: string | null
+          phone?: string
+          sell_channels?: string[]
+          what_you_make?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string | null
