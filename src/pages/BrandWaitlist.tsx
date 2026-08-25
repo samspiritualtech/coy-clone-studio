@@ -101,7 +101,7 @@ const BrandWaitlist = () => {
             onClick={() => scrollTo("apply")}
             className="editorial-label uppercase text-[11px] tracking-[0.14em] h-10 px-5"
           >
-            Apply to join
+            Apply to waitlist
           </Button>
         </div>
       </header>
