@@ -664,3 +664,14 @@ All colors MUST be HSL.
     letter-spacing: 0.06em;
   }
 }
+
+/* ---- Waitlist landing marquee ---- */
+@keyframes waitlist-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
