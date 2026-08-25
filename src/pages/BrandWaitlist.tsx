@@ -125,8 +125,10 @@ const BrandWaitlist = () => {
               <Button size="lg" onClick={() => scrollTo("apply")} className="editorial-label uppercase text-xs h-12 px-8">
                 Apply to join
               </Button>
-              <Button size="lg" variant="outline" onClick={() => scrollTo("what-you-get")} className="editorial-label uppercase text-xs h-12 px-8">
-                See what you get
+              <Button asChild size="lg" variant="outline" className="editorial-label uppercase text-xs h-12 px-8">
+                <a href={`https://wa.me/917742698970?text=${encodeURIComponent("Hi Ogura, I'd like to apply to the waitlist.")}`} target="_blank" rel="noreferrer">
+                  <MessageCircle className="w-4 h-4" /> Apply to waitlist
+                </a>
               </Button>
             </div>
             <p className="editorial-body text-sm text-muted-foreground mt-6">
