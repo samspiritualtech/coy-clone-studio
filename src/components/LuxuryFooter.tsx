@@ -72,6 +72,14 @@ export const LuxuryFooter = () => {
                   Join as Fashion Designer
                 </Link>
               </li>
+              <li>
+                <Link
+                  to="/waitlist"
+                  className="text-sm text-background/60 hover:text-background transition-colors"
+                >
+                  Apply to Waitlist
+                </Link>
+              </li>
             </ul>
           </div>
           
