@@ -81,12 +81,12 @@ const STEPS = [
 
 const BrandWaitlist = () => {
   useEffect(() => {
-    document.title = "Apply to join Ogura — for India's original designer brands";
+    document.title = "Ogura Seller Program — sell your original designs on Ogura";
     const desc = document.querySelector('meta[name="description"]');
     if (desc) {
       desc.setAttribute(
         "content",
-        "Ogura is a curated designerwear marketplace for independent, designer-led labels. Applications are open for 50 founding brands. Free to apply.",
+        "The Ogura Seller Program gives independent, designer-led labels visibility, buyer trust, delivery support and an AI studio. Applications open for 50 founding brands. Free to apply.",
       );
     }
   }, []);
@@ -95,13 +95,18 @@ const BrandWaitlist = () => {
     <div className="waitlist-page min-h-screen font-body">
       {/* Nav */}
       <header className="sticky top-0 z-50 bg-[hsl(42_33%_97%_/_0.85)] backdrop-blur-md border-b border-border/60">
-        <div className="container mx-auto px-6 max-w-6xl h-16 md:h-20 flex items-center justify-between">
-          <img src={oguraLogo.url} alt="OGURA" className="h-8 md:h-10 w-auto object-contain" />
+        <div className="container mx-auto px-6 max-w-6xl h-16 md:h-20 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <img src={oguraLogo.url} alt="OGURA" className="h-7 md:h-10 w-auto object-contain" />
+            <span className="hidden sm:inline editorial-label uppercase text-[10px] tracking-[0.2em] text-muted-foreground border-l border-border pl-3">
+              Seller Program
+            </span>
+          </div>
           <Button
             onClick={() => scrollTo("apply")}
-            className="editorial-label uppercase text-[11px] tracking-[0.14em] h-10 px-5"
+            className="editorial-label uppercase text-[11px] tracking-[0.14em] h-10 px-5 rounded-full shrink-0"
           >
-            Apply to waitlist
+            Apply now
           </Button>
         </div>
       </header>
@@ -109,32 +114,35 @@ const BrandWaitlist = () => {
       <main>
         {/* Hero */}
         <section className="relative overflow-hidden">
-          <div className="container mx-auto px-6 max-w-4xl pt-20 pb-14 md:pt-28 md:pb-20 text-center">
+          <div className="container mx-auto px-6 max-w-4xl pt-16 pb-14 md:pt-28 md:pb-20 text-center">
             <span className="inline-block editorial-eyebrow text-brand border border-brand/30 bg-brand-soft rounded-full px-4 py-2 mb-8">
-              Founding brands. Applications open.
+              Ogura Seller Program · Applications open
             </span>
             <h1 className="waitlist-serif text-[2.6rem] leading-[1.02] sm:text-6xl md:text-7xl text-foreground mb-7">
               The home for India's original designer brands.
             </h1>
             <p className="editorial-body text-base md:text-lg text-muted-foreground max-w-2xl mx-auto mb-10">
               Ogura is a curated designerwear marketplace for independent, designer-led labels, the
-              original work you will not find on Myntra or Nykaa. We give you visibility, buyer trust,
-              delivery support, and tools no independent brand can build alone.
+              original work you will not find on Myntra or Nykaa. The Seller Program gives you
+              visibility, buyer trust, delivery support, and tools no independent brand can build alone.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button asChild size="lg" className="editorial-label uppercase text-xs h-12 px-8">
-                <a href={`https://wa.me/917742698970?text=${encodeURIComponent("Hi Ogura, I'd like to apply to the waitlist.")}`} target="_blank" rel="noreferrer">
-                  <MessageCircle className="w-4 h-4" /> Apply to waitlist
-                </a>
+              <Button
+                size="lg"
+                onClick={() => scrollTo("apply")}
+                className="editorial-label uppercase text-xs h-13 py-4 px-8 rounded-full"
+              >
+                Apply to seller program <ArrowRight className="w-4 h-4" />
               </Button>
-              <Button size="lg" variant="outline" onClick={() => scrollTo("what-you-get")} className="editorial-label uppercase text-xs h-12 px-8">
+              <Button size="lg" variant="outline" onClick={() => scrollTo("what-you-get")} className="editorial-label uppercase text-xs h-13 py-4 px-8 rounded-full">
                 See what you get
               </Button>
             </div>
             <p className="editorial-body text-sm text-muted-foreground mt-6">
-              Free to apply. We are selecting only 50 founding brands to start, and we reply within 48 hours.
+              Free to join. We are selecting only 50 founding brands to start, and we reply within 48 hours.
             </p>
           </div>
+
 
           {/* Brand imagery */}
           <div className="container mx-auto px-6 max-w-5xl pb-6">
