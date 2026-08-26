@@ -57,6 +57,17 @@ const BENEFITS = [
   },
 ];
 
+const OFFERINGS = [
+  { value: "0%", label: "Listing fees", note: "Free for founding brands through the launch period." },
+  { value: "48h", label: "Onboarding", note: "Reviewed and set up within two days of applying." },
+  { value: "Free", label: "AI photoshoots", note: "Studio-grade imagery from a single flat photo." },
+  { value: "End to end", label: "Delivery & returns", note: "Pickup, hyperlocal delivery, returns handled." },
+  { value: "Live", label: "Buyer analytics", note: "See what converts, who buys, and what to make next." },
+  { value: "Weekly", label: "Payouts", note: "Predictable settlement straight to your account." },
+  { value: "Pre-book", label: "Demand testing", note: "Validate a design before you produce stock." },
+  { value: "1:1", label: "Brand support", note: "A direct line to our team, not a ticket queue." },
+];
+
 const FIT = [
   "You make original designs, not mass-produced or copied ones.",
   "You sell on Instagram, from a boutique, or you are just starting out.",
