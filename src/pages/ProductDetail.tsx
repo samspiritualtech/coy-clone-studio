@@ -344,9 +344,12 @@ export default function ProductDetail() {
           <div className="space-y-5">
             {/* Brand */}
             <div className="space-y-1">
-              <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
+              <Link
+                to={`/store/${slugifyBrand(currentProduct.brand)}`}
+                className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground transition-colors"
+              >
                 {currentProduct.brand}
-              </p>
+              </Link>
               <h1 className="text-xl lg:text-2xl font-light tracking-tight text-foreground leading-tight">
                 {currentProduct.name}
               </h1>
