@@ -74,10 +74,10 @@ export const LuxuryFooter = () => {
               </li>
               <li>
                 <Link
-                  to="/waitlist"
+                  to="/seller-program"
                   className="text-sm text-background/60 hover:text-background transition-colors"
                 >
-                  Apply to Waitlist
+                  Seller Program
                 </Link>
               </li>
             </ul>
