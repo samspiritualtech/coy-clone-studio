@@ -47,6 +47,8 @@ const CustomerApp = () => {
         <Route path="/collections/:category" element={<Collections />} />
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/brands" element={<Brands />} />
+        <Route path="/store/:slug" element={<BrandStore />} />
+        <Route path="/brand/:slug" element={<BrandStore />} />
         <Route path="/brands/:brandId" element={<BrandDetail />} />
         <Route path="/designers" element={<Designers />} />
         <Route path="/designers/:designerId" element={<DesignerDetail />} />
