@@ -1,4 +1,5 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { slugifyBrand } from "@/lib/brandStores";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { triggerSocialPost } from "@/services/socialPostService";
@@ -118,7 +119,7 @@ export default function ProductDetail() {
             images: found.image_urls ?? (found.image_url ? [found.image_url] : found.images ?? ["/placeholder.svg"]),
             videoUrl: found.video_url ?? undefined,
 
-            brand: found.brand ?? found.brand_name ?? "Brand",
+            brand: found.store?.name ?? found.brand ?? found.brand_name ?? "Brand",
             category: found.category ?? "general",
             sizes: found.sizes ?? ["S", "M", "L", "XL"],
             colors: found.colors ?? [{ name: "Default", hex: "#000000" }],
@@ -344,9 +345,12 @@ export default function ProductDetail() {
           <div className="space-y-5">
             {/* Brand */}
             <div className="space-y-1">
-              <p className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
+              <Link
+                to={`/store/${slugifyBrand(currentProduct.brand)}`}
+                className="text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground transition-colors"
+              >
                 {currentProduct.brand}
-              </p>
+              </Link>
               <h1 className="text-xl lg:text-2xl font-light tracking-tight text-foreground leading-tight">
                 {currentProduct.name}
               </h1>

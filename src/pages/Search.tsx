@@ -8,6 +8,7 @@ import {
   AlgoliaPagination,
   AlgoliaFilterSidebar,
   AlgoliaMobileFilters,
+  BrandSearchResults,
 } from "@/components/search";
 
 const SearchContent = () => {
@@ -39,6 +40,8 @@ const SearchContent = () => {
           <div className="lg:hidden mb-4">
             <AlgoliaMobileFilters />
           </div>
+
+          <BrandSearchResults query={query} />
 
           <AlgoliaSearchResults />
           <AlgoliaPagination />
