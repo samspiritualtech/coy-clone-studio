@@ -275,13 +275,31 @@ const BrandWaitlist = () => {
           </ul>
         </WaitlistSection>
 
-        {/* What you get */}
+        {/* What the seller gets */}
         <WaitlistSection
           id="what-you-get"
-          kicker="What you get"
-          heading="More than a listing. Complete infrastructure behind your brand."
+          kicker="Seller offerings"
+          heading="What you get as an Ogura seller."
         >
+          <p className="editorial-body text-base md:text-lg text-muted-foreground max-w-2xl mb-8">
+            Everything a national platform gives a large label, given to your brand from day one.
+          </p>
+
+          {/* Offerings at a glance */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-10">
+            {OFFERINGS.map((o) => (
+              <div key={o.label} className="wl-paper-card p-5 flex flex-col gap-2">
+                <p className="waitlist-serif text-2xl md:text-3xl text-brand">{o.value}</p>
+                <p className="editorial-label uppercase text-[10px] tracking-[0.16em] text-foreground">
+                  {o.label}
+                </p>
+                <p className="editorial-body text-xs text-muted-foreground">{o.note}</p>
+              </div>
+            ))}
+          </div>
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+
             {BENEFITS.map((b) => (
               <div
                 key={b.n}
