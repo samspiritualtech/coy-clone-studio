@@ -118,7 +118,7 @@ export default function ProductDetail() {
             images: found.image_urls ?? (found.image_url ? [found.image_url] : found.images ?? ["/placeholder.svg"]),
             videoUrl: found.video_url ?? undefined,
 
-            brand: found.brand ?? found.brand_name ?? "Brand",
+            brand: found.store?.name ?? found.brand ?? found.brand_name ?? "Brand",
             category: found.category ?? "general",
             sizes: found.sizes ?? ["S", "M", "L", "XL"],
             colors: found.colors ?? [{ name: "Default", hex: "#000000" }],
