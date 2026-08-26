@@ -1024,3 +1024,8 @@ All colors MUST be HSL.
   .waitlist-page .wl-fieldset { padding: 2rem 2.25rem; }
   .waitlist-page .wl-form-actions { padding: 1.75rem 2.25rem; }
 }
+
+@media (max-width: 767px) {
+  .waitlist-page .wl-field-hint { display: block; margin-left: 0; margin-top: 0.15rem; }
+  .waitlist-page .wl-form-card { border-radius: 1.25rem; }
+}

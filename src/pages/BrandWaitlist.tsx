@@ -127,7 +127,7 @@ const BrandWaitlist = () => {
         <section className="relative overflow-hidden">
           <div className="container mx-auto px-6 max-w-4xl pt-16 pb-14 md:pt-28 md:pb-20 text-center">
             <span className="inline-block editorial-eyebrow text-brand border border-brand/30 bg-brand-soft rounded-full px-4 py-2 mb-8">
-              Ogura Seller Program · Applications open
+              Seller Program · Now open
             </span>
             <h1 className="waitlist-serif text-[2.6rem] leading-[1.02] sm:text-6xl md:text-7xl text-foreground mb-7">
               The home for India's original designer brands.
