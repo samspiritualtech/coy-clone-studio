@@ -9,3 +9,4 @@ export { AlgoliaMobileFilters } from "./AlgoliaMobileFilters";
 export { AlgoliaRefinementList } from "./AlgoliaRefinementList";
 export { AlgoliaPriceRange } from "./AlgoliaPriceRange";
 export { AlgoliaSearchResults, AlgoliaPagination } from "./AlgoliaSearchResults";
+export { BrandSearchResults } from "./BrandSearchResults";
