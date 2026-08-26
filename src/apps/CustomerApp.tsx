@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import { LocationPermissionModal } from "@/components/LocationPermissionModal";
 import { ManualLocationSelector } from "@/components/ManualLocationSelector";
@@ -62,8 +62,8 @@ const CustomerApp = () => {
         <Route path="/contact" element={<Contact />} />
         <Route path="/careers" element={<Careers />} />
         <Route path="/seller-program" element={<BrandWaitlist />} />
-        <Route path="/waitlist" element={<BrandWaitlist />} />
-        <Route path="/apply-to-join" element={<BrandWaitlist />} />
+        <Route path="/waitlist" element={<Navigate to="/seller-program" replace />} />
+        <Route path="/apply-to-join" element={<Navigate to="/seller-program" replace />} />
 
         <Route path="/auth/pinterest/callback" element={<PinterestCallback />} />
         <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
