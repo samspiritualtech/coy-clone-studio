@@ -410,13 +410,13 @@ const BrandWaitlist = () => {
         {/* Application form */}
         <WaitlistSection
           id="apply"
-          kicker="Apply to join"
+          kicker="Join the seller program"
           heading="Become one of the first brands on Ogura."
           className="wl-tint"
           narrow
         >
-          <p className="editorial-body text-base md:text-lg text-muted-foreground mb-10">
-            A few essential details. Exact figures are not required, an estimate is sufficient.
+          <p className="editorial-body text-base md:text-lg text-muted-foreground mb-8">
+            Three short steps, about two minutes. Exact figures are not required, an estimate is enough.
           </p>
           <WaitlistForm />
         </WaitlistSection>
@@ -430,35 +430,44 @@ const BrandWaitlist = () => {
             loading="lazy"
             className="absolute inset-0 w-full h-full object-cover opacity-20"
           />
-          <div className="relative container mx-auto px-6 max-w-3xl py-24 md:py-32 text-center">
+          <div className="relative container mx-auto px-6 max-w-3xl py-20 md:py-32 text-center">
             <h2 className="waitlist-serif text-4xl md:text-6xl mb-6">
               Your designs deserve to be seen, trusted, and bought.
             </h2>
             <p className="editorial-body text-base md:text-lg opacity-75 mb-10">
-              Apply now, and become one of the first brands on Ogura.
+              Apply now, and become one of the first brands on the Ogura Seller Program.
             </p>
             <Button
               size="lg"
               onClick={() => scrollTo("apply")}
-              className="editorial-label uppercase text-xs h-12 px-8"
+              className="editorial-label uppercase text-xs h-14 sm:h-12 px-8 rounded-full"
             >
-              Apply to waitlist <ArrowRight className="w-4 h-4" />
+              Apply to seller program <ArrowRight className="w-4 h-4" />
             </Button>
           </div>
         </section>
       </main>
 
       {/* Sticky mobile CTA */}
-      <div className="wl-sticky-cta">
+      <div className="wl-sticky-cta flex items-center gap-2.5">
+        <button
+          type="button"
+          onClick={() => scrollTo("apply")}
+          className="flex-1 flex items-center justify-center gap-2 h-12 rounded-full bg-foreground text-background editorial-label uppercase text-[11px] tracking-[0.16em]"
+        >
+          Apply to seller program
+        </button>
         <a
-          href={`https://wa.me/917742698970?text=${encodeURIComponent("Hi Ogura, I'd like to apply to the waitlist.")}`}
+          href={`https://wa.me/917742698970?text=${encodeURIComponent("Hi Ogura, I'd like to join the Seller Program.")}`}
           target="_blank"
           rel="noreferrer"
-          className="flex items-center justify-center gap-2 w-full h-12 rounded-full bg-foreground text-background editorial-label uppercase text-[11px] tracking-[0.16em]"
+          aria-label="Chat with Ogura on WhatsApp"
+          className="w-12 h-12 shrink-0 flex items-center justify-center rounded-full border border-brand/40 bg-brand-soft text-brand"
         >
-          <MessageCircle className="w-4 h-4" /> Apply to waitlist
+          <MessageCircle className="w-5 h-5" />
         </a>
       </div>
+
 
       {/* Footer */}
       <footer className="border-t border-border py-12">
