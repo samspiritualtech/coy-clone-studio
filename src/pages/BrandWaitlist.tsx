@@ -57,17 +57,6 @@ const BENEFITS = [
   },
 ];
 
-const OFFERINGS = [
-  { value: "0%", label: "Listing fees", note: "Free for founding brands through the launch period." },
-  { value: "48h", label: "Onboarding", note: "Reviewed and set up within two days of applying." },
-  { value: "Free", label: "AI photoshoots", note: "Studio-grade imagery from a single flat photo." },
-  { value: "End to end", label: "Delivery & returns", note: "Pickup, hyperlocal delivery, returns handled." },
-  { value: "Live", label: "Buyer analytics", note: "See what converts, who buys, and what to make next." },
-  { value: "Weekly", label: "Payouts", note: "Predictable settlement straight to your account." },
-  { value: "Pre-book", label: "Demand testing", note: "Validate a design before you produce stock." },
-  { value: "1:1", label: "Brand support", note: "A direct line to our team, not a ticket queue." },
-];
-
 const FIT = [
   "You make original designs, not mass-produced or copied ones.",
   "You sell on Instagram, from a boutique, or you are just starting out.",
@@ -295,19 +284,6 @@ const BrandWaitlist = () => {
           <p className="editorial-body text-base md:text-lg text-muted-foreground max-w-2xl mb-8">
             Everything a national platform gives a large label, given to your brand from day one.
           </p>
-
-          {/* Offerings at a glance */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-10">
-            {OFFERINGS.map((o) => (
-              <div key={o.label} className="wl-paper-card p-5 flex flex-col gap-2">
-                <p className="waitlist-serif text-2xl md:text-3xl text-brand">{o.value}</p>
-                <p className="editorial-label uppercase text-[10px] tracking-[0.16em] text-foreground">
-                  {o.label}
-                </p>
-                <p className="editorial-body text-xs text-muted-foreground">{o.note}</p>
-              </div>
-            ))}
-          </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
 
