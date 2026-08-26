@@ -57,6 +57,17 @@ const BENEFITS = [
   },
 ];
 
+const OFFERINGS = [
+  { value: "0%", label: "Listing fees", note: "Free for founding brands through the launch period." },
+  { value: "48h", label: "Onboarding", note: "Reviewed and set up within two days of applying." },
+  { value: "Free", label: "AI photoshoots", note: "Studio-grade imagery from a single flat photo." },
+  { value: "End to end", label: "Delivery & returns", note: "Pickup, hyperlocal delivery, returns handled." },
+  { value: "Live", label: "Buyer analytics", note: "See what converts, who buys, and what to make next." },
+  { value: "Weekly", label: "Payouts", note: "Predictable settlement straight to your account." },
+  { value: "Pre-book", label: "Demand testing", note: "Validate a design before you produce stock." },
+  { value: "1:1", label: "Brand support", note: "A direct line to our team, not a ticket queue." },
+];
+
 const FIT = [
   "You make original designs, not mass-produced or copied ones.",
   "You sell on Instagram, from a boutique, or you are just starting out.",
@@ -81,12 +92,12 @@ const STEPS = [
 
 const BrandWaitlist = () => {
   useEffect(() => {
-    document.title = "Apply to join Ogura — for India's original designer brands";
+    document.title = "Ogura Seller Program — sell your original designs on Ogura";
     const desc = document.querySelector('meta[name="description"]');
     if (desc) {
       desc.setAttribute(
         "content",
-        "Ogura is a curated designerwear marketplace for independent, designer-led labels. Applications are open for 50 founding brands. Free to apply.",
+        "The Ogura Seller Program gives independent, designer-led labels visibility, buyer trust, delivery support and an AI studio. Applications open for 50 founding brands. Free to apply.",
       );
     }
   }, []);
@@ -95,13 +106,18 @@ const BrandWaitlist = () => {
     <div className="waitlist-page min-h-screen font-body">
       {/* Nav */}
       <header className="sticky top-0 z-50 bg-[hsl(42_33%_97%_/_0.85)] backdrop-blur-md border-b border-border/60">
-        <div className="container mx-auto px-6 max-w-6xl h-16 md:h-20 flex items-center justify-between">
-          <img src={oguraLogo.url} alt="OGURA" className="h-8 md:h-10 w-auto object-contain" />
+        <div className="container mx-auto px-6 max-w-6xl h-16 md:h-20 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 min-w-0">
+            <img src={oguraLogo.url} alt="OGURA" className="h-7 md:h-10 w-auto object-contain" />
+            <span className="hidden sm:inline editorial-label uppercase text-[10px] tracking-[0.2em] text-muted-foreground border-l border-border pl-3">
+              Seller Program
+            </span>
+          </div>
           <Button
             onClick={() => scrollTo("apply")}
-            className="editorial-label uppercase text-[11px] tracking-[0.14em] h-10 px-5"
+            className="editorial-label uppercase text-[11px] tracking-[0.14em] h-10 px-5 rounded-full shrink-0"
           >
-            Apply to waitlist
+            Apply now
           </Button>
         </div>
       </header>
@@ -109,32 +125,35 @@ const BrandWaitlist = () => {
       <main>
         {/* Hero */}
         <section className="relative overflow-hidden">
-          <div className="container mx-auto px-6 max-w-4xl pt-20 pb-14 md:pt-28 md:pb-20 text-center">
+          <div className="container mx-auto px-6 max-w-4xl pt-16 pb-14 md:pt-28 md:pb-20 text-center">
             <span className="inline-block editorial-eyebrow text-brand border border-brand/30 bg-brand-soft rounded-full px-4 py-2 mb-8">
-              Founding brands. Applications open.
+              Seller Program · Now open
             </span>
             <h1 className="waitlist-serif text-[2.6rem] leading-[1.02] sm:text-6xl md:text-7xl text-foreground mb-7">
               The home for India's original designer brands.
             </h1>
             <p className="editorial-body text-base md:text-lg text-muted-foreground max-w-2xl mx-auto mb-10">
               Ogura is a curated designerwear marketplace for independent, designer-led labels, the
-              original work you will not find on Myntra or Nykaa. We give you visibility, buyer trust,
-              delivery support, and tools no independent brand can build alone.
+              original work you will not find on Myntra or Nykaa. The Seller Program gives you
+              visibility, buyer trust, delivery support, and tools no independent brand can build alone.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button asChild size="lg" className="editorial-label uppercase text-xs h-12 px-8">
-                <a href={`https://wa.me/917742698970?text=${encodeURIComponent("Hi Ogura, I'd like to apply to the waitlist.")}`} target="_blank" rel="noreferrer">
-                  <MessageCircle className="w-4 h-4" /> Apply to waitlist
-                </a>
+              <Button
+                size="lg"
+                onClick={() => scrollTo("apply")}
+                className="editorial-label uppercase text-xs h-14 sm:h-12 px-8 rounded-full"
+              >
+                Apply to seller program <ArrowRight className="w-4 h-4" />
               </Button>
-              <Button size="lg" variant="outline" onClick={() => scrollTo("what-you-get")} className="editorial-label uppercase text-xs h-12 px-8">
+              <Button size="lg" variant="outline" onClick={() => scrollTo("what-you-get")} className="editorial-label uppercase text-xs h-14 sm:h-12 px-8 rounded-full">
                 See what you get
               </Button>
             </div>
             <p className="editorial-body text-sm text-muted-foreground mt-6">
-              Free to apply. We are selecting only 50 founding brands to start, and we reply within 48 hours.
+              Free to join. We are selecting only 50 founding brands to start, and we reply within 48 hours.
             </p>
           </div>
+
 
           {/* Brand imagery */}
           <div className="container mx-auto px-6 max-w-5xl pb-6">
@@ -267,13 +286,31 @@ const BrandWaitlist = () => {
           </ul>
         </WaitlistSection>
 
-        {/* What you get */}
+        {/* What the seller gets */}
         <WaitlistSection
           id="what-you-get"
-          kicker="What you get"
-          heading="More than a listing. Complete infrastructure behind your brand."
+          kicker="Seller offerings"
+          heading="What you get as an Ogura seller."
         >
+          <p className="editorial-body text-base md:text-lg text-muted-foreground max-w-2xl mb-8">
+            Everything a national platform gives a large label, given to your brand from day one.
+          </p>
+
+          {/* Offerings at a glance */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-10">
+            {OFFERINGS.map((o) => (
+              <div key={o.label} className="wl-paper-card p-5 flex flex-col gap-2">
+                <p className="waitlist-serif text-2xl md:text-3xl text-brand">{o.value}</p>
+                <p className="editorial-label uppercase text-[10px] tracking-[0.16em] text-foreground">
+                  {o.label}
+                </p>
+                <p className="editorial-body text-xs text-muted-foreground">{o.note}</p>
+              </div>
+            ))}
+          </div>
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
+
             {BENEFITS.map((b) => (
               <div
                 key={b.n}
@@ -373,13 +410,13 @@ const BrandWaitlist = () => {
         {/* Application form */}
         <WaitlistSection
           id="apply"
-          kicker="Apply to join"
+          kicker="Join the seller program"
           heading="Become one of the first brands on Ogura."
           className="wl-tint"
           narrow
         >
-          <p className="editorial-body text-base md:text-lg text-muted-foreground mb-10">
-            A few essential details. Exact figures are not required, an estimate is sufficient.
+          <p className="editorial-body text-base md:text-lg text-muted-foreground mb-8">
+            Three short steps, about two minutes. Exact figures are not required, an estimate is enough.
           </p>
           <WaitlistForm />
         </WaitlistSection>
@@ -393,35 +430,44 @@ const BrandWaitlist = () => {
             loading="lazy"
             className="absolute inset-0 w-full h-full object-cover opacity-20"
           />
-          <div className="relative container mx-auto px-6 max-w-3xl py-24 md:py-32 text-center">
+          <div className="relative container mx-auto px-6 max-w-3xl py-20 md:py-32 text-center">
             <h2 className="waitlist-serif text-4xl md:text-6xl mb-6">
               Your designs deserve to be seen, trusted, and bought.
             </h2>
             <p className="editorial-body text-base md:text-lg opacity-75 mb-10">
-              Apply now, and become one of the first brands on Ogura.
+              Apply now, and become one of the first brands on the Ogura Seller Program.
             </p>
             <Button
               size="lg"
               onClick={() => scrollTo("apply")}
-              className="editorial-label uppercase text-xs h-12 px-8"
+              className="editorial-label uppercase text-xs h-14 sm:h-12 px-8 rounded-full"
             >
-              Apply to waitlist <ArrowRight className="w-4 h-4" />
+              Apply to seller program <ArrowRight className="w-4 h-4" />
             </Button>
           </div>
         </section>
       </main>
 
       {/* Sticky mobile CTA */}
-      <div className="wl-sticky-cta">
+      <div className="wl-sticky-cta flex items-center gap-2.5">
+        <button
+          type="button"
+          onClick={() => scrollTo("apply")}
+          className="flex-1 flex items-center justify-center gap-2 h-12 rounded-full bg-foreground text-background editorial-label uppercase text-[11px] tracking-[0.16em]"
+        >
+          Apply to seller program
+        </button>
         <a
-          href={`https://wa.me/917742698970?text=${encodeURIComponent("Hi Ogura, I'd like to apply to the waitlist.")}`}
+          href={`https://wa.me/917742698970?text=${encodeURIComponent("Hi Ogura, I'd like to join the Seller Program.")}`}
           target="_blank"
           rel="noreferrer"
-          className="flex items-center justify-center gap-2 w-full h-12 rounded-full bg-foreground text-background editorial-label uppercase text-[11px] tracking-[0.16em]"
+          aria-label="Chat with Ogura on WhatsApp"
+          className="w-12 h-12 shrink-0 flex items-center justify-center rounded-full border border-brand/40 bg-brand-soft text-brand"
         >
-          <MessageCircle className="w-4 h-4" /> Apply to waitlist
+          <MessageCircle className="w-5 h-5" />
         </a>
       </div>
+
 
       {/* Footer */}
       <footer className="border-t border-border py-12">
@@ -429,17 +475,18 @@ const BrandWaitlist = () => {
           <img src={oguraLogo.url} alt="OGURA" className="h-8 w-auto object-contain" />
           <div className="flex flex-col items-center md:items-end gap-3">
             <a
-              href={`https://wa.me/917742698970?text=${encodeURIComponent("Hi Ogura, I'd like to apply to the waitlist.")}`}
+              href={`https://wa.me/917742698970?text=${encodeURIComponent("Hi Ogura, I'd like to join the Seller Program.")}`}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-2 editorial-label uppercase text-xs h-10 px-5 rounded-full border border-brand/40 bg-brand-soft text-brand hover:bg-brand hover:text-background transition-colors"
             >
-              <MessageCircle className="w-4 h-4" /> Apply to waitlist
+              <MessageCircle className="w-4 h-4" /> Chat on WhatsApp
             </a>
             <p className="editorial-body text-sm text-muted-foreground text-center md:text-right">
-              Curated designerwear. Original brands only. ogura.in · +91 77426 98970
+              Ogura Seller Program. Curated designerwear, original brands only. ogura.in · +91 77426 98970
             </p>
           </div>
+
         </div>
       </footer>
     </div>

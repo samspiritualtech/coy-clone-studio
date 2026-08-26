@@ -62,7 +62,7 @@ export const Footer = () => {
               <li><Link to="/terms" className="text-muted-foreground hover:text-accent transition-colors">Terms of Use</Link></li>
               <li><Link to="/cookies" className="text-muted-foreground hover:text-accent transition-colors">Cookie Policy</Link></li>
               <li><Link to="/join" className="text-muted-foreground hover:text-accent transition-colors">Join as Fashion Designer</Link></li>
-              <li><Link to="/waitlist" className="text-muted-foreground hover:text-accent transition-colors">Apply to Sell on Ogura</Link></li>
+              <li><Link to="/seller-program" className="text-muted-foreground hover:text-accent transition-colors">Seller Program</Link></li>
             </ul>
           </div>
         </div>

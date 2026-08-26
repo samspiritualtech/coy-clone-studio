@@ -61,6 +61,7 @@ const CustomerApp = () => {
         <Route path="/terms" element={<TermsOfUse />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/careers" element={<Careers />} />
+        <Route path="/seller-program" element={<BrandWaitlist />} />
         <Route path="/waitlist" element={<BrandWaitlist />} />
         <Route path="/apply-to-join" element={<BrandWaitlist />} />
 

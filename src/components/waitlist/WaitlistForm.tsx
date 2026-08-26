@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { CheckCircle2, MessageCircle } from "lucide-react";
+import { CheckCircle2, MessageCircle, Check } from "lucide-react";
 
 const CITIES = [
   "Delhi", "Mumbai", "Bengaluru", "Hyderabad", "Pune", "Jaipur",
@@ -29,9 +29,6 @@ const schema = z.object({
 });
 
 type Errors = Partial<Record<keyof z.infer<typeof schema> | "sell_channels", string>>;
-
-const pill =
-  "editorial-label text-xs px-4 py-2.5 rounded-full border transition-colors duration-200";
 
 export const WaitlistForm = () => {
   const [form, setForm] = useState({
@@ -59,7 +56,7 @@ export const WaitlistForm = () => {
   };
 
   const whatsappHref = () => {
-    const text = `Hi Ogura, I'd like to apply as a founding brand.\nBrand: ${form.brand_name || "-"}\nInstagram/Website: ${form.handle_or_website || "-"}\nWhat we make: ${form.what_you_make || "-"}\nCity: ${form.city || "-"}`;
+    const text = `Hi Ogura, I'd like to join the Seller Program.\nBrand: ${form.brand_name || "-"}\nInstagram/Website: ${form.handle_or_website || "-"}\nWhat we make: ${form.what_you_make || "-"}\nCity: ${form.city || "-"}`;
     return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
   };
 
@@ -76,6 +73,7 @@ export const WaitlistForm = () => {
     if (channels.length === 0) nextErrors.sell_channels = "Select at least one";
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors);
+      toast.error("Please complete the highlighted fields");
       return;
     }
 
@@ -102,7 +100,7 @@ export const WaitlistForm = () => {
 
   if (submitted) {
     return (
-      <div className="rounded-2xl border border-border bg-card p-10 md:p-14 text-center">
+      <div className="wl-form-card p-8 md:p-14 text-center">
         <div className="w-14 h-14 rounded-full bg-brand-soft flex items-center justify-center mx-auto mb-6">
           <CheckCircle2 className="w-7 h-7 text-brand" />
         </div>
@@ -116,99 +114,179 @@ export const WaitlistForm = () => {
     );
   }
 
+  const fieldGroup = "space-y-2.5";
+
   return (
-    <form onSubmit={handleSubmit} className="rounded-2xl border border-border bg-card p-6 md:p-10 space-y-7 text-left">
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <Label htmlFor="brand_name" className="editorial-label text-xs uppercase">Brand name</Label>
-          <Input id="brand_name" value={form.brand_name} onChange={(e) => set("brand_name", e.target.value)} placeholder="Your label's name" />
-          {errors.brand_name && <p className="text-sm text-destructive">{errors.brand_name}</p>}
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="handle_or_website" className="editorial-label text-xs uppercase">Instagram handle or website</Label>
-          <Input id="handle_or_website" value={form.handle_or_website} onChange={(e) => set("handle_or_website", e.target.value)} placeholder="@yourbrand" />
-          {errors.handle_or_website && <p className="text-sm text-destructive">{errors.handle_or_website}</p>}
-        </div>
-      </div>
+    <form onSubmit={handleSubmit} className="wl-form-card text-left" noValidate>
+      {/* Step 1 — your brand */}
+      <fieldset className="wl-fieldset">
+        <legend className="wl-legend">
+          <span className="wl-step-num">1</span> Your brand
+        </legend>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <Label htmlFor="what_you_make" className="editorial-label text-xs uppercase">What you make</Label>
-          <Input id="what_you_make" value={form.what_you_make} onChange={(e) => set("what_you_make", e.target.value)} placeholder="e.g. contemporary ethnic, co-ords, occasion wear" />
-          {errors.what_you_make && <p className="text-sm text-destructive">{errors.what_you_make}</p>}
+        <div className="grid gap-5 md:grid-cols-2">
+          <div className={fieldGroup}>
+            <Label htmlFor="brand_name" className="wl-field-label">Brand name</Label>
+            <Input
+              id="brand_name"
+              className="wl-input"
+              value={form.brand_name}
+              onChange={(e) => set("brand_name", e.target.value)}
+              placeholder="Your label's name"
+              autoComplete="organization"
+            />
+            {errors.brand_name && <p className="wl-error">{errors.brand_name}</p>}
+          </div>
+          <div className={fieldGroup}>
+            <Label htmlFor="handle_or_website" className="wl-field-label">Instagram or website</Label>
+            <Input
+              id="handle_or_website"
+              className="wl-input"
+              value={form.handle_or_website}
+              onChange={(e) => set("handle_or_website", e.target.value)}
+              placeholder="@yourbrand"
+              inputMode="url"
+              autoCapitalize="none"
+            />
+            {errors.handle_or_website && <p className="wl-error">{errors.handle_or_website}</p>}
+          </div>
         </div>
-        <div className="space-y-2">
-          <Label className="editorial-label text-xs uppercase">City</Label>
-          <Select value={form.city} onValueChange={(v) => set("city", v)}>
-            <SelectTrigger><SelectValue placeholder="Select your city" /></SelectTrigger>
-            <SelectContent>
-              {CITIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-            </SelectContent>
-          </Select>
-          {errors.city && <p className="text-sm text-destructive">{errors.city}</p>}
-        </div>
-      </div>
 
-      <div className="space-y-3">
-        <Label className="editorial-label text-xs uppercase">How old is your brand?</Label>
-        <div className="flex flex-wrap gap-2.5">
-          {BRAND_AGES.map((age) => (
-            <button
-              key={age}
-              type="button"
-              onClick={() => set("brand_age", age)}
-              className={`${pill} ${form.brand_age === age ? "border-brand bg-brand-soft text-brand" : "border-border text-muted-foreground hover:border-foreground/40"}`}
-            >
-              {age}
-            </button>
-          ))}
+        <div className="grid gap-5 md:grid-cols-2 mt-5">
+          <div className={fieldGroup}>
+            <Label htmlFor="what_you_make" className="wl-field-label">What you make</Label>
+            <Input
+              id="what_you_make"
+              className="wl-input"
+              value={form.what_you_make}
+              onChange={(e) => set("what_you_make", e.target.value)}
+              placeholder="Co-ords, occasion wear, sarees…"
+            />
+            {errors.what_you_make && <p className="wl-error">{errors.what_you_make}</p>}
+          </div>
+          <div className={fieldGroup}>
+            <Label className="wl-field-label">City</Label>
+            <Select value={form.city} onValueChange={(v) => set("city", v)}>
+              <SelectTrigger className="wl-input"><SelectValue placeholder="Select your city" /></SelectTrigger>
+              <SelectContent>
+                {CITIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            {errors.city && <p className="wl-error">{errors.city}</p>}
+          </div>
         </div>
-        {errors.brand_age && <p className="text-sm text-destructive">{errors.brand_age}</p>}
-      </div>
+      </fieldset>
 
-      <div className="space-y-3">
-        <Label className="editorial-label text-xs uppercase">Where do you sell today?</Label>
-        <div className="flex flex-wrap gap-2.5">
-          {CHANNELS.map((c) => (
-            <button
-              key={c}
-              type="button"
-              onClick={() => toggleChannel(c)}
-              className={`${pill} ${channels.includes(c) ? "border-brand bg-brand-soft text-brand" : "border-border text-muted-foreground hover:border-foreground/40"}`}
-            >
-              {c}
-            </button>
-          ))}
-        </div>
-        {errors.sell_channels && <p className="text-sm text-destructive">{errors.sell_channels}</p>}
-      </div>
+      {/* Step 2 — where you are today */}
+      <fieldset className="wl-fieldset">
+        <legend className="wl-legend">
+          <span className="wl-step-num">2</span> Where you are today
+        </legend>
 
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <Label htmlFor="monthly_orders" className="editorial-label text-xs uppercase">Roughly how many orders a month?</Label>
-          <Input id="monthly_orders" value={form.monthly_orders} onChange={(e) => set("monthly_orders", e.target.value)} placeholder="An estimate is fine" />
+        <div className="space-y-3">
+          <Label className="wl-field-label">How old is your brand?</Label>
+          <div className="grid grid-cols-2 gap-2.5">
+            {BRAND_AGES.map((age) => (
+              <button
+                key={age}
+                type="button"
+                aria-pressed={form.brand_age === age}
+                onClick={() => set("brand_age", age)}
+                className={`wl-chip ${form.brand_age === age ? "wl-chip-on" : ""}`}
+              >
+                <span>{age}</span>
+                {form.brand_age === age && <Check className="w-3.5 h-3.5 shrink-0" />}
+              </button>
+            ))}
+          </div>
+          {errors.brand_age && <p className="wl-error">{errors.brand_age}</p>}
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="phone" className="editorial-label text-xs uppercase">Contact number, WhatsApp preferred</Label>
-          <Input id="phone" value={form.phone} onChange={(e) => set("phone", e.target.value)} placeholder="+91" />
-          {errors.phone && <p className="text-sm text-destructive">{errors.phone}</p>}
-        </div>
-      </div>
 
-      <div className="flex flex-col sm:flex-row gap-3 pt-2">
-        <Button type="submit" size="lg" disabled={submitting} className="flex-1 editorial-label uppercase text-xs h-12">
+        <div className="space-y-3 mt-6">
+          <Label className="wl-field-label">
+            Where do you sell today? <span className="wl-field-hint">Select all that apply</span>
+          </Label>
+          <div className="grid grid-cols-2 gap-2.5">
+            {CHANNELS.map((c) => (
+              <button
+                key={c}
+                type="button"
+                aria-pressed={channels.includes(c)}
+                onClick={() => toggleChannel(c)}
+                className={`wl-chip ${channels.includes(c) ? "wl-chip-on" : ""}`}
+              >
+                <span>{c}</span>
+                {channels.includes(c) && <Check className="w-3.5 h-3.5 shrink-0" />}
+              </button>
+            ))}
+          </div>
+          {errors.sell_channels && <p className="wl-error">{errors.sell_channels}</p>}
+        </div>
+      </fieldset>
+
+      {/* Step 3 — how we reach you */}
+      <fieldset className="wl-fieldset wl-fieldset-last">
+        <legend className="wl-legend">
+          <span className="wl-step-num">3</span> How we reach you
+        </legend>
+
+        <div className="grid gap-5 md:grid-cols-2">
+          <div className={fieldGroup}>
+            <Label htmlFor="monthly_orders" className="wl-field-label">
+              Orders a month <span className="wl-field-hint">Optional</span>
+            </Label>
+            <Input
+              id="monthly_orders"
+              className="wl-input"
+              value={form.monthly_orders}
+              onChange={(e) => set("monthly_orders", e.target.value)}
+              placeholder="An estimate is fine"
+              inputMode="numeric"
+            />
+          </div>
+          <div className={fieldGroup}>
+            <Label htmlFor="phone" className="wl-field-label">
+              Contact number <span className="wl-field-hint">WhatsApp preferred</span>
+            </Label>
+            <Input
+              id="phone"
+              className="wl-input"
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
+              value={form.phone}
+              onChange={(e) => set("phone", e.target.value)}
+              placeholder="+91 98765 43210"
+            />
+            {errors.phone && <p className="wl-error">{errors.phone}</p>}
+          </div>
+        </div>
+      </fieldset>
+
+      <div className="wl-form-actions">
+        <Button
+          type="submit"
+          size="lg"
+          disabled={submitting}
+          className="w-full sm:flex-1 editorial-label uppercase text-xs h-14 sm:h-12 rounded-full"
+        >
           {submitting ? "Submitting…" : "Submit application"}
         </Button>
-        <Button asChild type="button" variant="outline" size="lg" className="flex-1 editorial-label uppercase text-xs h-12">
+        <Button
+          asChild
+          type="button"
+          variant="outline"
+          size="lg"
+          className="w-full sm:flex-1 editorial-label uppercase text-xs h-14 sm:h-12 rounded-full"
+        >
           <a href={whatsappHref()} target="_blank" rel="noreferrer">
             <MessageCircle className="w-4 h-4" /> Apply on WhatsApp
           </a>
         </Button>
+        <p className="editorial-body text-sm text-muted-foreground text-center w-full">
+          Free to apply. We review every application and respond within 48 hours.
+        </p>
       </div>
-
-      <p className="editorial-body text-sm text-muted-foreground text-center">
-        We review every application and respond within 48 hours.
-      </p>
     </form>
   );
 };

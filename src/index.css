@@ -704,13 +704,14 @@ All colors MUST be HSL.
   background-attachment: fixed;
 }
 
-/* Eyebrow: pink gradient text for a pop of color */
+/* Eyebrow: solid brand pink (gradient text broke when a background was applied) */
 .waitlist-page .editorial-eyebrow {
-  background: linear-gradient(90deg, hsl(var(--wl-pink)), hsl(var(--wl-gold)));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: hsl(var(--wl-pink));
 }
+
+/* Anchored sections clear the sticky header */
+.waitlist-page section[id] { scroll-margin-top: 5rem; }
+
 
 /* Cards: richer layered shadows + subtle gradient ring + colored glow on hover */
 .waitlist-page .wl-paper-card {
@@ -920,3 +921,111 @@ All colors MUST be HSL.
   box-shadow: 0 -12px 30px -18px hsl(24 30% 12% / 0.35);
 }
 @media (min-width: 768px) { .wl-sticky-cta { display: none; } }
+
+/* ---- Seller program application form ---- */
+.waitlist-page .wl-form-card {
+  background: linear-gradient(180deg, hsl(0 0% 100% / 0.98), hsl(var(--wl-paper-deep) / 0.9));
+  border: 1px solid hsl(24 14% 12% / 0.08);
+  border-radius: 1.5rem;
+  box-shadow:
+    0 1px 0 hsl(0 0% 100% / 0.9) inset,
+    0 3px 8px -4px hsl(24 20% 12% / 0.12),
+    0 30px 60px -38px hsl(24 30% 12% / 0.45);
+  overflow: hidden;
+}
+.waitlist-page .wl-fieldset {
+  padding: 1.5rem 1.25rem;
+  border-bottom: 1px solid hsl(24 14% 12% / 0.08);
+}
+.waitlist-page .wl-fieldset-last { border-bottom: 0; }
+.waitlist-page .wl-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  letter-spacing: 0.01em;
+  color: hsl(var(--wl-ink));
+  margin-bottom: 1.25rem;
+}
+.waitlist-page .wl-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem; height: 1.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  color: hsl(var(--wl-pink));
+  background: linear-gradient(135deg, hsl(var(--wl-pink) / 0.18), hsl(var(--wl-gold) / 0.14));
+  box-shadow: 0 6px 14px -8px hsl(var(--wl-pink) / 0.45);
+}
+.waitlist-page .wl-field-label {
+  display: block;
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: hsl(24 12% 30%);
+}
+.waitlist-page .wl-field-hint {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+  font-size: 0.75rem;
+  color: hsl(24 8% 50%);
+  margin-left: 0.4rem;
+}
+.waitlist-page .wl-input {
+  height: 3.25rem !important;
+  font-size: 1rem !important;
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+  background: hsl(0 0% 100%) !important;
+}
+.waitlist-page .wl-chip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-height: 3rem;
+  padding: 0.65rem 1rem;
+  border-radius: 0.9rem;
+  border: 1px solid hsl(24 14% 12% / 0.14);
+  background: hsl(0 0% 100%);
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-align: left;
+  color: hsl(24 10% 38%);
+  transition: border-color 180ms ease, box-shadow 180ms ease, color 180ms ease, background 180ms ease;
+}
+.waitlist-page .wl-chip:active { transform: scale(0.985); }
+.waitlist-page .wl-chip-on {
+  border-color: hsl(var(--wl-pink) / 0.5);
+  background: linear-gradient(135deg, hsl(var(--wl-pink) / 0.14), hsl(var(--wl-gold) / 0.10));
+  color: hsl(var(--wl-pink));
+  box-shadow: 0 8px 18px -12px hsl(var(--wl-pink) / 0.55);
+}
+.waitlist-page .wl-error {
+  font-size: 0.8125rem;
+  color: hsl(var(--destructive));
+}
+.waitlist-page .wl-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  background: linear-gradient(180deg, hsl(var(--wl-paper-deep) / 0.5), hsl(var(--wl-paper) / 0.8));
+  border-top: 1px solid hsl(24 14% 12% / 0.08);
+}
+@media (min-width: 768px) {
+  .waitlist-page .wl-fieldset { padding: 2rem 2.25rem; }
+  .waitlist-page .wl-form-actions { padding: 1.75rem 2.25rem; }
+}
+
+@media (max-width: 767px) {
+  .waitlist-page .wl-field-hint { display: block; margin-left: 0; margin-top: 0.15rem; }
+  .waitlist-page .wl-form-card { border-radius: 1.25rem; }
+}
