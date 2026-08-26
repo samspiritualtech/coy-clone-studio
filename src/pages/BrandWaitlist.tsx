@@ -475,17 +475,18 @@ const BrandWaitlist = () => {
           <img src={oguraLogo.url} alt="OGURA" className="h-8 w-auto object-contain" />
           <div className="flex flex-col items-center md:items-end gap-3">
             <a
-              href={`https://wa.me/917742698970?text=${encodeURIComponent("Hi Ogura, I'd like to apply to the waitlist.")}`}
+              href={`https://wa.me/917742698970?text=${encodeURIComponent("Hi Ogura, I'd like to join the Seller Program.")}`}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-2 editorial-label uppercase text-xs h-10 px-5 rounded-full border border-brand/40 bg-brand-soft text-brand hover:bg-brand hover:text-background transition-colors"
             >
-              <MessageCircle className="w-4 h-4" /> Apply to waitlist
+              <MessageCircle className="w-4 h-4" /> Chat on WhatsApp
             </a>
             <p className="editorial-body text-sm text-muted-foreground text-center md:text-right">
-              Curated designerwear. Original brands only. ogura.in · +91 77426 98970
+              Ogura Seller Program. Curated designerwear, original brands only. ogura.in · +91 77426 98970
             </p>
           </div>
+
         </div>
       </footer>
     </div>
