@@ -704,13 +704,14 @@ All colors MUST be HSL.
   background-attachment: fixed;
 }
 
-/* Eyebrow: pink gradient text for a pop of color */
+/* Eyebrow: solid brand pink (gradient text broke when a background was applied) */
 .waitlist-page .editorial-eyebrow {
-  background: linear-gradient(90deg, hsl(var(--wl-pink)), hsl(var(--wl-gold)));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: hsl(var(--wl-pink));
 }
+
+/* Anchored sections clear the sticky header */
+.waitlist-page section[id] { scroll-margin-top: 5rem; }
+
 
 /* Cards: richer layered shadows + subtle gradient ring + colored glow on hover */
 .waitlist-page .wl-paper-card {
