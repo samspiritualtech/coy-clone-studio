@@ -130,11 +130,11 @@ const BrandWaitlist = () => {
               <Button
                 size="lg"
                 onClick={() => scrollTo("apply")}
-                className="editorial-label uppercase text-xs h-13 py-4 px-8 rounded-full"
+                className="editorial-label uppercase text-xs h-14 sm:h-12 px-8 rounded-full"
               >
                 Apply to seller program <ArrowRight className="w-4 h-4" />
               </Button>
-              <Button size="lg" variant="outline" onClick={() => scrollTo("what-you-get")} className="editorial-label uppercase text-xs h-13 py-4 px-8 rounded-full">
+              <Button size="lg" variant="outline" onClick={() => scrollTo("what-you-get")} className="editorial-label uppercase text-xs h-14 sm:h-12 px-8 rounded-full">
                 See what you get
               </Button>
             </div>
