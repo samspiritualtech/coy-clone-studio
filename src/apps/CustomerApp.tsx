@@ -10,6 +10,7 @@ import Checkout from "@/pages/Checkout";
 import OrderConfirmation from "@/pages/OrderConfirmation";
 import Brands from "@/pages/Brands";
 import BrandDetail from "@/pages/BrandDetail";
+import BrandStore from "@/pages/BrandStore";
 import Designers from "@/pages/Designers";
 import DesignerDetail from "@/pages/DesignerDetail";
 import DesignerProfilePage from "@/pages/DesignerProfilePage";
