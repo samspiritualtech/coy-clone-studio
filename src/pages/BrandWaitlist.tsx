@@ -9,7 +9,7 @@ import aiStudioAsset from "@/assets/waitlist/wl-ai-studio.png.asset.json";
 const brand1 = brand1Asset.url;
 const brand2 = brand2Asset.url;
 const aiStudio = aiStudioAsset.url;
-import { Check, Sparkles, ArrowRight, MessageCircle } from "lucide-react";
+import { Check, Sparkles, ArrowRight, MessageCircle, Eye, ShieldCheck, FlaskConical, Truck, BarChart3, Gem, type LucideIcon } from "lucide-react";
 import { useEffect } from "react";
 
 const scrollTo = (id: string) => {
@@ -24,36 +24,42 @@ const STRIP = [
   "Boutiques and independent brands",
 ];
 
-const BENEFITS = [
+const BENEFITS: { n: string; title: string; body: string; icon: LucideIcon }[] = [
   {
     n: "01",
     title: "Real visibility",
     body: "Your designs are placed in front of fashion-conscious buyers who came looking for exactly this, not lost in a sea of mass-market products.",
+    icon: Eye,
   },
   {
     n: "02",
     title: "Buyer trust, built in",
     body: "Because Ogura is curated, buyers extend it the same confidence they extend Myntra or Amazon. New buyers complete their purchase instead of abandoning it.",
+    icon: ShieldCheck,
   },
   {
     n: "03",
     title: "Test before you produce",
     body: "Open a design for pre-booking and gauge real demand before committing to production. Never manufacture stock on a guess.",
+    icon: FlaskConical,
   },
   {
     n: "04",
     title: "Delivery managed end to end",
     body: "Fast, hyperlocal and quick-commerce delivery from your own fulfilment point, alongside returns and failed-delivery support, all handled for you.",
+    icon: Truck,
   },
   {
     n: "05",
     title: "A dedicated view into your buyer",
     body: "See which designs draw the most attention, how often a buyer returns to a product, who your buyers are, even the device they use, and which images convert best.",
+    icon: BarChart3,
   },
   {
     n: "06",
     title: "A position that stays premium",
     body: "Your brand appears only alongside other original work, never beside mass-produced or white-labelled products. Distinct, deliberate, and entirely your own.",
+    icon: Gem,
   },
 ];
 
@@ -287,16 +293,24 @@ const BrandWaitlist = () => {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
 
-            {BENEFITS.map((b) => (
-              <div
-                key={b.n}
-                className="wl-paper-card p-7 hover:border-brand/40 transition-colors duration-300"
-              >
-                <p className="editorial-label text-brand text-sm mb-4">{b.n}</p>
-                <h3 className="editorial-h3 text-lg md:text-xl text-foreground mb-3">{b.title}</h3>
-                <p className="editorial-body text-sm text-muted-foreground">{b.body}</p>
-              </div>
-            ))}
+            {BENEFITS.map((b) => {
+              const Icon = b.icon;
+              return (
+                <div
+                  key={b.n}
+                  className="wl-paper-card p-7 hover:border-brand/40 transition-colors duration-300"
+                >
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="w-10 h-10 rounded-full bg-brand-soft text-brand flex items-center justify-center shrink-0">
+                      <Icon className="w-5 h-5" />
+                    </span>
+                    <p className="editorial-label text-brand text-sm">{b.n}</p>
+                  </div>
+                  <h3 className="editorial-h3 text-lg md:text-xl text-foreground mb-3">{b.title}</h3>
+                  <p className="editorial-body text-sm text-muted-foreground">{b.body}</p>
+                </div>
+              );
+            })}
           </div>
 
           {/* 07 featured */}
