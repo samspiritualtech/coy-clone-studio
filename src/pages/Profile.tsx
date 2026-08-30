@@ -216,8 +216,9 @@ const Profile = () => {
                 Manage your notification preferences
               </CardDescription>
             </CardHeader>
-            <CardContent>
+             <CardContent>
               <div className="space-y-4">
+                <PushNotificationOptIn />
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium">Order Updates</p>
