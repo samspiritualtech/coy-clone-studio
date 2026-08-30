@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { PushNotificationOptIn } from "@/components/notifications/PushNotificationOptIn";
 
 const Profile = () => {
   const { user, logout } = useAuth();
