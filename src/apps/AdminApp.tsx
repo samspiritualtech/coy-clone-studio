@@ -23,6 +23,7 @@ const AdminApp = () => {
       <Route path="/admin/dashboard" element={<WrappedRoute><AdminDashboardHome /></WrappedRoute>} />
       <Route path="/admin/approvals" element={<WrappedRoute><AdminApprovals /></WrappedRoute>} />
       <Route path="/admin/products" element={<WrappedRoute><AdminProducts /></WrappedRoute>} />
+      <Route path="/admin/collections" element={<WrappedRoute><AdminCollections /></WrappedRoute>} />
       <Route path="/admin/sellers" element={<WrappedRoute><AdminSellers /></WrappedRoute>} />
       <Route path="/admin/settings" element={<WrappedRoute><AdminSettings /></WrappedRoute>} />
       <Route path="/admin/*" element={<AdminLogin />} />
