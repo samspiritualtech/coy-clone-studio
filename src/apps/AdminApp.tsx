@@ -7,6 +7,7 @@ import AdminApprovals from "@/pages/admin/AdminApprovals";
 import AdminProducts from "@/pages/admin/AdminProducts";
 import AdminSellers from "@/pages/admin/AdminSellers";
 import AdminSettings from "@/pages/admin/AdminSettings";
+import AdminCollections from "@/pages/admin/AdminCollections";
 
 const WrappedRoute = ({ children }: { children: React.ReactNode }) => (
   <RoleProtectedRoute requiredRole="admin" loginPath="/admin/login" unauthorizedRedirect="/">
