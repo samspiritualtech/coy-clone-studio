@@ -12,6 +12,7 @@ import {
   Menu,
   X,
   ShieldCheck,
+  Sparkles,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -24,6 +25,7 @@ const navItems = [
   { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
   { label: "Approvals", href: "/admin/approvals", icon: CheckCircle },
   { label: "Products", href: "/admin/products", icon: Package },
+  { label: "Collections", href: "/admin/collections", icon: Sparkles },
   { label: "Sellers", href: "/admin/sellers", icon: Users },
   { label: "Settings", href: "/admin/settings", icon: Settings },
 ];
