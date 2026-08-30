@@ -4,6 +4,7 @@ import { LocationPermissionModal } from "@/components/LocationPermissionModal";
 import { ManualLocationSelector } from "@/components/ManualLocationSelector";
 import Index from "@/pages/Index";
 import Collections from "@/pages/Collections";
+import CollectionDetail from "@/pages/CollectionDetail";
 import ProductDetail from "@/pages/ProductDetail";
 import Cart from "@/pages/Cart";
 import Checkout from "@/pages/Checkout";
@@ -34,17 +35,20 @@ import Contact from "@/pages/Contact";
 import Careers from "@/pages/Careers";
 import OAuthConsent from "@/pages/OAuthConsent";
 import BrandWaitlist from "@/pages/BrandWaitlist";
+import { PushNotificationManager } from "@/components/notifications/PushNotificationManager";
 
 
 const CustomerApp = () => {
   return (
     <>
+      <PushNotificationManager />
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Index />} />
         <Route path="/login" element={<Login />} />
         <Route path="/collections" element={<Collections />} />
         <Route path="/collections/:category" element={<Collections />} />
+        <Route path="/collection/:slug" element={<CollectionDetail />} />
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/brands" element={<Brands />} />
         <Route path="/store/:slug" element={<BrandStore />} />

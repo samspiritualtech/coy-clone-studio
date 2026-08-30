@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { PushNotificationOptIn } from "@/components/notifications/PushNotificationOptIn";
 
 const Profile = () => {
   const { user, logout } = useAuth();
@@ -216,8 +217,9 @@ const Profile = () => {
                 Manage your notification preferences
               </CardDescription>
             </CardHeader>
-            <CardContent>
+             <CardContent>
               <div className="space-y-4">
+                <PushNotificationOptIn />
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium">Order Updates</p>

@@ -91,6 +91,45 @@ export type Database = {
           },
         ]
       }
+      collections: {
+        Row: {
+          cover_image: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          published_at: string | null
+          slug: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          cover_image?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          published_at?: string | null
+          slug: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          cover_image?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          published_at?: string | null
+          slug?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       delivery_zones: {
         Row: {
           city: string | null
@@ -184,6 +223,42 @@ export type Database = {
           profile_image?: string | null
           slug?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      device_tokens: {
+        Row: {
+          created_at: string
+          device_info: Json | null
+          id: string
+          is_active: boolean
+          last_seen_at: string
+          platform: string
+          token: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          device_info?: Json | null
+          id?: string
+          is_active?: boolean
+          last_seen_at?: string
+          platform?: string
+          token: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          device_info?: Json | null
+          id?: string
+          is_active?: boolean
+          last_seen_at?: string
+          platform?: string
+          token?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -284,6 +359,50 @@ export type Database = {
           video_filename?: string
         }
         Relationships: []
+      }
+      notifications: {
+        Row: {
+          body: string
+          collection_id: string | null
+          created_at: string
+          created_by: string | null
+          deep_link_path: string | null
+          failure_count: number
+          id: string
+          sent_count: number
+          title: string
+        }
+        Insert: {
+          body: string
+          collection_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deep_link_path?: string | null
+          failure_count?: number
+          id?: string
+          sent_count?: number
+          title: string
+        }
+        Update: {
+          body?: string
+          collection_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          deep_link_path?: string | null
+          failure_count?: number
+          id?: string
+          sent_count?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "collections"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       order_items: {
         Row: {
