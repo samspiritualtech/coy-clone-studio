@@ -21,9 +21,12 @@ export function detectDomain(): AppDomain {
   if (hostname.startsWith('sellers.')) return 'seller';
   if (hostname.startsWith('admin.')) return 'admin';
 
-  // Path-based fallback for dev/preview
-  if (pathname.startsWith('/seller')) return 'seller';
-  if (pathname.startsWith('/admin')) return 'admin';
+  // Path-based fallback for dev/preview (exact segment match only)
+  if (pathname === '/seller' || pathname.startsWith('/seller/')) return 'seller';
+  if (pathname === '/seller-login' || pathname === '/seller-signup') return 'seller';
+  if (pathname === '/admin' || pathname.startsWith('/admin/')) return 'admin';
+  if (pathname === '/admin-login') return 'admin';
+
 
   return 'customer';
 }
