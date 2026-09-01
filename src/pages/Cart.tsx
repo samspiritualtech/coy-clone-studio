@@ -168,13 +168,7 @@ export default function Cart() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Delivery</span>
-                  <span className="text-green-600">
-                    {subtotal >= 999 ? 'FREE' : '₹99'}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Tax (18% GST)</span>
-                  <span>₹{tax.toLocaleString()}</span>
+                  <span className="text-green-600">FREE</span>
                 </div>
                 <div className="border-t pt-3 flex justify-between font-bold text-lg">
                   <span>Total</span>
@@ -182,11 +176,6 @@ export default function Cart() {
                 </div>
               </div>
 
-              {subtotal < 999 && (
-                <p className="text-sm text-muted-foreground mb-4">
-                  Add ₹{(999 - subtotal).toLocaleString()} more for FREE delivery!
-                </p>
-              )}
 
               <Button 
                 className="w-full mb-3" 
