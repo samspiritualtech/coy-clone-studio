@@ -403,13 +403,7 @@ export default function Checkout() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Delivery</span>
-                  <span className={deliveryFee === 0 ? 'text-green-600' : ''}>
-                    {deliveryFee === 0 ? 'FREE' : `₹${deliveryFee}`}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Tax (18% GST)</span>
-                  <span>₹{tax.toLocaleString()}</span>
+                  <span className="text-green-600">FREE</span>
                 </div>
                 {appliedDiscount && (
                   <div className="flex justify-between text-green-600">
