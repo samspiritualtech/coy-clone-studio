@@ -421,11 +421,7 @@ export default function Checkout() {
                 </div>
               </div>
 
-              {subtotal < 999 && (
-                <p className="text-xs text-muted-foreground mt-3">
-                  Add ₹{(999 - subtotal).toLocaleString()} more for FREE delivery!
-                </p>
-              )}
+
 
               <Button 
                 className="w-full mt-6" 
