@@ -127,7 +127,7 @@ export default function Checkout() {
     setDiscountCode("");
   };
 
-  const deliveryFee = subtotal >= 999 ? 0 : 99;
+  const deliveryFee = 0;
   const finalTotal = total + deliveryFee - discountAmount;
 
   const handlePayment = async () => {
