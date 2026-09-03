@@ -95,8 +95,8 @@ export default function Collections() {
         // 2) Also fetch external API as legacy source
         let apiMapped: Product[] = [];
         try {
-          const res = await fetch(EXTERNAL_API_URL);
-          if (res.ok) {
+          const res = FREEZE_EXTERNAL_API ? null : await fetch(EXTERNAL_API_URL);
+          if (res && res.ok) {
             const data = await res.json();
             const items = Array.isArray(data) ? data : data?.products ?? data?.data ?? [];
             apiMapped = items.map((p: any, i: number) => ({
