@@ -24,6 +24,9 @@ import {
 
 const EXTERNAL_API_URL = "https://pyesltzkemtranachpne.supabase.co/functions/v1/products";
 
+// TEST FREEZE: set to false to bring back external Seller Center products (fully reversible)
+const FREEZE_EXTERNAL_API = true;
+
 const categoryMapping: Record<string, string[]> = {
   accessories: ["accessories", "bags"],
   dresses: ["dresses"],
