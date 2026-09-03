@@ -662,6 +662,7 @@ export type Database = {
       }
       products: {
         Row: {
+          brand: string | null
           care_instructions: string | null
           category: string
           category_id: string | null
@@ -691,6 +692,7 @@ export type Database = {
           vendor_id: string | null
         }
         Insert: {
+          brand?: string | null
           care_instructions?: string | null
           category: string
           category_id?: string | null
@@ -720,6 +722,7 @@ export type Database = {
           vendor_id?: string | null
         }
         Update: {
+          brand?: string | null
           care_instructions?: string | null
           category?: string
           category_id?: string | null
@@ -778,6 +781,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      products_archive_test: {
+        Row: {
+          archived_at: string | null
+          id: string | null
+          is_available: boolean | null
+          status: string | null
+        }
+        Insert: {
+          archived_at?: string | null
+          id?: string | null
+          is_available?: boolean | null
+          status?: string | null
+        }
+        Update: {
+          archived_at?: string | null
+          id?: string | null
+          is_available?: boolean | null
+          status?: string | null
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
