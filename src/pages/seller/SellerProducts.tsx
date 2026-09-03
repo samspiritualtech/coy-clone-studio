@@ -26,9 +26,13 @@ interface SellerProduct {
 const statusColors: Record<string, string> = {
   draft: "bg-muted text-muted-foreground",
   pending: "bg-yellow-100 text-yellow-800",
+  submitted: "bg-yellow-100 text-yellow-800",
   live: "bg-green-100 text-green-800",
   rejected: "bg-red-100 text-red-800",
+  disabled: "bg-muted text-muted-foreground",
 };
+
+const DEV_SELLER_ID = "07edb482-2c8e-4711-8cda-d2f3a87b790a";
 
 const SellerProducts = () => {
   const { user } = useAuth();
@@ -37,7 +41,10 @@ const SellerProducts = () => {
   const [sellerId, setSellerId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      setSellerId(DEV_SELLER_ID);
+      return;
+    }
 
     const fetchSeller = async () => {
       const { data } = await supabase
@@ -45,7 +52,7 @@ const SellerProducts = () => {
         .select("id")
         .eq("user_id", user.id)
         .maybeSingle();
-      setSellerId(data?.id || null);
+      setSellerId(data?.id || DEV_SELLER_ID);
     };
     fetchSeller();
   }, [user?.id]);
