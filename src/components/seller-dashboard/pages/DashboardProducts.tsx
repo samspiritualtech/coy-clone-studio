@@ -25,8 +25,10 @@ interface DBProduct {
 const statusColor: Record<string, string> = {
   live: "bg-green-100 text-green-800",
   pending: "bg-yellow-100 text-yellow-800",
+  submitted: "bg-yellow-100 text-yellow-800",
   draft: "bg-muted text-muted-foreground",
   rejected: "bg-red-100 text-red-800",
+  disabled: "bg-muted text-muted-foreground",
 };
 
 const DEV_SELLER_ID = "07edb482-2c8e-4711-8cda-d2f3a87b790a";
