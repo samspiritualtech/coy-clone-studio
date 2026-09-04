@@ -7,7 +7,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Package, ShoppingCart, TrendingUp, IndianRupee, Loader2, PlusCircle } from "lucide-react";
 
-const DEV_SELLER_ID = "07edb482-2c8e-4711-8cda-d2f3a87b790a";
 
 interface Stats {
   total: number;
@@ -57,7 +56,10 @@ const SellerDashboardHome = () => {
           .maybeSingle();
         sellerId = data?.id ?? null;
       }
-      if (!sellerId) sellerId = DEV_SELLER_ID;
+      if (!sellerId) {
+        setLoading(false);
+        return;
+      }
 
       const now = new Date();
       const startThisMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();

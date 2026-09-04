@@ -854,6 +854,39 @@ export type Database = {
         }
         Relationships: []
       }
+      seed_import_runs: {
+        Row: {
+          actor_user_id: string | null
+          counts: Json
+          created_at: string
+          failures: Json
+          id: string
+          mode: string
+          seed_batch_key: string
+          step: string
+        }
+        Insert: {
+          actor_user_id?: string | null
+          counts?: Json
+          created_at?: string
+          failures?: Json
+          id?: string
+          mode: string
+          seed_batch_key: string
+          step: string
+        }
+        Update: {
+          actor_user_id?: string | null
+          counts?: Json
+          created_at?: string
+          failures?: Json
+          id?: string
+          mode?: string
+          seed_batch_key?: string
+          step?: string
+        }
+        Relationships: []
+      }
       seller_applications: {
         Row: {
           brand_name: string

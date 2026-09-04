@@ -32,7 +32,6 @@ const statusColors: Record<string, string> = {
   disabled: "bg-muted text-muted-foreground",
 };
 
-const DEV_SELLER_ID = "07edb482-2c8e-4711-8cda-d2f3a87b790a";
 
 const SellerProducts = () => {
   const { user } = useAuth();
@@ -42,7 +41,8 @@ const SellerProducts = () => {
 
   useEffect(() => {
     if (!user?.id) {
-      setSellerId(DEV_SELLER_ID);
+      setSellerId(null);
+      setLoading(false);
       return;
     }
 
@@ -52,7 +52,7 @@ const SellerProducts = () => {
         .select("id")
         .eq("user_id", user.id)
         .maybeSingle();
-      setSellerId(data?.id || DEV_SELLER_ID);
+      setSellerId(data?.id ?? null);
     };
     fetchSeller();
   }, [user?.id]);

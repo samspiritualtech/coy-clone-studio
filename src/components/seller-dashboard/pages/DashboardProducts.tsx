@@ -31,7 +31,6 @@ const statusColor: Record<string, string> = {
   disabled: "bg-muted text-muted-foreground",
 };
 
-const DEV_SELLER_ID = "07edb482-2c8e-4711-8cda-d2f3a87b790a";
 
 export const DashboardProducts = ({ onAddProduct, refreshKey }: Props) => {
   const { user } = useAuth();
@@ -41,11 +40,12 @@ export const DashboardProducts = ({ onAddProduct, refreshKey }: Props) => {
 
   useEffect(() => {
     if (!user?.id) {
-      setSellerId(DEV_SELLER_ID);
+      setSellerId(null);
+      setLoading(false);
       return;
     }
     supabase.from("sellers").select("id").eq("user_id", user.id).maybeSingle()
-      .then(({ data }) => setSellerId(data?.id || DEV_SELLER_ID));
+      .then(({ data }) => setSellerId(data?.id ?? null));
   }, [user?.id]);
 
   useEffect(() => {
