@@ -854,6 +854,39 @@ export type Database = {
         }
         Relationships: []
       }
+      seed_import_runs: {
+        Row: {
+          actor_user_id: string | null
+          counts: Json
+          created_at: string
+          failures: Json
+          id: string
+          mode: string
+          seed_batch_key: string
+          step: string
+        }
+        Insert: {
+          actor_user_id?: string | null
+          counts?: Json
+          created_at?: string
+          failures?: Json
+          id?: string
+          mode: string
+          seed_batch_key: string
+          step: string
+        }
+        Update: {
+          actor_user_id?: string | null
+          counts?: Json
+          created_at?: string
+          failures?: Json
+          id?: string
+          mode?: string
+          seed_batch_key?: string
+          step?: string
+        }
+        Relationships: []
+      }
       seller_applications: {
         Row: {
           brand_name: string
@@ -1163,6 +1196,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_own_seller_bank_details: {
+        Args: never
+        Returns: {
+          bank_account_number: string
+          bank_ifsc: string
+          bank_name: string
+          gstin: string
+          id: string
+          pan_number: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

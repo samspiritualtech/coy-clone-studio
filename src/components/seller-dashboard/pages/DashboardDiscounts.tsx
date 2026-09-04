@@ -30,7 +30,6 @@ const discountTypes = [
   { icon: Truck, type: "free_shipping", title: "Free shipping", desc: "Offer free shipping on orders" },
 ];
 
-const DEV_SELLER_ID = "07edb482-2c8e-4711-8cda-d2f3a87b790a";
 
 export const DashboardDiscounts = () => {
   const { user } = useAuth();
@@ -51,11 +50,12 @@ export const DashboardDiscounts = () => {
 
   useEffect(() => {
     if (!user?.id) {
-      setSellerId(DEV_SELLER_ID);
+      setSellerId(null);
+      setLoading(false);
       return;
     }
     supabase.from("sellers").select("id").eq("user_id", user.id).maybeSingle()
-      .then(({ data }) => setSellerId(data?.id || DEV_SELLER_ID));
+      .then(({ data }) => setSellerId(data?.id ?? null));
   }, [user?.id]);
 
   const fetchDiscounts = async () => {
@@ -84,7 +84,8 @@ export const DashboardDiscounts = () => {
 
   const handleSave = async () => {
     if (!sellerId) {
-      setSellerId(DEV_SELLER_ID);
+      toast({ title: "No seller account", description: "Your seller account is pending approval.", variant: "destructive" });
+      return;
     }
     if (!code.trim()) { toast({ title: "Code required", description: "Please enter a discount code.", variant: "destructive" }); return; }
     if (formType !== "free_shipping" && !value) { toast({ title: "Value required", description: "Please enter a discount value.", variant: "destructive" }); return; }

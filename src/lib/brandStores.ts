@@ -1,6 +1,5 @@
 import type { Product } from "@/types";
-
-const EXTERNAL_API_URL = "https://pyesltzkemtranachpne.supabase.co/functions/v1/products";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface BrandStoreProduct extends Product {
   storeName?: string;
@@ -57,14 +56,41 @@ const mapApiProduct = (p: any, i: number): BrandStoreProduct => {
   };
 };
 
-/** Fetch all seller products from the Seller Center API. */
+/** Fetch all live seller products from the OGURA database. */
 export const fetchSellerProducts = async (): Promise<BrandStoreProduct[]> => {
   try {
-    const res = await fetch(EXTERNAL_API_URL);
-    if (!res.ok) return [];
-    const data = await res.json();
-    const items = Array.isArray(data) ? data : data?.products ?? data?.data ?? [];
-    return items.map(mapApiProduct);
+    const { data, error } = await supabase
+      .from("products")
+      .select(
+        "id, title, price, original_price, category, images, sizes, colors, description, material, is_available, brand, seller:sellers!products_seller_id_fkey(brand_name)"
+      )
+      .eq("status", "live")
+      .eq("is_available", true)
+      .not("seller_id", "is", null)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    return (data ?? []).map((p: any, i: number) => {
+      const storeName: string | undefined = p?.seller?.brand_name ?? p?.brand ?? undefined;
+      return mapApiProduct(
+        {
+          id: p.id,
+          name: p.title,
+          brand: storeName,
+          store: storeName ? { name: storeName, slug: slugifyBrand(storeName) } : undefined,
+          price: p.price,
+          mrp: p.original_price,
+          category: p.category,
+          image_urls: Array.isArray(p.images) ? p.images : [],
+          sizes: Array.isArray(p.sizes) ? p.sizes : [],
+          colors: Array.isArray(p.colors) ? p.colors : [],
+          description: p.description,
+          material: p.material,
+        },
+        i
+      );
+    });
   } catch (err) {
     console.error("[brandStores] failed to fetch seller products:", err);
     return [];
