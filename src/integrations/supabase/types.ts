@@ -1196,6 +1196,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_own_seller_bank_details: {
+        Args: never
+        Returns: {
+          bank_account_number: string
+          bank_ifsc: string
+          bank_name: string
+          gstin: string
+          id: string
+          pan_number: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
