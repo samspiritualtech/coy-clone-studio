@@ -90,6 +90,26 @@ const SellerProducts = () => {
     return "/placeholder.svg";
   };
 
+  const deleteAll = async () => {
+    if (!sellerId) return;
+    setDeleting(true);
+    const ids = products.map((p) => p.id);
+    const { error: vErr } = await supabase.from("product_variants").delete().in("product_id", ids);
+    if (vErr) {
+      setDeleting(false);
+      toast.error("Could not delete products");
+      return;
+    }
+    const { error } = await supabase.from("products").delete().eq("seller_id", sellerId);
+    setDeleting(false);
+    if (error) {
+      toast.error("Could not delete products");
+      return;
+    }
+    setProducts([]);
+    toast.success("All products deleted");
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -105,13 +125,39 @@ const SellerProducts = () => {
           <h1 className="text-2xl font-bold text-foreground">Products</h1>
           <p className="text-sm text-muted-foreground">{products.length} product(s)</p>
         </div>
-        <Button asChild className="gap-2">
-          <Link to="/seller/products/new">
-            <PlusCircle className="h-4 w-4" />
-            Add Product
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          {products.length > 0 && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" className="gap-2" disabled={deleting}>
+                  {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+                  Delete all SKUs
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete all {products.length} products?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This permanently removes every product of this store, along with their sizes,
+                    colours and stock. This cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={deleteAll}>Delete all</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
+          <Button asChild className="gap-2">
+            <Link to="/seller/products/new">
+              <PlusCircle className="h-4 w-4" />
+              Add Product
+            </Link>
+          </Button>
+        </div>
       </div>
+
 
       {products.length === 0 ? (
         <Card>
