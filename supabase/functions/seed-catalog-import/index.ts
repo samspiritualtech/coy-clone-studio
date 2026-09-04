@@ -137,6 +137,13 @@ Deno.serve(async (req) => {
 
     if (step === "images") {
       // rows: [{ product_db_id, target_storage_path, source_url, image_order, is_primary }]
+      const force = body?.force === true;
+      const driveDirect = (url: string) => {
+        const m = String(url).match(/(?:\/file\/d\/|[?&]id=)([A-Za-z0-9_-]{20,})/);
+        return m
+          ? `https://drive.usercontent.google.com/download?id=${m[1]}&export=download`
+          : url;
+      };
       const byProduct = new Map<string, { order: number; url: string }[]>();
       for (const r of rows) {
         try {
@@ -145,17 +152,21 @@ Deno.serve(async (req) => {
             .list(r.target_storage_path.split("/").slice(0, -1).join("/"), {
               search: r.target_storage_path.split("/").pop(),
             });
-          const alreadyThere = (head ?? []).length > 0;
+          const alreadyThere = !force && (head ?? []).length > 0;
 
           if (!alreadyThere && !dryRun) {
-            const res = await fetch(r.source_url);
+            const res = await fetch(driveDirect(r.source_url), {
+              headers: { "User-Agent": "Mozilla/5.0 (compatible; OGURA-Seed/1.0)" },
+            });
             if (!res.ok) throw new Error(`fetch ${res.status}`);
+            const ct = res.headers.get("content-type") ?? "";
+            if (!ct.startsWith("image/")) throw new Error(`not an image (${ct})`);
             const bytes = new Uint8Array(await res.arrayBuffer());
             if (bytes.byteLength < 500) throw new Error("image too small / not accessible");
             const { error: upErr } = await admin.storage
               .from("product-images")
               .upload(r.target_storage_path, bytes, {
-                contentType: res.headers.get("content-type") ?? "image/jpeg",
+                contentType: ct,
                 upsert: true,
               });
             if (upErr) throw upErr;
@@ -165,6 +176,7 @@ Deno.serve(async (req) => {
           } else {
             bump("images_would_upload");
           }
+
 
           const { data: pub } = admin.storage
             .from("product-images")
