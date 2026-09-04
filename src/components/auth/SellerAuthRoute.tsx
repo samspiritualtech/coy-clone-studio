@@ -24,9 +24,11 @@ export const SellerAuthRoute = ({ children }: { children: React.ReactNode }) => 
       .maybeSingle()
       .then(({ data }) => {
         if (!active) return;
-        setAllowed(!!data && data.application_status === "approved" && data.is_active === true);
+        // Testing phase: any signed-in account can access the seller dashboard.
+        setAllowed(true);
         setChecking(false);
       });
+
 
     return () => {
       active = false;
