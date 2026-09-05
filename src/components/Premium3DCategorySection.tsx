@@ -57,8 +57,9 @@ export const Premium3DCategorySection = () => {
                   perspective: "1000px",
                 }}
               >
-                {/* Card Background with Festive Red Gradient */}
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-[#6B1C23] via-[#8B2D3B] to-[#A3404E] shadow-xl transition-shadow duration-500 group-hover:shadow-2xl group-hover:shadow-red-900/40" />
+                {/* Card base — wine canvas tone */}
+                <div className="absolute inset-0 rounded-[2px] bg-[#2c0f14] shadow-[0_34px_60px_-30px_rgba(14,5,7,.9)]" />
+
 
                 {/* Decorative Pattern Overlay */}
                 <div className="absolute inset-0 rounded-2xl opacity-10 bg-[radial-gradient(circle_at_30%_20%,white_1px,transparent_1px)] bg-[length:20px_20px]" />
