@@ -1,72 +1,9 @@
-import { LuxuryHeader } from "@/components/LuxuryHeader";
-import { LuxuryHero } from "@/components/LuxuryHero";
-
-import { Premium3DCategorySection } from "@/components/Premium3DCategorySection";
-import { SellerNewArrivals } from "@/components/SellerNewArrivals";
-
-import { HiddenGemsSection } from "@/components/HiddenGemsSection";
-import { CategoryShowcase } from "@/components/CategoryShowcase";
-import { DesignersSpotlight } from "@/components/DesignersSpotlight";
-
-import { LuxuryTrustBadges } from "@/components/LuxuryTrustBadges";
-import { LuxuryBrands } from "@/components/LuxuryBrands";
-import { LuxuryGiftCard } from "@/components/LuxuryGiftCard";
-import { LuxuryStoreLocator } from "@/components/LuxuryStoreLocator";
-import { LuxuryFooter } from "@/components/LuxuryFooter";
-import { useLenis } from "@/hooks/useLenis";
-import { MouseEvent, useRef } from "react";
+import { OGURA_EDITORIAL_HOMEPAGE_ENABLED } from "@/config/homepage";
+import OguraEditorialHomepage from "@/components/editorial/OguraEditorialHomepage";
+import IndexLegacy from "./IndexLegacy";
 
 const Index = () => {
-  useLenis();
-  const museumRef = useRef<HTMLDivElement>(null);
-
-  const onMuseumMove = (e: MouseEvent<HTMLDivElement>) => {
-    const el = museumRef.current;
-    if (!el) return;
-    const r = el.getBoundingClientRect();
-    el.style.setProperty("--mx", `${((e.clientX - r.left) / r.width) * 100}%`);
-    el.style.setProperty("--my", `${((e.clientY - r.top) / r.height) * 100}%`);
-  };
-
-  return (
-    <div className="min-h-screen bg-background">
-      <LuxuryHeader />
-      <main>
-        <LuxuryHero />
-
-        <Premium3DCategorySection />
-
-        <SellerNewArrivals />
-
-
-        {/* ============================================================
-            MUSEUM BAND — Atelier of Light
-            Continuous cinematic atmosphere from Hidden Gems → Stores.
-            ============================================================ */}
-        <div
-          ref={museumRef}
-          onMouseMove={onMuseumMove}
-          className="museum-surface relative isolate"
-        >
-          <div className="museum-gold-glow" aria-hidden />
-          <div className="museum-grain-strong" aria-hidden />
-          <div className="museum-vignette-strong" aria-hidden />
-
-          <div className="relative z-10">
-            <HiddenGemsSection />
-            <CategoryShowcase />
-            <DesignersSpotlight />
-            
-            <LuxuryTrustBadges />
-            <LuxuryBrands />
-            <LuxuryGiftCard />
-            <LuxuryStoreLocator />
-          </div>
-        </div>
-      </main>
-      <LuxuryFooter />
-    </div>
-  );
+  return OGURA_EDITORIAL_HOMEPAGE_ENABLED ? <OguraEditorialHomepage /> : <IndexLegacy />;
 };
 
 export default Index;
