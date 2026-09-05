@@ -22,15 +22,14 @@ export const Premium3DCategorySection = () => {
   }, []);
 
   return (
-    <section className="py-12 md:py-16 lg:py-20 bg-background overflow-hidden">
-      <div className="container mx-auto px-4 mb-8">
-        <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground text-center">
-          Shop by Category
+    <section id="shop" className="overflow-hidden py-12 md:py-16 lg:py-20">
+      <div className="container mx-auto mb-8 px-4">
+        <div className="wine-eyebrow mb-4 text-[#AFA7A2]">Curated departments</div>
+        <h2 className="wine-serif text-[clamp(30px,5vw,46px)] leading-[1.05] text-[#F4EFE8]">
+          Shop by <em className="italic">category</em>
         </h2>
-        <p className="text-muted-foreground text-center mt-2 text-sm md:text-base">
-          Explore our curated collections
-        </p>
       </div>
+
 
       {/* Mobile: 2x3 Grid | Tablet/Desktop: Horizontal Scroll */}
       <div
@@ -58,8 +57,9 @@ export const Premium3DCategorySection = () => {
                   perspective: "1000px",
                 }}
               >
-                {/* Card Background with Festive Red Gradient */}
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-[#6B1C23] via-[#8B2D3B] to-[#A3404E] shadow-xl transition-shadow duration-500 group-hover:shadow-2xl group-hover:shadow-red-900/40" />
+                {/* Card base — wine canvas tone */}
+                <div className="absolute inset-0 rounded-[2px] bg-[#2c0f14] shadow-[0_34px_60px_-30px_rgba(14,5,7,.9)]" />
+
 
                 {/* Decorative Pattern Overlay */}
                 <div className="absolute inset-0 rounded-2xl opacity-10 bg-[radial-gradient(circle_at_30%_20%,white_1px,transparent_1px)] bg-[length:20px_20px]" />
