@@ -1071,3 +1071,9 @@ All colors MUST be HSL.
 .wine-kb { animation: ogura-kb 26s ease-in-out infinite alternate; }
 @keyframes ogura-play { from { width: 0%; } to { width: 100%; } }
 .wine-play { animation: ogura-play 84s linear infinite; }
+
+/* Wine canvas readability: type on the wine surface reads cream */
+.wine-canvas main h2:not(.museum-display),
+.wine-canvas main h3 { color: #F4EFE8; }
+.wine-canvas main .text-foreground { color: #F4EFE8; }
+.wine-canvas main .text-muted-foreground { color: #AFA7A2; }
