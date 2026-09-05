@@ -227,17 +227,23 @@ const EditorialHeader = () => {
 /* ------------------------------------------------------------------ */
 
 const EditorialHero = () => (
-  <section className="relative w-full h-[560px] md:h-[720px] xl:h-[840px] overflow-hidden" style={{ background: "var(--og-bg)" }}>
+  <section
+    className="relative w-full h-[68vh] min-h-[520px] md:h-[80vh] md:min-h-[640px] xl:h-[88vh] xl:min-h-[760px] overflow-hidden"
+    style={{ background: "var(--og-bg)" }}
+  >
     <video
       autoPlay
       muted
       loop
       playsInline
       preload="auto"
+      disablePictureInPicture
       className="absolute inset-0 w-full h-full object-cover"
       style={{ background: "var(--og-bg)" }}
-      src={HERO_VIDEO}
-    />
+    >
+      <source src={HERO_VIDEO} type="video/mp4" />
+    </video>
+
     <div className="og-overlay-hero-left" aria-hidden />
     <div className="og-overlay-hero-bottom" aria-hidden />
 
