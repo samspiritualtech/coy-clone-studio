@@ -23,6 +23,11 @@ import sareeSociety from "@/assets/saree-society.jpg";
 import instaLoved from "@/assets/insta-loved.jpg";
 import footwearHero from "@/assets/footwear-hero.jpg";
 import bagsHero from "@/assets/bags-hero.jpg";
+import vineArt from "@/assets/editorial-art/art-01.svg.asset.json";
+import floralArt from "@/assets/editorial-art/art-03.svg.asset.json";
+import bloomArt from "@/assets/editorial-art/art-07.svg.asset.json";
+import threadArt from "@/assets/editorial-art/art-09.svg.asset.json";
+import leafArt from "@/assets/editorial-art/art-10.svg.asset.json";
 
 import "./editorial-homepage.css";
 
@@ -71,6 +76,14 @@ type RailProduct = {
 const inr = (n: number) =>
   `₹${Number(n || 0).toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
 
+const EditorialArt = ({
+  src,
+  position,
+}: {
+  src: string;
+  position: "hero-left" | "hero-right" | "left" | "right" | "center";
+}) => <img src={src} alt="" aria-hidden className={`og-art og-art-${position}`} />;
+
 /* ------------------------------------------------------------------ */
 /* Header                                                              */
 /* ------------------------------------------------------------------ */
@@ -92,7 +105,7 @@ const EditorialHeader = () => {
     <header
       className="fixed top-0 left-0 right-0 z-50 transition-colors duration-300"
       style={{
-        background: scrolled ? "#09090BF2" : "transparent",
+        background: scrolled ? "var(--og-header)" : "transparent",
         backdropFilter: scrolled ? "blur(10px)" : undefined,
         borderBottom: scrolled ? "1px solid var(--og-border)" : "1px solid transparent",
       }}
@@ -145,7 +158,7 @@ const EditorialHeader = () => {
               {totalItems > 0 && (
                 <span
                   className="absolute top-1 right-0 h-4 min-w-4 px-1 rounded-full text-[10px] flex items-center justify-center"
-                  style={{ background: "var(--og-pink)", color: "#fff" }}
+                  style={{ background: "var(--og-cream)", color: "var(--og-wine-deep)" }}
                 >
                   {totalItems}
                 </span>
@@ -187,7 +200,7 @@ const EditorialHeader = () => {
                 {totalItems > 0 && (
                   <span
                     className="absolute top-1 right-0 h-4 min-w-4 px-1 rounded-full text-[10px] flex items-center justify-center"
-                    style={{ background: "var(--og-pink)", color: "#fff" }}
+                    style={{ background: "var(--og-cream)", color: "var(--og-wine-deep)" }}
                   >
                     {totalItems}
                   </span>
@@ -246,13 +259,15 @@ const EditorialHero = () => (
 
     <div className="og-overlay-hero-left" aria-hidden />
     <div className="og-overlay-hero-bottom" aria-hidden />
+    <EditorialArt src={vineArt.url} position="hero-left" />
+    <EditorialArt src={floralArt.url} position="hero-right" />
 
     <div className="absolute inset-0 og-wrap">
       <div className="absolute left-[6%] top-[58%] -translate-y-1/2 max-w-[640px] pr-6">
         <p className="og-eyebrow mb-5" style={{ color: "var(--og-text-muted)" }}>
           OGURA FASHION — CRAFTED FOR MODERN ELEGANCE.
         </p>
-        <h1 className="og-h1 mb-8">Fashion that defines you.</h1>
+        <h1 className="og-h1 mb-8">Fashion that <em>defines</em> you.</h1>
         <Link to="/collections" className="og-btn og-btn-primary">
           Designer Collections
         </Link>
@@ -638,7 +653,8 @@ const OguraEditorialHomepage = () => {
         <EditorialHero />
 
         {/* Explore OGURA — six tiles, each existing category video once */}
-        <section className="og-section og-wrap og-page">
+        <section className="og-section og-wrap og-page og-art-stage">
+          <EditorialArt src={bloomArt.url} position="right" />
           <SectionHead
             eyebrow="Where to Begin"
             title="Explore OGURA"
@@ -654,7 +670,8 @@ const OguraEditorialHomepage = () => {
         <NewArrivalsRail />
 
         {/* Distinctive by Design */}
-        <section className="og-section og-wrap og-page">
+        <section className="og-section og-wrap og-page og-art-stage">
+          <EditorialArt src={leafArt.url} position="left" />
           <SectionHead
             eyebrow="Silhouettes"
             title="Distinctive by Design"
@@ -668,7 +685,10 @@ const OguraEditorialHomepage = () => {
           </div>
         </section>
 
-        <DesignersToKnow />
+        <div className="og-art-stage">
+          <EditorialArt src={threadArt.url} position="center" />
+          <DesignersToKnow />
+        </div>
 
         <Campaign
           eyebrow="New Talent"
