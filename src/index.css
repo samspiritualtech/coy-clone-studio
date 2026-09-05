@@ -1029,3 +1029,45 @@ All colors MUST be HSL.
   .waitlist-page .wl-field-hint { display: block; margin-left: 0; margin-top: 0.15rem; }
   .waitlist-page .wl-form-card { border-radius: 1.25rem; }
 }
+
+/* ============================================================
+   WINE CANVAS — OGURA wine redesign (threadwork art system)
+   Artwork lives behind content; video always sits in front.
+   ============================================================ */
+.wine-canvas {
+  background:
+    radial-gradient(1300px 900px at 10% 1%, #6d2634 0%, rgba(109, 38, 52, 0) 58%),
+    radial-gradient(1000px 760px at 92% 30%, #5e1e2a 0%, rgba(94, 30, 42, 0) 64%),
+    radial-gradient(1200px 900px at 16% 58%, #4b1621 0%, rgba(75, 22, 33, 0) 60%),
+    radial-gradient(900px 700px at 84% 82%, #3f131c 0%, rgba(63, 19, 28, 0) 62%),
+    linear-gradient(180deg, #3d1219 0%, #541a25 22%, #421420 46%, #2c0f14 72%, #1c0b0f 100%);
+}
+.wine-serif { font-family: 'Bodoni Moda', Georgia, serif; }
+.wine-body { font-family: 'Jost', sans-serif; font-weight: 300; letter-spacing: .02em; }
+.wine-eyebrow {
+  font-family: 'Jost', sans-serif;
+  font-weight: 400;
+  font-size: 10.5px;
+  line-height: 1;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: #C8BEB6;
+}
+.wine-btn-solid {
+  display: inline-flex; align-items: center; gap: 14px;
+  padding: 16px 30px; background: #F4EFE8; color: #3B1219; border-radius: 2px;
+  font: 400 11.5px/1 'Jost', sans-serif; letter-spacing: .24em; text-transform: uppercase;
+  transition: gap .4s ease, background .4s ease;
+}
+.wine-btn-solid:hover { background: #fff; gap: 20px; }
+.wine-btn-ghost {
+  display: inline-flex; align-items: center;
+  padding: 16px 26px; border: 1px solid rgba(244,239,232,.3); color: #F4EFE8; border-radius: 2px;
+  font: 300 11.5px/1 'Jost', sans-serif; letter-spacing: .24em; text-transform: uppercase;
+  transition: border-color .4s ease, background .4s ease;
+}
+.wine-btn-ghost:hover { border-color: rgba(244,239,232,.7); background: rgba(244,239,232,.06); }
+@keyframes ogura-kb { from { transform: scale(1); } to { transform: scale(1.08); } }
+.wine-kb { animation: ogura-kb 26s ease-in-out infinite alternate; }
+@keyframes ogura-play { from { width: 0%; } to { width: 100%; } }
+.wine-play { animation: ogura-play 84s linear infinite; }
