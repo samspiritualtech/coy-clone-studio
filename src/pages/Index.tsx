@@ -1,5 +1,7 @@
 import { LuxuryHeader } from "@/components/LuxuryHeader";
 import { LuxuryHero } from "@/components/LuxuryHero";
+import { WineCanvas } from "@/components/wine/WineCanvas";
+
 
 import { Premium3DCategorySection } from "@/components/Premium3DCategorySection";
 import { SellerNewArrivals } from "@/components/SellerNewArrivals";
