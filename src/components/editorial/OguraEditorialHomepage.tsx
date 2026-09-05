@@ -227,17 +227,23 @@ const EditorialHeader = () => {
 /* ------------------------------------------------------------------ */
 
 const EditorialHero = () => (
-  <section className="relative w-full h-[560px] md:h-[720px] xl:h-[840px] overflow-hidden" style={{ background: "var(--og-bg)" }}>
+  <section
+    className="relative w-full h-[68vh] min-h-[520px] md:h-[80vh] md:min-h-[640px] xl:h-[88vh] xl:min-h-[760px] overflow-hidden"
+    style={{ background: "var(--og-bg)" }}
+  >
     <video
       autoPlay
       muted
       loop
       playsInline
       preload="auto"
+      disablePictureInPicture
       className="absolute inset-0 w-full h-full object-cover"
       style={{ background: "var(--og-bg)" }}
-      src={HERO_VIDEO}
-    />
+    >
+      <source src={HERO_VIDEO} type="video/mp4" />
+    </video>
+
     <div className="og-overlay-hero-left" aria-hidden />
     <div className="og-overlay-hero-bottom" aria-hidden />
 
@@ -298,26 +304,56 @@ const VideoTile = ({
   src: string;
   to: string;
   ratio?: string;
-}) => (
-  <Link to={to} className="og-group block">
-    <div className={`og-media ${ratio}`}>
-      <video
-        className="og-hover-zoom"
-        src={src}
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="metadata"
-        tabIndex={-1}
-      />
-      <div className="og-overlay-tile-bottom" aria-hidden />
-      <span className="absolute left-5 bottom-5 text-[12px] tracking-[0.16em] uppercase" style={{ color: "var(--og-text)" }}>
-        {label}
-      </span>
-    </div>
-  </Link>
-);
+}) => {
+  const ref = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            el.play().catch(() => undefined);
+          } else {
+            el.pause();
+          }
+        });
+      },
+      { rootMargin: "200px" }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  return (
+    <Link to={to} className="og-group block">
+      <div className={`og-media ${ratio}`}>
+        <video
+          ref={ref}
+          className="og-hover-zoom"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          disablePictureInPicture
+          tabIndex={-1}
+        >
+          <source src={src} type="video/mp4" />
+        </video>
+        <div className="og-overlay-tile-bottom" aria-hidden />
+        <span
+          className="absolute left-4 md:left-5 bottom-4 md:bottom-5 text-[11px] md:text-[12px] tracking-[0.16em] uppercase"
+          style={{ color: "var(--og-text)" }}
+        >
+          {label}
+        </span>
+      </div>
+    </Link>
+  );
+};
+
 
 const ImageTile = ({
   label,
