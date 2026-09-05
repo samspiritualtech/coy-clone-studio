@@ -1077,3 +1077,6 @@ All colors MUST be HSL.
 .wine-canvas main h3 { color: #F4EFE8; }
 .wine-canvas main .text-foreground { color: #F4EFE8; }
 .wine-canvas main .text-muted-foreground { color: #AFA7A2; }
+
+/* Museum band inherits the wine canvas instead of its own dark surface */
+.wine-canvas .museum-surface { background: transparent; }
