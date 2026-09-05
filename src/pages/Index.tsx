@@ -29,44 +29,46 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <LuxuryHeader />
-      <main>
-        <LuxuryHero />
+    <div className="min-h-screen bg-[#1C0B0F]">
+      <WineCanvas>
+        <LuxuryHeader />
+        <main>
+          <LuxuryHero />
 
-        <Premium3DCategorySection />
+          <Premium3DCategorySection />
 
-        <SellerNewArrivals />
+          <SellerNewArrivals />
 
+          {/* ============================================================
+              MUSEUM BAND — Atelier of Light
+              Continuous cinematic atmosphere from Hidden Gems → Stores.
+              ============================================================ */}
+          <div
+            ref={museumRef}
+            onMouseMove={onMuseumMove}
+            className="museum-surface relative isolate"
+          >
+            <div className="museum-gold-glow" aria-hidden />
+            <div className="museum-grain-strong" aria-hidden />
+            <div className="museum-vignette-strong" aria-hidden />
 
-        {/* ============================================================
-            MUSEUM BAND — Atelier of Light
-            Continuous cinematic atmosphere from Hidden Gems → Stores.
-            ============================================================ */}
-        <div
-          ref={museumRef}
-          onMouseMove={onMuseumMove}
-          className="museum-surface relative isolate"
-        >
-          <div className="museum-gold-glow" aria-hidden />
-          <div className="museum-grain-strong" aria-hidden />
-          <div className="museum-vignette-strong" aria-hidden />
+            <div className="relative z-10">
+              <HiddenGemsSection />
+              <CategoryShowcase />
+              <DesignersSpotlight />
 
-          <div className="relative z-10">
-            <HiddenGemsSection />
-            <CategoryShowcase />
-            <DesignersSpotlight />
-            
-            <LuxuryTrustBadges />
-            <LuxuryBrands />
-            <LuxuryGiftCard />
-            <LuxuryStoreLocator />
+              <LuxuryTrustBadges />
+              <LuxuryBrands />
+              <LuxuryGiftCard />
+              <LuxuryStoreLocator />
+            </div>
           </div>
-        </div>
-      </main>
-      <LuxuryFooter />
+        </main>
+        <LuxuryFooter />
+      </WineCanvas>
     </div>
   );
 };
+
 
 export default Index;
