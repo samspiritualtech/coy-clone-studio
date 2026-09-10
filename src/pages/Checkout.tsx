@@ -127,7 +127,7 @@ export default function Checkout() {
     setDiscountCode("");
   };
 
-  const deliveryFee = 0;
+  const deliveryFee = subtotal >= 999 ? 0 : 99;
   const finalTotal = total + deliveryFee - discountAmount;
 
   const handlePayment = async () => {
@@ -403,7 +403,13 @@ export default function Checkout() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Delivery</span>
-                  <span className="text-green-600">FREE</span>
+                  <span className={deliveryFee === 0 ? 'text-green-600' : ''}>
+                    {deliveryFee === 0 ? 'FREE' : `₹${deliveryFee}`}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Tax (18% GST)</span>
+                  <span>₹{tax.toLocaleString()}</span>
                 </div>
                 {appliedDiscount && (
                   <div className="flex justify-between text-green-600">
@@ -421,7 +427,11 @@ export default function Checkout() {
                 </div>
               </div>
 
-
+              {subtotal < 999 && (
+                <p className="text-xs text-muted-foreground mt-3">
+                  Add ₹{(999 - subtotal).toLocaleString()} more for FREE delivery!
+                </p>
+              )}
 
               <Button 
                 className="w-full mt-6" 

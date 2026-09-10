@@ -64,8 +64,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
-  const tax = 0; // GST disabled during testing
-  const total = subtotal;
+  const tax = subtotal * 0.18; // 18% GST
+  const total = subtotal + tax;
 
   return (
     <CartContext.Provider value={{

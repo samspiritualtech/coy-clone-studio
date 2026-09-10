@@ -1,7 +1,5 @@
 import { LuxuryHeader } from "@/components/LuxuryHeader";
 import { LuxuryHero } from "@/components/LuxuryHero";
-import { WineCanvas } from "@/components/wine/WineCanvas";
-
 
 import { Premium3DCategorySection } from "@/components/Premium3DCategorySection";
 import { SellerNewArrivals } from "@/components/SellerNewArrivals";
@@ -31,46 +29,44 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#1C0B0F]">
-      <WineCanvas>
-        <LuxuryHeader />
-        <main>
-          <LuxuryHero />
+    <div className="min-h-screen bg-background">
+      <LuxuryHeader />
+      <main>
+        <LuxuryHero />
 
-          <Premium3DCategorySection />
+        <Premium3DCategorySection />
 
-          <SellerNewArrivals />
+        <SellerNewArrivals />
 
-          {/* ============================================================
-              MUSEUM BAND — Atelier of Light
-              Continuous cinematic atmosphere from Hidden Gems → Stores.
-              ============================================================ */}
-          <div
-            ref={museumRef}
-            onMouseMove={onMuseumMove}
-            className="museum-surface relative isolate"
-          >
-            <div className="museum-gold-glow" aria-hidden />
-            <div className="museum-grain-strong" aria-hidden />
-            <div className="museum-vignette-strong" aria-hidden />
 
-            <div className="relative z-10">
-              <HiddenGemsSection />
-              <CategoryShowcase />
-              <DesignersSpotlight />
+        {/* ============================================================
+            MUSEUM BAND — Atelier of Light
+            Continuous cinematic atmosphere from Hidden Gems → Stores.
+            ============================================================ */}
+        <div
+          ref={museumRef}
+          onMouseMove={onMuseumMove}
+          className="museum-surface relative isolate"
+        >
+          <div className="museum-gold-glow" aria-hidden />
+          <div className="museum-grain-strong" aria-hidden />
+          <div className="museum-vignette-strong" aria-hidden />
 
-              <LuxuryTrustBadges />
-              <LuxuryBrands />
-              <LuxuryGiftCard />
-              <LuxuryStoreLocator />
-            </div>
+          <div className="relative z-10">
+            <HiddenGemsSection />
+            <CategoryShowcase />
+            <DesignersSpotlight />
+            
+            <LuxuryTrustBadges />
+            <LuxuryBrands />
+            <LuxuryGiftCard />
+            <LuxuryStoreLocator />
           </div>
-        </main>
-        <LuxuryFooter />
-      </WineCanvas>
+        </div>
+      </main>
+      <LuxuryFooter />
     </div>
   );
 };
-
 
 export default Index;

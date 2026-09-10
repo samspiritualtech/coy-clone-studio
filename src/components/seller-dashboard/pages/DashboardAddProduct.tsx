@@ -27,6 +27,7 @@ const colorOptions = [
 const occasionOptions = ["Wedding", "Festive", "Party", "Casual", "Work", "Brunch", "Date Night", "Vacation"];
 const styleOptions = ["Boho", "Minimal", "Ethnic", "Western", "Indo-Western", "Streetwear", "Classic", "Contemporary"];
 
+const DEV_SELLER_ID = "07edb482-2c8e-4711-8cda-d2f3a87b790a";
 
 export const DashboardAddProduct = ({ onBack }: Props) => {
   const { user } = useAuth();
@@ -49,12 +50,11 @@ export const DashboardAddProduct = ({ onBack }: Props) => {
 
   useEffect(() => {
     if (!user?.id) {
-      setSellerId(null);
-      setLoading(false);
+      setSellerId(DEV_SELLER_ID);
       return;
     }
     supabase.from("sellers").select("id").eq("user_id", user.id).maybeSingle()
-      .then(({ data }) => setSellerId(data?.id ?? null));
+      .then(({ data }) => setSellerId(data?.id || DEV_SELLER_ID));
   }, [user?.id]);
 
   const toggleSize = (s: string) => setSizes(p => p.includes(s) ? p.filter(x => x !== s) : [...p, s]);

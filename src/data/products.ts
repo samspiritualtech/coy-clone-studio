@@ -602,10 +602,8 @@ const generateBags = (): Product[] => {
   return bags;
 };
 
-// TEST FREEZE: set to false to bring back all 700 static SKUs (fully reversible)
-export const SHOP_ALL_FROZEN = true;
-
-const staticCatalog: Product[] = [
+// Combine all products
+export const products: Product[] = [
   ...generateDresses(),
   ...generateTops(),
   ...generateBottoms(),
@@ -614,6 +612,3 @@ const staticCatalog: Product[] = [
   ...generateAccessories(),
   ...generateBags()
 ];
-
-// Combine all products
-export const products: Product[] = SHOP_ALL_FROZEN ? [] : staticCatalog;

@@ -25,12 +25,11 @@ interface DBProduct {
 const statusColor: Record<string, string> = {
   live: "bg-green-100 text-green-800",
   pending: "bg-yellow-100 text-yellow-800",
-  submitted: "bg-yellow-100 text-yellow-800",
   draft: "bg-muted text-muted-foreground",
   rejected: "bg-red-100 text-red-800",
-  disabled: "bg-muted text-muted-foreground",
 };
 
+const DEV_SELLER_ID = "07edb482-2c8e-4711-8cda-d2f3a87b790a";
 
 export const DashboardProducts = ({ onAddProduct, refreshKey }: Props) => {
   const { user } = useAuth();
@@ -40,12 +39,11 @@ export const DashboardProducts = ({ onAddProduct, refreshKey }: Props) => {
 
   useEffect(() => {
     if (!user?.id) {
-      setSellerId(null);
-      setLoading(false);
+      setSellerId(DEV_SELLER_ID);
       return;
     }
     supabase.from("sellers").select("id").eq("user_id", user.id).maybeSingle()
-      .then(({ data }) => setSellerId(data?.id ?? null));
+      .then(({ data }) => setSellerId(data?.id || DEV_SELLER_ID));
   }, [user?.id]);
 
   useEffect(() => {
